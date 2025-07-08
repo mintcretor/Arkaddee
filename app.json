@@ -1,0 +1,109 @@
+{
+  "expo": {
+    "name": "arkaddee",
+    "slug": "arkaddee",
+    "version": "1.5.7",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "arkaddee",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "ios": {
+      "buildNumber": "1",
+      "usesAppleSignIn": true,
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "แอปต้องการใช้ตำแหน่งของคุณเพื่อแสดงข้อมูลคุณภาพอากาศและค้นหาเครือข่าย WiFi ในพื้นที่ของคุณ.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "แอปนี้ใช้กล้องเพื่อให้คุณถ่ายรูปสถานที่ต่างๆ เมื่อทำการรีวิวคุณภาพอากาศ เช่น ถ่ายรูปสวนสาธารณะ ห้างสรรค์สินค้า หรือพื้นที่เปิดต่างๆ เพื่อแชร์ประสบการณ์เกี่ยวกับคุณภาพอากาศในสถานที่นั้นๆ ให้ผู้ใช้คนอื่นได้รับทราบ",
+        "NSPhotoLibraryUsageDescription": "แอปนี้เข้าถึงคลังรูปภาพเพื่อให้คุณเลือกรูปโปรไฟล์และรูปสถานที่ที่มีอยู่แล้ว เช่น อัปโหลดรูปโปรไฟล์เพื่อแสดงตัวตนของผู้รีวิว หรือเลือกรูปสถานที่จากแกลเลอรี่เพื่อประกอบการรีวิวคุณภาพอากาศในพื้นที่นั้นๆ",
+        "NSAppleEventsUsageDescription": "This app uses Apple Sign-In to provide secure authentication using your Apple ID."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyDcVcJlwBUb9eGxORjEMsBBumgZGrpD6WE"
+      },
+      "bundleIdentifier": "com.appmatrixdevelopment.arkaddee",
+      "entitlements": {
+        "com.apple.developer.applesignin": [
+          "Default"
+        ]
+      }
+    },
+    "build": {
+      "production": {
+        "ios": {
+          "image": "macos-sonoma-14.6-xcode-16.0"
+        }
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logoapp.png",
+        "backgroundColor": "#000000"
+      },
+      "jsEngine": "hermes",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDcVcJlwBUb9eGxORjEMsBBumgZGrpD6WE"
+        }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "blockedPermissions": [],
+      "manifestConfiguration": {
+        "features": {
+          "android.hardware.location": "required",
+          "android.hardware.location.gps": false,
+          "android.hardware.location.network": false
+        }
+      },
+      "package": "com.appmatrixdevelopment.arkaddee",
+      "versionCode": 1
+    },
+    "plugins": [
+      "expo-router",
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "แอปนี้เข้าถึงคลังรูปภาพเพื่อให้คุณเลือกรูปโปรไฟล์และรูปสถานที่ที่มีอยู่แล้ว เช่น อัปโหลดรูปโปรไฟล์เพื่อแสดงตัวตนของผู้รีวิว หรือเลือกรูปสถานที่จากแกลเลอรี่เพื่อประกอบการรีวิวคุณภาพอากาศในพื้นที่นั้นๆ",
+          "cameraPermission": "แอปนี้ใช้กล้องเพื่อให้คุณถ่ายรูปสถานที่ต่างๆ เมื่อทำการรีวิวคุณภาพอากาศ เช่น ถ่ายรูปสวนสาธารณะ ห้างสรรค์สินค้า หรือพื้นที่เปิดต่างๆ เพื่อแชร์ประสบการณ์เกี่ยวกับคุณภาพอากาศในสถานที่นั้นๆ ให้ผู้ใช้คนอื่นได้รับทราบ"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "react-native-wifi-reborn",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "แอปต้องการใช้ตำแหน่งของคุณเพื่อแสดงข้อมูลคุณภาพอากาศในพื้นที่ของคุณ",
+          "locationWhenInUsePermission": "แอปต้องการใช้ตำแหน่งของคุณเพื่อแสดงข้อมูลคุณภาพอากาศและค้นหาเครือข่าย WiFi ในพื้นที่ของคุณ",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ],
+      "expo-localization"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2b95de98-c07e-4643-a371-cbd6caef5bac"
+      }
+    }
+  }
+}
