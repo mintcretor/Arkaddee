@@ -18,7 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import * as Application from 'expo-application';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
+//import { makeRedirectUri } from 'expo-auth-session';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import LanguageSelector from '@/components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
@@ -26,11 +26,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Initialize WebBrowser for Google Auth
 WebBrowser.maybeCompleteAuthSession();
-
-const redirectUri = __DEV__
-    ? makeRedirectUri({ useProxy: true }) 
-    : makeRedirectUri({ scheme: 'arkaddee', path: 'auth' }); 
-
 interface SocialButtonProps {
     icon: React.ReactNode;
     text: string;
@@ -79,8 +74,6 @@ const LoginScreen: React.FC = () => {
         iosClientId: '975495478878-ufhbel65ud1876t4te1t0c5g7ls8ide5.apps.googleusercontent.com',
         expoClientId: '975495478878-lttle2i1tnsjlml5hed680g5o6c44kho.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
-        redirectUri: redirectUri, // ใช้ตัวแปรนี้
-        responseType: Google.ResponseType?.IdToken,
         additionalParameters: {
             prompt: 'select_account',
         },
