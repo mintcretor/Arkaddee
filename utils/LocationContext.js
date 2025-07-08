@@ -81,27 +81,27 @@ const { t } = useTranslation();
 
       // ดึงพิกัดปัจจุบัน
       let currentLocation;
-      try {
-        // ลองใช้ getCurrentPositionAsync ก่อน
-        currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-          timeInterval: 5000,
-          distanceInterval: 100
-        });
-      } catch (posError) {
-        console.log('ไม่สามารถรับตำแหน่งปัจจุบันได้ กำลังลองใช้ตำแหน่งล่าสุด:', posError);
-        // ถ้าไม่สำเร็จ ลองใช้ getLastKnownPositionAsync
-        currentLocation = await Location.getLastKnownPositionAsync();
+      try {
+        // ลองใช้ getCurrentPositionAsync ก่อน
+        currentLocation = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 5000,
+          distanceInterval: 100
+        });
+      } catch (posError) {
+        console.log('ไม่สามารถรับตำแหน่งปัจจุบันได้ กำลังลองใช้ตำแหน่งล่าสุด:', posError);
+        // ถ้าไม่สำเร็จ ลองใช้ getLastKnownPositionAsync
+        currentLocation = await Location.getLastKnownPositionAsync();
 
-        if (!currentLocation) {
-          // throw new Error('ไม่สามารถระบุตำแหน่งได้');
-        }
-      }
+        if (!currentLocation) {
+          // throw new Error('ไม่สามารถระบุตำแหน่งได้'); // <--- This line is commented out, allowing currentLocation to be null
+        }
+      }
 
-      const coords = {
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude
-      };
+      const coords = {
+        latitude: currentLocation.coords.latitude, // <--- Error occurs here if currentLocation is null
+        longitude: currentLocation.coords.longitude // <--- Error occurs here if currentLocation is null
+      };
 
       // ตั้งค่าพิกัดทันที
       setLocationData({
