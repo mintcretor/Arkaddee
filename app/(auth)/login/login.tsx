@@ -7,7 +7,7 @@ import {
     StyleSheet,
     Image,
     ImageSourcePropType,
-    Alert,
+    Alert, // Keeping Alert for React Native
     Platform,
     ActivityIndicator,
     ScrollView,
@@ -27,14 +27,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Initialize WebBrowser for Google Auth
 WebBrowser.maybeCompleteAuthSession();
 
-// สร้าง redirect URI ที่ถูกต้อง
-const redirectUri = makeRedirectUri({
-    scheme: 'arkaddee', // ต้องตรงกับ scheme ใน app.json
-    path: 'auth',
-    preferLocalhost: true, // สำหรับการพัฒนา
-});
-
-console.log('Redirect URI:', redirectUri);
+const redirectUri = __DEV__
+    ? makeRedirectUri({ useProxy: true }) 
+    : makeRedirectUri({ scheme: 'arkaddee', path: 'auth' }); 
 
 interface SocialButtonProps {
     icon: React.ReactNode;
@@ -80,12 +75,12 @@ const LoginScreen: React.FC = () => {
 
     // Initialize Google Auth with proper configuration
     const [request, response, promptAsync] = Google.useAuthRequest({
-        androidClientId: '186100394059-4v68llkokfo60bjq1b18mm8c0dri3jqv.apps.googleusercontent.com',
-        iosClientId: '186100394059-ha9t0oiso141pluirrcq7k650b0r51j3.apps.googleusercontent.com',
-        expoClientId: '186100394059-v02fi262kaurub5597stnhrn7vqmovc5.apps.googleusercontent.com',
+        androidClientId: '975495478878-f7jeoh4sd97hgokbve2kfl00477gdauf.apps.googleusercontent.com',
+        iosClientId: '975495478878-ufhbel65ud1876t4te1t0c5g7ls8ide5.apps.googleusercontent.com',
+        expoClientId: '975495478878-lttle2i1tnsjlml5hed680g5o6c44kho.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
-        redirectUri: redirectUri,
-        responseType: Google.ResponseType.IdToken,
+        redirectUri: redirectUri, // ใช้ตัวแปรนี้
+        responseType: Google.ResponseType?.IdToken,
         additionalParameters: {
             prompt: 'select_account',
         },
@@ -94,7 +89,7 @@ const LoginScreen: React.FC = () => {
     useEffect(() => {
         getDeviceId();
         checkAppleAuthAvailable();
-        
+
         // Debug information
         console.log('Google OAuth Request ready:', !!request);
         console.log('Using redirect URI:', redirectUri);
@@ -102,10 +97,11 @@ const LoginScreen: React.FC = () => {
 
     // Handle Google response
     useEffect(() => {
+        // Only proceed if response is not null/undefined
         if (response) {
-            handleGoogleResponse();
+            handleGoogleResponse(response);
         }
-    }, [response]);
+    }, [response]); // Dependency array: run this effect when 'response' object changes
 
     const checkAppleAuthAvailable = async () => {
         if (Platform.OS === 'ios') {
@@ -114,31 +110,45 @@ const LoginScreen: React.FC = () => {
         }
     };
 
-    const handleGoogleResponse = async () => {
+    // Modified to accept response as an argument for clarity and immediate processing
+    const handleGoogleResponse = async (googleResponse: typeof response) => {
+        // Ensure loading is off initially when a response is received, then re-show if needed for backend call
         setLoadingVisible(false);
-        
-        if (!response) {
+
+        if (!googleResponse) {
             return;
         }
 
-        console.log('Google Response Type:', response.type);
-        console.log('Google Response:', response);
+        console.log('Google Response Type:', googleResponse.type);
+        console.log('Google Response:', googleResponse);
 
-        if (response.type === 'success') {
+        if (googleResponse.type === 'success') {
             try {
-                setLoadingVisible(true);
+                let idToken: string | undefined | null = null;
 
-                if (!response.params?.id_token) {
-                    console.error('No id_token received from Google');
+                // Prioritize idToken from the authentication object if available
+                if (googleResponse.authentication?.idToken) {
+                    idToken = googleResponse.authentication.idToken;
+                    console.log('ID Token retrieved from authentication object.');
+                } else if (googleResponse.params?.id_token) {
+                    // Fallback to id_token from params
+                    idToken = googleResponse.params.id_token;
+                    console.log('ID Token retrieved from params object.');
+                }
+
+                if (!idToken) {
+                    console.error('No id_token received from Google in either authentication or params.');
                     Alert.alert('Error', 'Authentication failed. No token received.');
                     return;
                 }
 
-                console.log('ID Token received:', response.params.id_token.substring(0, 50) + '...');
+                console.log('ID Token received:', idToken.substring(0, 50) + '...');
+
+                setLoadingVisible(true); // Show loading for backend call
 
                 const authResponse = await signInWithSocial({
                     provider: 'google',
-                    token: response.params.id_token,
+                    token: idToken,
                     manualNavigation: true
                 });
 
@@ -155,11 +165,13 @@ const LoginScreen: React.FC = () => {
             } finally {
                 setLoadingVisible(false);
             }
-        } else if (response.type === 'error') {
-            console.error('Google auth error:', response.error);
-            Alert.alert('Error', `Google authentication failed: ${response.error?.message || 'Unknown error'}`);
-        } else if (response.type === 'dismiss' || response.type === 'cancel') {
+        } else if (googleResponse.type === 'error') {
+            console.error('Google auth error:', googleResponse.error);
+            Alert.alert('Error', `Google authentication failed: ${googleResponse.error?.message || 'Unknown error'}`);
+            setLoadingVisible(false); // Ensure loading is off on error
+        } else if (googleResponse.type === 'dismiss' || googleResponse.type === 'cancel') {
             console.log('Google auth cancelled by user');
+            setLoadingVisible(false); // Ensure loading is off on cancel/dismiss
         }
     };
 
@@ -266,7 +278,7 @@ const LoginScreen: React.FC = () => {
         try {
             console.log('Starting Google auth flow...');
             console.log('Request available:', !!request);
-            
+
             if (!request) {
                 console.error('Google auth request not ready');
                 Alert.alert('Error', 'Google authentication is not ready. Please try again.');
@@ -274,15 +286,15 @@ const LoginScreen: React.FC = () => {
             }
 
             setLoadingVisible(true);
-            
-            // เรียก promptAsync และรอผลลัพธ์
-            const result = await promptAsync({
+
+            // Call promptAsync and wait for the result. The result will then update the 'response' state,
+            // triggering the useEffect and handleGoogleResponse.
+            await promptAsync({
                 showInRecents: false,
                 dismissButtonStyle: 'cancel',
             });
 
-            console.log('promptAsync result:', result);
-
+            // No need to console.log result here, as the useEffect will handle the 'response' state update.
         } catch (error: any) {
             console.error('Google prompt error:', error);
             Alert.alert('Error', `Google login failed: ${error.message}`);

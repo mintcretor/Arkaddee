@@ -2,6 +2,7 @@
   "expo": {
     "name": "arkaddee",
     "slug": "arkaddee",
+    "owner": "mintdokkan",
     "version": "1.5.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -102,7 +103,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "2b95de98-c07e-4643-a371-cbd6caef5bac"
+        "projectId": "24b9abc3-1588-499f-9576-5f8d3a08d67e"
       }
     }
   }
