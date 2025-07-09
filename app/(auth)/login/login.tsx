@@ -644,6 +644,7 @@ const styles = StyleSheet.create({
         height: 50,
         paddingHorizontal: 15,
         fontSize: 16,
+        color:'#000'
     },
     eyeIcon: {
         padding: 10,

@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 15,
+    color:'#000',
     backgroundColor: '#fff',
   },
   errorText: {

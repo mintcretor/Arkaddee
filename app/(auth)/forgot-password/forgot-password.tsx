@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 15,
     backgroundColor: '#fff',
+    color:"#000"
   },
   emailInputContainer: {
     flexDirection: 'row',

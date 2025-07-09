@@ -403,6 +403,7 @@ export default {
     checking_login: "Checking login status...",
     optimizing_for_ipad: "Optimizing for iPad...",
     starting_app: "Starting app...",
+    update_failed:"Update Failed"
   },
   myhome: {
     "primary_device_settings": "Primary Device Settings",

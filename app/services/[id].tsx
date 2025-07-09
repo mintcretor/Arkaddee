@@ -375,7 +375,12 @@ export default function ServiceListingScreen() {
                                                 selectedMarker === place.id && styles.selectedMarker
                                             ]}>
                                                 <View style={styles.markerInner}>
-                                                    <Text>
+                                                    <Text style={pm25Value === '...' ? styles.DisAirQuality :
+                                                    Number(pm25Value) <= 15 ? styles.goodAirQuality :
+                                                        Number(pm25Value) <= 30 ? styles.moderateAirQuality :
+                                                            Number(pm25Value) <= 37.5 ? styles.badAirQuality :
+                                                                Number(pm25Value) <= 75 ? styles.verybadAirQuality :
+                                                                    styles.dangerAirQuality }>
                                                         {typeof pm25Value === 'number' ? Math.floor(pm25Value) : pm25Value}
                                                     </Text>
                                                 </View>
@@ -592,6 +597,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginLeft: 8,
+        color:'#000'
     },
     searchButton: {
         padding: 8,
@@ -649,6 +655,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
+        color:'#000',
         borderColor: 'white',
     },
     markerInner: {
@@ -798,6 +805,7 @@ const styles = StyleSheet.create({
         fontSize: 8,
         fontWeight: 'bold',
         marginTop: -5,
+         color:'#000',
     },
     placeInfo: {
         padding: 12,
@@ -806,6 +814,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         marginBottom: 4,
+        color:'#000',
     },
     ratingRow: {
         flexDirection: 'row',

@@ -386,6 +386,7 @@ export default {
     checking_login: "กำลังตรวจสอบการเข้าสู่ระบบ...",
     optimizing_for_ipad: "กำลังปรับแต่งสำหรับ iPad...",
     starting_app: "กำลังเริ่มต้นแอป...",
+    update_failed:"อัพเดทล้มเหลว"
   },
   myhome: {
     device_deleted_successfully: "ลบอุปกรณ์สำเร็จ",

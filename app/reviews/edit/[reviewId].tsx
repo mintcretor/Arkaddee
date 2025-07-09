@@ -433,6 +433,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         fontSize: 16,
         backgroundColor: '#fff',
+        color:'#000'
     },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     imagePickerSection: {

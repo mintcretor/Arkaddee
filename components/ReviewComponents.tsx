@@ -950,6 +950,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         textAlignVertical: 'top',
         fontSize: 16,
+        color:'#000'
     },
     imagePickerSection: {
         padding: 16,
