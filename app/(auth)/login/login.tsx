@@ -132,7 +132,7 @@ const LoginScreen: React.FC = () => {
         if (!response) {
             return;
         }
-
+        console.log('google',response.params.id_token)
         if (response.type === 'success') {
             try {
                 setLoadingVisible(true); // Ensure loading is visible during processing
