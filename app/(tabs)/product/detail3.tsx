@@ -585,12 +585,6 @@ const styles = StyleSheet.create({
         color: '#666666',
         paddingRight: 10,
     },
-
-    // Touch Panel Styles (Existing)
-    touchPanelImage: {
-        width: '100%',
-        height: 200, // Adjust height as needed
-    },
     bulletPointsContainer: {
         paddingHorizontal: 10,
     },
