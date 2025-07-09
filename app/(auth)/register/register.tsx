@@ -213,7 +213,7 @@ const SignUpScreen = () => {
 
     // ส่วน return และ styles เหมือนเดิม แต่เปลี่ยนข้อความปุ่มให้เหมาะสม
     return (
-        <ScrollView style={styles.scrollView}>
+        <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
             <View style={styles.container}>
                 <View style={styles.formContainer}>
                     <Text style={styles.headerText}>{t('auth.signup')}</Text>
@@ -387,6 +387,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         backgroundColor: '#fff',
         fontSize: 16,
+        color: '#000',
     },
     inputError: {
         borderColor: '#ff3b30',

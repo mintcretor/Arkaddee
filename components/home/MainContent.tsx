@@ -830,6 +830,7 @@ const styles = StyleSheet.create({
     marginBottom: RESPONSIVE_SIZES.spacing.small,
     borderRadius: RESPONSIVE_SIZES.spacing.small,
     padding: RESPONSIVE_SIZES.spacing.small,
+ 
     flex: 2
   },
   logoRow: {
@@ -931,6 +932,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: RESPONSIVE_SIZES.font.medium,
     fontWeight: 'bold',
+    color:'#000',
     marginBottom: RESPONSIVE_SIZES.spacing.medium,
   },
   placeGrid: {
@@ -999,6 +1001,7 @@ const styles = StyleSheet.create({
   },
   DisAirQuality: {
     borderColor: '#d0d0d0',
+    color:'#000'
   },
   goodAirQualityText: {
     color: '#4CAF50',
@@ -1020,6 +1023,7 @@ const styles = StyleSheet.create({
   airQualityUnit: {
     fontSize: RESPONSIVE_SIZES.font.tiny,
     fontWeight: 'bold',
+    color:'#000',
     marginTop: scaleSize(-3), // ปรับขนาดระยะห่างให้น้อยลง
   },
   placeInfo: {
@@ -1029,6 +1033,7 @@ const styles = StyleSheet.create({
     fontSize: RESPONSIVE_SIZES.font.normal,
     fontWeight: 'bold',
     marginBottom: RESPONSIVE_SIZES.spacing.tiny,
+    color:'#000'
   },
   ratingContainer: {
     flexDirection: 'row',

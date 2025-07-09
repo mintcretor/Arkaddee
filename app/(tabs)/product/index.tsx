@@ -72,7 +72,7 @@ const Index: React.FC = () => {
         },
         {
             id: 4,
-            title: 'Pocket',
+            title: 'Arkad Dust Walker',
             subtitle: t('Product.Portable_sensor'),
             image: require('@/assets/images/device/Arkad_WM.png'),
         },
@@ -114,7 +114,7 @@ const Index: React.FC = () => {
         },
         {
             id: 4, // เพิ่ม id
-            title: 'Pocket Sensor Pro',
+            title: 'Arkad Dust Walker',
             category_name: t('Product.measuring'),
             image: require('@/assets/images/device/Arkad_WM.png'),
             features: [t('Product.Portable_meter')],

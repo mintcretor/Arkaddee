@@ -96,7 +96,7 @@ interface WarrantyIcon {
 
 const { width } = Dimensions.get('window');
 
-const ProductDetail2Page: React.FC = () => {
+const ProductDetail3Page: React.FC = () => {
     const { t } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
@@ -107,74 +107,10 @@ const ProductDetail2Page: React.FC = () => {
     
         { id: '1',  price: '฿6,500' }
     ];
-    const pricingfilter: PriceItemR[] = [
-        { id: '1', model: 'PPV 160', price: '฿1,550', price2: '฿1,000', price3: '฿890', price4: '฿890' },
-        { id: '2', model: 'PPV 250', price: '฿1,650', price2: '฿1,150', price3: '฿890', price4: '฿890' },
 
-    ];
-    const filtrationSteps: FiltrationStep[] = [
-        {
-            id: 1,
-            image: require('@/assets/images/product/Hapa_H13.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง HEPA H13 ',
-            description: '• กรองฝุ่นที่อนุภาคขนาดเล็ก ได้ถึง 99.95%',
-            description2: '• ไม่สามารถล้างทำความสะอาดได้',
-            description3: '• เปลี่ยนทุกๆ 1 ปี',
-            description4: '',
-            description5: '',
-        },
-        {
-            id: 2,
-            image: require('@/assets/images/product/Activated_Carbon.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง Activated Carbon',
-            description: '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และขนาดกลาง',
-            description2: '• กรองกลิ่นไม่พึงประสงค์',
-            description3: '• สามารถถอดล้างทำความสะอาดได้',
-            description4: '• ล้างทำความสะอาดทุกๆ 6 เดือน',
-            description5: '• เปลี่ยนทุกๆ 2 ปี',
-        },
-        {
-            id: 3,
-            image: require('@/assets/images/product/pre_fliter.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง Pre Filter',
-            description: '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และกันแมลง',
-            description2: '• สามารถถอดล้างทำความสะอาดได้',
-            description3: '• ล้างทำความสะอาดทุกๆ 6 เดือน',
-            description4: '• เปลี่ยนทุกๆ 2 ปี',
-            description5: '',
-        },
-        {
-            id: 4,
-            image: require('@/assets/images/product/UV lamp.png'), // Replace with your actual filter images
-            title: ' หลอด UVc Lamp',
-            description: '• สำหรับฆ่าเชื้อโรคและเชื้อแบคทีเรีย',
-            description2: '',
-            description3: '',
-            description4: '',
-            description5: '',
-        },
-    ];
 
     // Inside your ProductDetailPage component, locate the `specifications` array
 
-    const specifications: Specification[] = [
-        { label: 'ขนาดห้อง', ppv160t: '32 ตร.ม.', ppv250: '50 ตร.ม.' },
-        { label: 'ระดับพัดลม', ppv160t: 'HIGH | LOW', ppv250: 'HIGH | LOW' }, // This row combines HIGH/LOW
-        { label: 'การเติมอากาศ', ppv160t: '160 cmh | 120 cmh', ppv250: '250 cmh | 200 cmh' },
-        { label: 'การเติมอากาศ', ppv160t: '88 cfm | 70 cfm', ppv250: '147 cfm | 117 cfm' },
-        { label: 'กำลังไฟ', ppv160t: '45 W | 30 W', ppv250: '60 W | 50 W' },
-        { label: 'ระดับเสียง', ppv160t: '24 dB | 21 dB', ppv250: '31 dB | 25 dB' },
-    ];
-
-
-    const specifications2: Specification2[] = [
-        { label: 'ขนาดห้อง', ppv160t: '60 ตร.ม.', ppv250: '90 ตร.ม.' },
-        { label: 'ระดับพัดลม', ppv160t: 'HIGH | LOW', ppv250: 'HIGH | LOW' }, // This row combines HIGH/LOW
-        { label: 'การเติมอากาศ', ppv160t: '350 cmh | 290 cmh', ppv250: '440 cmh | 350 cmh' },
-        { label: 'การเติมอากาศ', ppv160t: '206 cfm | 170 cfm', ppv250: '258 cfm | 206 cfm' },
-        { label: 'กำลังไฟ', ppv160t: '75 W | 55 W', ppv250: '85 W | 70 W' },
-        { label: 'ระดับเสียง', ppv160t: '35 dB | 28 dB', ppv250: '45 dB | 35 dB' },
-    ];
 
     // UPDATED: Using translation keys for name and description
     const airQualityParameters: AirQualityParameter[] = [
@@ -208,7 +144,7 @@ const ProductDetail2Page: React.FC = () => {
     ];
 
     const warrantyIcons: WarrantyIcon[] = [
-        { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: 'ตัวเครื่อง 1 ปี' }, // Replace with your actual icons
+        { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: t('Product.warranty_body') }, // Replace with your actual icons
     ];
 
 
@@ -220,7 +156,7 @@ const ProductDetail2Page: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ title: 'เครื่องเติมอากาศ' }} />
+            <Stack.Screen options={{ title: sas[0] }} />
             <StatusBar barStyle="dark-content" />
             <ScrollView showsVerticalScrollIndicator={false}>
 
@@ -257,7 +193,7 @@ const ProductDetail2Page: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> {t('Product.Additional_information')} @Line</Text>
+                        <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -319,7 +255,7 @@ const ProductDetail2Page: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> {t('Product.Additional_information')} @Line</Text>
+                        <Text style={styles.contactButtonText}>{t('ProductERV.order_inquire_line')}</Text>
                     </TouchableOpacity>
                 </View>
                 
@@ -619,4 +555,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProductDetail2Page;
+export default ProductDetail3Page;

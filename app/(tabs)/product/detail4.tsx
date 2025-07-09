@@ -130,7 +130,7 @@ const ProductDetail4Page: React.FC = () => {
         { labelKey: 'ProductDetail.ProductWeight', value: '120 g' },
         { labelKey: 'ProductDetail.DisplayMethod', value: 'LCD Screen' },
         { labelKey: 'ProductDetail.Power', value: 'Lithium battery with 800 mAh capacity; 5V DC power charging Type-C port' },
-        { labelKey: 'ProductDetail.SetIncludes', value: 'Arkad Pocket x 1, Type-C Charging Cable x 1, English Manual x 1' }
+        { labelKey: 'ProductDetail.SetIncludes', value: 'Arkad Dust Walker x 1, Type-C Charging Cable x 1, English Manual x 1' }
     ];
 
     const warrantyIcons: WarrantyIcon[] = [
@@ -146,7 +146,7 @@ const ProductDetail4Page: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ title: 'เครื่องเติมอากาศ' }} />
+            <Stack.Screen options={{ title: sas[0] }} />
             <StatusBar barStyle="dark-content" />
             <ScrollView showsVerticalScrollIndicator={false}>
 
@@ -183,7 +183,7 @@ const ProductDetail4Page: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> {t('Product.Additional_information')} @Line</Text>
+                        <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')} </Text>
                     </TouchableOpacity>
                 </View>
 
@@ -245,7 +245,7 @@ const ProductDetail4Page: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> {t('Product.Additional_information')} @Line</Text>
+                        <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')}</Text>
                     </TouchableOpacity>
                 </View>
                 
