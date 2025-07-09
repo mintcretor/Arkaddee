@@ -90,8 +90,8 @@ const ProductDetail2Page: React.FC = () => {
         { id: '2', model: 'ERV 250', price: '฿44,800' },
     ];
     const pricingfilter: PriceItemR[] = [
-        { id: '1', model: 'PPV 160', price: '฿1,550', price2: '฿1,000', price3: '฿890', price4: '฿890' },
-        { id: '2', model: 'PPV 250', price: '฿1,650', price2: '฿1,150', price3: '฿890', price4: '฿890' },
+        { id: '1', model: 'ERV 150', price: '฿1,450', price2: '฿890', price3: '฿590', price4: '฿980' },
+        { id: '2', model: 'ERV 250', price: '฿1,850', price2: '฿980', price3: '฿690', price4: '฿980' },
 
     ];
     const filtrationSteps: FiltrationStep[] = [
@@ -99,7 +99,7 @@ const ProductDetail2Page: React.FC = () => {
             id: 1,
             image: require('@/assets/images/product/Hapa_H13.png'), // Replace with your actual filter images
             title: 'แผ่นกรอง HEPA H13 ',
-            description: '• กรองฝุ่นที่อนุภาคขนาดเล็ก ได้ถึง 99.95%',
+            description:  '• กรองฝุ่นที่อนุภาคขนาดเล็ก ได้ถึง 99.95%',
             description2: '• ไม่สามารถล้างทำความสะอาดได้',
             description3: '• เปลี่ยนทุกๆ 1 ปี',
             description4: '',
@@ -109,7 +109,7 @@ const ProductDetail2Page: React.FC = () => {
             id: 2,
             image: require('@/assets/images/product/Activated_Carbon.png'), // Replace with your actual filter images
             title: 'แผ่นกรอง Activated Carbon',
-            description: '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และขนาดกลาง',
+            description:  '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และขนาดกลาง',
             description2: '• กรองกลิ่นไม่พึงประสงค์',
             description3: '• สามารถถอดล้างทำความสะอาดได้',
             description4: '• ล้างทำความสะอาดทุกๆ 6 เดือน',
@@ -119,7 +119,7 @@ const ProductDetail2Page: React.FC = () => {
             id: 3,
             image: require('@/assets/images/product/pre_fliter.png'), // Replace with your actual filter images
             title: 'แผ่นกรอง Pre Filter',
-            description: '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และกันแมลง',
+            description:  '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และกันแมลง',
             description2: '• สามารถถอดล้างทำความสะอาดได้',
             description3: '• ล้างทำความสะอาดทุกๆ 6 เดือน',
             description4: '• เปลี่ยนทุกๆ 2 ปี',
@@ -129,7 +129,7 @@ const ProductDetail2Page: React.FC = () => {
             id: 4,
             image: require('@/assets/images/product/UV lamp.png'), // Replace with your actual filter images
             title: ' หลอด UVc Lamp',
-            description: '• สำหรับฆ่าเชื้อโรคและเชื้อแบคทีเรีย',
+            description:  '• สำหรับฆ่าเชื้อโรคและเชื้อแบคทีเรีย',
             description2: '',
             description3: '',
             description4: '',
@@ -141,22 +141,13 @@ const ProductDetail2Page: React.FC = () => {
 
     const specifications: Specification[] = [
         { label: 'ขนาดห้อง', ppv160t: '32 ตร.ม.', ppv250: '50 ตร.ม.' },
-        { label: 'ระดับพัดลม', ppv160t: 'HIGH | LOW', ppv250: 'HIGH | LOW' }, // This row combines HIGH/LOW
-        { label: 'การเติมอากาศ', ppv160t: '160 cmh | 120 cmh', ppv250: '250 cmh | 200 cmh' },
-        { label: 'การเติมอากาศ', ppv160t: '88 cfm | 70 cfm', ppv250: '147 cfm | 117 cfm' },
-        { label: 'กำลังไฟ', ppv160t: '45 W | 30 W', ppv250: '60 W | 50 W' },
-        { label: 'ระดับเสียง', ppv160t: '24 dB | 21 dB', ppv250: '31 dB | 25 dB' },
+        { label: 'ระดับพัดลม', ppv160t: 'HIGH | MID | LOW', ppv250: 'HIGH | MID | LOW' }, // This row combines HIGH/LOW
+        { label: 'การเติมอากาศ', ppv160t: '150 cmh | 120 cmh | 250 cmh', ppv250: '200 cmh | 350 cmh | 290 cmh' },
+        { label: 'การเติมอากาศ', ppv160t: '88 cfm | 70 cfm | 147 cfm', ppv250: '117 cfm | 206 cfm | 170 cfm' },
+        { label: 'กำลังไฟ', ppv160t: '70 W | 65 W | 60 W', ppv250: '85 W | 75 W | 65 W' },
+        { label: 'ระดับเสียง', ppv160t: '24 dB | 23 dB | 22 dB', ppv250: '31 dB | 28 dB | 25 dB' },
     ];
 
-
-    const specifications2: Specification2[] = [
-        { label: 'ขนาดห้อง', ppv160t: '60 ตร.ม.', ppv250: '90 ตร.ม.' },
-        { label: 'ระดับพัดลม', ppv160t: 'HIGH | LOW', ppv250: 'HIGH | LOW' }, // This row combines HIGH/LOW
-        { label: 'การเติมอากาศ', ppv160t: '350 cmh | 290 cmh', ppv250: '440 cmh | 350 cmh' },
-        { label: 'การเติมอากาศ', ppv160t: '206 cfm | 170 cfm', ppv250: '258 cfm | 206 cfm' },
-        { label: 'กำลังไฟ', ppv160t: '75 W | 55 W', ppv250: '85 W | 70 W' },
-        { label: 'ระดับเสียง', ppv160t: '35 dB | 28 dB', ppv250: '45 dB | 35 dB' },
-    ];
 
     const warrantyIcons: WarrantyIcon[] = [
         { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: 'ตัวเครื่อง 1 ปี' }, // Replace with your actual icons
@@ -170,7 +161,8 @@ const ProductDetail2Page: React.FC = () => {
             Linking.openURL(link).catch(err => console.error('An error occurred', err));
         }
     };
-
+    const description = product.description?.split(',');
+    console.log('dddd',description)
     return (
         <SafeAreaView style={styles.container}>
             <Stack.Screen options={{ title: 'เครื่องเติมอากาศ' }} />
@@ -181,7 +173,11 @@ const ProductDetail2Page: React.FC = () => {
                     <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
                     <Text style={styles.productName}>{product.title}</Text>
                     <Text style={styles.productTagline}>{sas[0]}</Text>
-                    <Text style={styles.productDescription}>{product.description || t('ProductDetail.DescriptionLong')}</Text>
+                    <Text style={styles.productDescription}> • {description[0]}</Text>
+                    <Text style={styles.productDescription}> • {description[1]}</Text>
+                    <Text style={styles.productDescription}> • {description[2]}</Text>
+                    <Text style={styles.productDescription}> • {description[3]}</Text>
+
                 </View>
 
                 {/* Price Table Section */}
@@ -236,10 +232,11 @@ const ProductDetail2Page: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> เครื่องเติมอากาศรุ่น</Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}>  HEPA H13 </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> Activated Carbon </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}>  หลอด UVc </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>เครื่องเติมอากาศรุ่น</Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>HEPA H13</Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>Activated Carbon</Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>Pre-Filter</Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>หลอด UVc</Text>
                         </View>
                         {pricingfilter.map((item) => (
                             <View key={item.id} style={styles.priceTableRow}>
@@ -247,6 +244,7 @@ const ProductDetail2Page: React.FC = () => {
                                 <Text style={styles.priceTableCell}>{item.price}</Text>
                                 <Text style={styles.priceTableCell}>{item.price2}</Text>
                                 <Text style={styles.priceTableCell}>{item.price3}</Text>
+                                <Text style={styles.priceTableCell}>{item.price4}</Text>
                             </View>
                         ))}
 
@@ -261,34 +259,17 @@ const ProductDetail2Page: React.FC = () => {
 
 
                 <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> ข้อมูลจำเพาะเครื่องเติมอากาศรุ่น Positive Air Purifier Series (PPV)</Text>
+                    <Text style={styles.sectionTitle}> ข้อมูลจำเพาะเครื่องเติมอากาศรุ่น </Text>
+                    <Text style={styles.sectionTitle}> Energy Recovery Ventilation (ERV)</Text>
                     <View style={styles.specTable}>
 
                         <View style={styles.specTableHeader}>
                             <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>รุ่น</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 160</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 250</Text>
+                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>ERV 160</Text>
+                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>ERV 250</Text>
                         </View>
 
                         {specifications.map((spec, index) => (
-                            <View key={index.toString()} style={styles.specTableRow}>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>{spec.label}</Text>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>{spec.ppv160t}</Text>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>{spec.ppv250}</Text>
-
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.specTable2}>
-
-                        <View style={styles.specTableHeader}>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>รุ่น</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 350</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 440</Text>
-                        </View>
-
-                        {specifications2.map((spec, index) => (
                             <View key={index.toString()} style={styles.specTableRow}>
                                 <Text style={[styles.specTableCell, { flex: 2 }]}>{spec.label}</Text>
                                 <Text style={[styles.specTableCell, { flex: 2 }]}>{spec.ppv160t}</Text>
@@ -303,15 +284,15 @@ const ProductDetail2Page: React.FC = () => {
                     <Text style={styles.sectionTitle}> จอควบคุม Touch Panel</Text>
                     <Image source={require('@/assets/images/product/TouchPanel.png')} style={styles.touchPanelImage} resizeMode="contain" />
                     <View style={styles.bulletPointsContainer}>
-                        <Text style={styles.bulletPoint}> แสดงอุณหภูมิและค่าความชื้น</Text>
-                        <Text style={styles.bulletPoint}> สามารถตั้งเวลาเปิด / ปิด แบบอัตโนมัติ</Text>
-                        <Text style={styles.bulletPoint}> แสดงค่าฝุ่น PM2.5</Text>
-                        <Text style={styles.bulletPoint}> แสดงค่าฝุ่น PM10</Text>
-                        <Text style={styles.bulletPoint}> แสดงค่าคาร์บอนไดออกไซด์</Text>
-                        <Text style={styles.bulletPoint}> แจ้งเตือนให้เปลยนแผ่นกรอง HEPA</Text>
-                        <Text style={styles.bulletPoint}> เชื่อมตอ Wifi และ Application</Text>
-                        <Text style={styles.bulletPoint}> ปรับความแรงลมระบบฟอกอากาศ</Text>
-                        <Text style={styles.bulletPoint}> เก็บข้อมูลค่าฝุ่น สภาพอากาศ</Text>
+                        <Text style={styles.bulletPoint}> • แสดงอุณหภูมิและค่าความชื้น</Text>
+                        <Text style={styles.bulletPoint}> • สามารถตั้งเวลาเปิด / ปิด แบบอัตโนมัติ</Text>
+                        <Text style={styles.bulletPoint}> • แสดงค่าฝุ่น PM2.5</Text>
+                        <Text style={styles.bulletPoint}> • แสดงค่าฝุ่น PM10</Text>
+                        <Text style={styles.bulletPoint}> • แสดงค่าคาร์บอนไดออกไซด์</Text>
+                        <Text style={styles.bulletPoint}> • แจ้งเตือนให้เปลยนแผ่นกรอง HEPA</Text>
+                        <Text style={styles.bulletPoint}> • เชื่อมตอ Wifi และ Application</Text>
+                        <Text style={styles.bulletPoint}> • ปรับความแรงลมระบบฟอกอากาศ</Text>
+                        <Text style={styles.bulletPoint}> • เก็บข้อมูลค่าฝุ่น สภาพอากาศ</Text>
                     </View>
                 </View>
 
@@ -347,7 +328,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F7F7',
     },
     productHeader: {
-        alignItems: 'center',
+      alignItems:'flex-start',
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
@@ -382,7 +363,7 @@ const styles = StyleSheet.create({
     productDescription: {
         fontSize: 14,
         color: '#666666',
-        textAlign: 'center',
+     
         lineHeight: 22,
     },
     sectionContainer: {
@@ -534,6 +515,7 @@ const styles = StyleSheet.create({
     },
     bulletPointsContainer: {
         paddingHorizontal: 10,
+        marginTop: 20
     },
     bulletPoint: {
         fontSize: 14,

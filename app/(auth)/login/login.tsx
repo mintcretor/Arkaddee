@@ -34,7 +34,16 @@ interface SocialButtonProps {
     type?: 'google' | 'apple' | 'guest';
 }
 
+// interface AuthResponse { // This interface is not used in this file
+//     success: boolean;
+//     token?: string;
+//     user?: any;
+//     message?: string;
+// }
+
 const SocialButton: React.FC<SocialButtonProps> = ({ icon, text, onPress, disabled }) => {
+    // Simplified: All social buttons currently have the same white background and black text.
+    // If different colors are needed in the future, re-introduce 'type' based logic here.
     const backgroundColor = '#ffffff';
     const textColor = '#000000';
 
@@ -76,7 +85,7 @@ const LoginScreen: React.FC = () => {
         expoClientId: '975495478878-lttle2i1tnsjlml5hed680g5o6c44kho.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
         additionalParameters: {
-            prompt: 'select_account',
+            prompt: 'select_account', // บังคับเลือกบัญชีเสมอ
             access_type: 'offline',
         }
     });
@@ -91,27 +100,9 @@ const LoginScreen: React.FC = () => {
             try {
                 const pendingAuth = await AsyncStorage.getItem('auth_in_progress');
                 if (pendingAuth === 'google') {
-                    // หากพบว่ามี Google auth ค้างอยู่
-                    // เราจะแสดง loading แต่ถ้าไม่มี response กลับมาภายในเวลาที่กำหนด
-                    // หรือเมื่อ component mount แล้ว response ยังเป็น null
-                    // เราจะรีเซ็ตสถานะ
-                    setLoadingVisible(true);
-                    setIsRedirecting(true);
-
-                    // เพิ่ม logic เพื่อรีเซ็ตสถานะหากไม่มี response กลับมาหลังจากผ่านไปแล้ว
-                    // นี่คือ workaround เพื่อจัดการกรณีที่ promptAsync ไม่มีการตอบสนองกลับมา
-                    // เช่น ผู้ใช้ปิดเบราว์เซอร์ หรือเกิดข้อผิดพลาดที่ไม่ส่ง response กลับมา
-                    setTimeout(async () => {
-                        // ตรวจสอบอีกครั้งหลังจากผ่านไป 1 วินาที (หรือเวลาที่คุณเห็นว่าเหมาะสม)
-                        // เพื่อให้แน่ใจว่า handleGoogleResponse มีโอกาสทำงานไปแล้ว
-                        if (isRedirecting && !response) { // ถ้ายังคงรอ redirect และยังไม่มี response
-                            console.log('Google auth seems stuck, resetting loading state.');
-                            setLoadingVisible(false);
-                            setIsRedirecting(false);
-                            await AsyncStorage.removeItem('auth_in_progress');
-                        }
-                    }, 1000); // 1 วินาที
-
+                    // console.log('Found pending Google auth, waiting for response...');
+                    setLoadingVisible(true); // Show loading if a pending auth was detected
+                    setIsRedirecting(true); // Indicate redirect is still expected
                 } else {
                     setLoadingVisible(false); // No pending login, hide loading
                     setIsRedirecting(false);
@@ -124,16 +115,11 @@ const LoginScreen: React.FC = () => {
         };
 
         checkPendingAuth();
-    }, [response]);
+    }, []);
 
-    // ***** การเปลี่ยนแปลงที่สำคัญตรงนี้ *****
     useEffect(() => {
-        // จะประมวลผล response ก็ต่อเมื่อมี response และเราได้เริ่มการ redirect ไว้
-        if (response && isRedirecting) {
-            handleGoogleResponse();
-        }
-    }, [response, isRedirecting]); // เพิ่ม isRedirecting ใน dependencies
-    // ****************************************
+        handleGoogleResponse();
+    }, [response]); // Only re-run when `response` changes
 
     const checkAppleAuthAvailable = async () => {
         if (Platform.OS === 'ios') {
@@ -143,25 +129,18 @@ const LoginScreen: React.FC = () => {
     };
 
     const handleGoogleResponse = async () => {
-        // ***** การเปลี่ยนแปลงที่สำคัญตรงนี้ *****
-        // ปิด loading, รีเซ็ตสถานะ redirect และลบ flag ใน AsyncStorage เสมอ เมื่อมีการจัดการ response
-        setLoadingVisible(false);
-        setIsRedirecting(false);
-        await AsyncStorage.removeItem('auth_in_progress');
-        // ****************************************
-
         if (!response) {
-            return; // ไม่มี response เข้ามา (อาจจะถูกเรียกก่อนมีค่า)
+            return;
         }
 
         if (response.type === 'success') {
             try {
-                setLoadingVisible(true); // เปิด loading อีกครั้ง หากกำลังประมวลผลสำเร็จ
+                setLoadingVisible(true); // Ensure loading is visible during processing
 
                 if (!response.params?.id_token) {
                     console.error('No id_token received from Google');
                     Alert.alert('Error', 'Authentication failed. No token received.');
-                    return;
+                    return; // Exit early
                 }
 
                 const authResponse = await signInWithSocial({
@@ -171,6 +150,7 @@ const LoginScreen: React.FC = () => {
                 });
 
                 if (authResponse.success) {
+                    await AsyncStorage.removeItem('auth_in_progress');
                     router.replace('/(tabs)/home'); // Navigate immediately
                 } else {
                     Alert.alert('Login Failed', authResponse.message || 'Google login failed');
@@ -179,18 +159,21 @@ const LoginScreen: React.FC = () => {
                 console.error('Error processing Google response:', error);
                 Alert.alert('Error', 'Failed to process authentication');
             } finally {
-                setLoadingVisible(false); // ปิด loading หลังจาก process เสร็จสิ้น
+                setLoadingVisible(false);
+                setIsRedirecting(false);
+                await AsyncStorage.removeItem('auth_in_progress'); // Ensure removed on all paths
             }
         } else if (response.type === 'error') {
             console.error('Google auth error:', response.error);
-            // Alert.alert('Error', 'Google authentication failed');
-            router.replace('/(auth)/login');
-            // สถานะ loading และ isRedirecting ถูกรีเซ็ตไปแล้วที่ต้นฟังก์ชัน
+            Alert.alert('Error', 'Google authentication failed');
+            setLoadingVisible(false);
+            setIsRedirecting(false);
+            await AsyncStorage.removeItem('auth_in_progress');
         } else if (response.type === 'dismiss' || response.type === 'cancel') {
-            console.log('Google auth dismissed/cancelled. No login will occur.');
-            router.replace('/(auth)/login');
-            // สถานะ loading และ isRedirecting ถูกรีเซ็ตไปแล้วที่ต้นฟังก์ชัน
-            // ไม่ต้องทำอะไรเพิ่มเติม เพราะผู้ใช้ยกเลิก
+            // console.log('Google auth dismissed/cancelled');
+            setLoadingVisible(false); // Hide loading if dismissed
+            setIsRedirecting(false);
+            await AsyncStorage.removeItem('auth_in_progress');
         }
     };
 
@@ -256,11 +239,13 @@ const LoginScreen: React.FC = () => {
                                     router.push({
                                         pathname: '/(auth)/verify-otp/VerifyOTPScreen',
                                         params: {
+
                                             tempUserId: response.userId,
                                             phoneNumber: response.phoneNumber,
                                             username: username, // ส่ง username ไปด้วยเผื่อใช้แสดงผล
                                             password: password, // <--- สำคัญ: ส่ง password ที่ผู้ใช้เพิ่งกรอกไปให้หน้า OTP ด้วย
                                             fromLogin: 'true', // เพิ่ม flag เพื่อบอกว่ามาจากหน้า Login
+                                            //fromSignUp: 'false', // เพิ่ม flag เพื่อบอกว่ามาจากหน้า Login
                                             expiresIn: 0 // เวลาหมดอายุ OTP
                                         },
                                     });
@@ -274,7 +259,7 @@ const LoginScreen: React.FC = () => {
                     setPasswordFalse(!response.success);
                     Alert.alert(
                         t('auth.loginFailed'),
-                        t('auth.checkCredentials')
+                        response.message || t('auth.checkCredentials')
                     );
                 }
             } else {
@@ -310,9 +295,6 @@ const LoginScreen: React.FC = () => {
             if (!request) {
                 console.error('Google auth request not ready');
                 Alert.alert('Error', 'Google authentication is not ready. Please try again.');
-                setLoadingVisible(false); // Hide loading on immediate error
-                setIsRedirecting(false);
-                await AsyncStorage.removeItem('auth_in_progress');
                 return;
             }
 
@@ -338,14 +320,12 @@ const LoginScreen: React.FC = () => {
             if (Platform.OS !== 'ios') {
                 // console.log('Apple Sign In only available on iOS');
                 Alert.alert('ไม่พร้อมใช้งาน', 'Apple Sign In รองรับเฉพาะ iOS เท่านั้น');
-                setLoadingVisible(false);
                 return;
             }
 
             if (!appleAuthAvailable) {
                 // console.log('Apple Sign In not available on this device');
                 Alert.alert('ไม่พร้อมใช้งาน', 'Apple Sign In ไม่พร้อมใช้งานบนอุปกรณ์นี้');
-                setLoadingVisible(false);
                 return;
             }
 
@@ -359,14 +339,12 @@ const LoginScreen: React.FC = () => {
             if (!credential.identityToken) {
                 console.error('Missing identity token from Apple');
                 Alert.alert('ข้อผิดพลาด', 'ไม่ได้รับข้อมูลการยืนยันตัวตนจาก Apple');
-                setLoadingVisible(false);
                 return;
             }
 
             if (!credential.user) {
                 console.error('Missing user identifier from Apple');
                 Alert.alert('ข้อผิดพลาด', 'ไม่ได้รับรหัสผู้ใช้จาก Apple');
-                setLoadingVisible(false);
                 return;
             }
 
@@ -434,11 +412,7 @@ const LoginScreen: React.FC = () => {
 
     return (
         <>
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollViewContent}
-                keyboardShouldPersistTaps="handled" // เพิ่มบรรทัดนี้
-            >
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent} keyboardShouldPersistTaps="handled">
                 <View style={styles.container}>
                     <View style={styles.logoContainer}>
                         <Image
@@ -539,7 +513,7 @@ const LoginScreen: React.FC = () => {
                             icon={<Image source={{ uri: 'https://www.google.com/favicon.ico' }} style={styles.socialIcon} />}
                             text={t('auth.loginWithGoogle')}
                             onPress={handleGoogleLogin}
-                            disabled={loadingVisible}
+                            disabled={loadingVisible} // Use loadingVisible
                         />
 
                         {Platform.OS === 'ios' && appleAuthAvailable ? (
@@ -548,7 +522,7 @@ const LoginScreen: React.FC = () => {
                                 icon={<Ionicons name="logo-apple" size={22} color="#000" />}
                                 text={t('auth.loginWithApple')}
                                 onPress={handleAppleLogin}
-                                disabled={loadingVisible}
+                                disabled={loadingVisible} // Use loadingVisible
                             />
                         ) : null}
 
@@ -560,15 +534,13 @@ const LoginScreen: React.FC = () => {
                             disabled={loadingVisible || !deviceIdAvailable} // Use loadingVisible and deviceIdAvailable
                         />
 
-                        <View style={styles.languageSelectorContainer}>
-                            <LanguageSelector />
-                        </View>
+                        <View style={styles.bottomPadding} />
                     </View>
-
-
                 </View>
 
-
+                <View style={styles.languageSelectorContainer}>
+                    <LanguageSelector />
+                </View>
             </ScrollView>
 
             {/* Loading Overlay */}
@@ -648,6 +620,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 15,
         backgroundColor: '#fff',
+        color:'#000',
         fontSize: 16,
     },
     inputError: {
@@ -742,7 +715,9 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     languageSelectorContainer: {
-        position: 'relative',
+        position: 'absolute',
+        bottom: 50,
+        right: 5,
         zIndex: 1000,
         transform: [{ scale: 0.8 }]
     },

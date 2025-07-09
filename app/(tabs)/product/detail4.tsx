@@ -96,7 +96,7 @@ interface WarrantyIcon {
 
 const { width } = Dimensions.get('window');
 
-const ProductDetail2Page: React.FC = () => {
+const ProductDetail4Page: React.FC = () => {
     const { t } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
@@ -107,104 +107,30 @@ const ProductDetail2Page: React.FC = () => {
     
         { id: '1',  price: '฿6,500' }
     ];
-    const pricingfilter: PriceItemR[] = [
-        { id: '1', model: 'PPV 160', price: '฿1,550', price2: '฿1,000', price3: '฿890', price4: '฿890' },
-        { id: '2', model: 'PPV 250', price: '฿1,650', price2: '฿1,150', price3: '฿890', price4: '฿890' },
-
-    ];
-    const filtrationSteps: FiltrationStep[] = [
-        {
-            id: 1,
-            image: require('@/assets/images/product/Hapa_H13.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง HEPA H13 ',
-            description: '• กรองฝุ่นที่อนุภาคขนาดเล็ก ได้ถึง 99.95%',
-            description2: '• ไม่สามารถล้างทำความสะอาดได้',
-            description3: '• เปลี่ยนทุกๆ 1 ปี',
-            description4: '',
-            description5: '',
-        },
-        {
-            id: 2,
-            image: require('@/assets/images/product/Activated_Carbon.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง Activated Carbon',
-            description: '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และขนาดกลาง',
-            description2: '• กรองกลิ่นไม่พึงประสงค์',
-            description3: '• สามารถถอดล้างทำความสะอาดได้',
-            description4: '• ล้างทำความสะอาดทุกๆ 6 เดือน',
-            description5: '• เปลี่ยนทุกๆ 2 ปี',
-        },
-        {
-            id: 3,
-            image: require('@/assets/images/product/pre_fliter.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง Pre Filter',
-            description: '• สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ และกันแมลง',
-            description2: '• สามารถถอดล้างทำความสะอาดได้',
-            description3: '• ล้างทำความสะอาดทุกๆ 6 เดือน',
-            description4: '• เปลี่ยนทุกๆ 2 ปี',
-            description5: '',
-        },
-        {
-            id: 4,
-            image: require('@/assets/images/product/UV lamp.png'), // Replace with your actual filter images
-            title: ' หลอด UVc Lamp',
-            description: '• สำหรับฆ่าเชื้อโรคและเชื้อแบคทีเรีย',
-            description2: '',
-            description3: '',
-            description4: '',
-            description5: '',
-        },
-    ];
-
-    // Inside your ProductDetailPage component, locate the `specifications` array
-
-    const specifications: Specification[] = [
-        { label: 'ขนาดห้อง', ppv160t: '32 ตร.ม.', ppv250: '50 ตร.ม.' },
-        { label: 'ระดับพัดลม', ppv160t: 'HIGH | LOW', ppv250: 'HIGH | LOW' }, // This row combines HIGH/LOW
-        { label: 'การเติมอากาศ', ppv160t: '160 cmh | 120 cmh', ppv250: '250 cmh | 200 cmh' },
-        { label: 'การเติมอากาศ', ppv160t: '88 cfm | 70 cfm', ppv250: '147 cfm | 117 cfm' },
-        { label: 'กำลังไฟ', ppv160t: '45 W | 30 W', ppv250: '60 W | 50 W' },
-        { label: 'ระดับเสียง', ppv160t: '24 dB | 21 dB', ppv250: '31 dB | 25 dB' },
-    ];
-
-
-    const specifications2: Specification2[] = [
-        { label: 'ขนาดห้อง', ppv160t: '60 ตร.ม.', ppv250: '90 ตร.ม.' },
-        { label: 'ระดับพัดลม', ppv160t: 'HIGH | LOW', ppv250: 'HIGH | LOW' }, // This row combines HIGH/LOW
-        { label: 'การเติมอากาศ', ppv160t: '350 cmh | 290 cmh', ppv250: '440 cmh | 350 cmh' },
-        { label: 'การเติมอากาศ', ppv160t: '206 cfm | 170 cfm', ppv250: '258 cfm | 206 cfm' },
-        { label: 'กำลังไฟ', ppv160t: '75 W | 55 W', ppv250: '85 W | 70 W' },
-        { label: 'ระดับเสียง', ppv160t: '35 dB | 28 dB', ppv250: '45 dB | 35 dB' },
-    ];
+ 
 
     // UPDATED: Using translation keys for name and description
     const airQualityParameters: AirQualityParameter[] = [
-        { id: '1', nameKey: 'AirQuality.AQI_Name', descriptionKey: 'AirQuality.AQI_Desc' },
+ 
         { id: '2', nameKey: 'AirQuality.PM2_5_Name', descriptionKey: 'AirQuality.PM2_5_Desc' },
-        { id: '3', nameKey: 'AirQuality.PM10_Name', descriptionKey: 'AirQuality.PM10_Desc' },
-        { id: '4', nameKey: 'AirQuality.HCHO_Name', descriptionKey: 'AirQuality.HCHO_Desc' },
-        { id: '5', nameKey: 'AirQuality.TVOC_Name', descriptionKey: 'AirQuality.TVOC_Desc' },
-        { id: '6', nameKey: 'AirQuality.CO2_Name', descriptionKey: 'AirQuality.CO2_Desc' },
         { id: '7', nameKey: 'AirQuality.Temp_Name', descriptionKey: 'AirQuality.Temp_Desc' },
         { id: '8', nameKey: 'AirQuality.HUM_Name', descriptionKey: 'AirQuality.HUM_Desc' }
     ];
 
     // UPDATED: Using translation keys for parameter label
     const specificData: SpecificDataItem[] = [
-        { parameterKey: 'AirQuality.CO2_Name', range: '400-5000 ppm', accuracy: '±50 ppm', resolution: '1 ppm' },
-        { parameterKey: 'AirQuality.PM2_5_Name', range: '0-999 µg/m³', accuracy: '±5 µg/m³', resolution: '1 µg/m³' },
-        { parameterKey: 'AirQuality.HCHO_Name', range: '0.000-1.999 mg/m³', accuracy: '±0.02 mg/m³', resolution: '0.001 mg/m³' },
-        { parameterKey: 'AirQuality.TVOC_Name', range: '0.000-9.999 mg/m³', accuracy: '±0.02 mg/m³', resolution: '0.001 mg/m³' },
+        { parameterKey: 'AirQuality.PM2_5_Name', range: '0-999 µg/m³', accuracy: '±10 µg/m³', resolution: '1 µg/m³' },
         { parameterKey: 'AirQuality.Temp_Name', range: '-10 - 50 °C', accuracy: '±1 °C', resolution: '0.1 °C' },
         { parameterKey: 'AirQuality.HUM_Name', range: '20%-85% RH', accuracy: '±4% RH', resolution: '1% RH' }
     ];
 
     // UPDATED: Using translation keys for product details labels
     const productDetails: ProductDetailItem[] = [
-        { labelKey: 'ProductDetail.ProductSize', value: '19.05 x 7.87 x 4.06 cm' },
-        { labelKey: 'ProductDetail.ProductWeight', value: '340.19 g' },
-        { labelKey: 'ProductDetail.DisplayMethod', value: 'LED Screen' },
-        { labelKey: 'ProductDetail.Power', value: 'Lithium battery with 3000 mAh capacity; 5V DC power charging via micro USB port' },
-        { labelKey: 'ProductDetail.SetIncludes', value: 'Air Quality Monitor x 1, Micro USB charging cable x 1, English Manual x 1' }
+        { labelKey: 'ProductDetail.ProductSize', value: '7 x 7 x 3.2 cm' },
+        { labelKey: 'ProductDetail.ProductWeight', value: '120 g' },
+        { labelKey: 'ProductDetail.DisplayMethod', value: 'LCD Screen' },
+        { labelKey: 'ProductDetail.Power', value: 'Lithium battery with 800 mAh capacity; 5V DC power charging Type-C port' },
+        { labelKey: 'ProductDetail.SetIncludes', value: 'Arkad Pocket x 1, Type-C Charging Cable x 1, English Manual x 1' }
     ];
 
     const warrantyIcons: WarrantyIcon[] = [
@@ -625,4 +551,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProductDetail2Page;
+export default ProductDetail4Page;

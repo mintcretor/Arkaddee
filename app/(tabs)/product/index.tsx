@@ -22,7 +22,7 @@ import { router } from 'expo-router';
 import ProductCard, { Product } from '@/components/ProductCard';
 
 interface Category {
-    id: number; 
+    id: number;
     title: string;
     subtitle: string;
     image: ImageSourcePropType;
@@ -56,7 +56,7 @@ const Index: React.FC = () => {
             id: 1,
             title: 'PPV',
             subtitle: t('Product.Positive_pressure_air_supply_system'),
-            image: require('@/assets/images/product/SNG.png'),
+            image: require('@/assets/images/product/PPV.png'),
         },
         {
             id: 2,
@@ -66,7 +66,7 @@ const Index: React.FC = () => {
         },
         {
             id: 3,
-            title: 'Mornitor',
+            title: 'Monitor',
             subtitle: t('Product.Desktop_sensor'),
             image: require('@/assets/images/device/Arkad_PBM.png'),
         },
@@ -86,7 +86,7 @@ const Index: React.FC = () => {
             id: 1, // เพิ่ม id
             title: ' Arkad PPV',
             category_name: t('Product.Aerator'),
-            image: require('@/assets/images/product/SNG.png'),
+            image: require('@/assets/images/product/PPV.png'),
             features: [t('Product.Purifier_Ventilation'), t('Product.Positive_pressure')],
             link: 'https://arkaddee.com/product/sng',
             path: '/product/detail',
@@ -97,17 +97,17 @@ const Index: React.FC = () => {
             title: 'Arkad ERV',
             category_name: t('Product.Aerator'),
             image: require('@/assets/images/product/ERV.png'),
-            features: [t('Product.air_circulation'), 'เครื่องเติมอากาศสะอาดหลักการห้องแรงดันบวก พร้อมระบบหมุนเวียนอากาศ ช่วยรักษาอุณหภูมิภายในห้อง ด้วยระบบผสมอากาศทจะปรับอุณภูมิอากาศที่ดึง จากภายนอกก่อนที่จะเติมอากาศเข้าสู่ห้อง'],
+            features: [t('Product.air_circulation'),t('Product.pressure_room')],
             link: 'https://arkaddee.com/product/erv',
             path: '/product/detail2',
             category: 2// กำหนด Category ID
         },
         {
             id: 3, // เพิ่ม id
-            title: ' Arkad Portable Mornitor',
+            title: ' Arkad Portable Monitor',
             category_name: t('Product.measuring'),
             image: require('@/assets/images/device/Arkad_PBM.png'),
-            features: [' เครื่องตรวจวดคุณภาพอากาศ แบบตั้งโตะ', ' เครื่องที่จะใช้ติดตามคุณภาพอากาศแบบเรียลไทม์ พร้อมเซ็นเซอรตรวจคุณภาพอากาศแบบละเอียด สามารถแสดงข้อมูลสภาพอากาศบน APP ได้'],
+            features: [t('Product.Tabletop'),t('Product.device_track')],
             link: 'https://arkaddee.com/product/normal',
             path: '/product/detail3',
             category: 3 // กำหนด Category ID
@@ -117,7 +117,7 @@ const Index: React.FC = () => {
             title: 'Pocket Sensor Pro',
             category_name: t('Product.measuring'),
             image: require('@/assets/images/device/Arkad_WM.png'),
-            features: ['เครื่องวัดคุณภาพอากาศแบบพกพา ขนาดกะทัดรัด พกพาง่าย ฟังก์ชั่นครบครัน อากาศดี ปลอดภัยทุกการเดินทาง สามารถแสดงข้อมูลสภาพอากาศบน APP ได้'],
+            features: [t('Product.Portable_meter')],
             link: 'https://arkaddee.com/product/portable',
             path: '/product/detail4',
             category: 4 // กำหนด Category ID
@@ -155,18 +155,12 @@ const Index: React.FC = () => {
     // ฟังก์ชันนำทางไปยังหน้า Detail (ยังคงเหมือนเดิม)
     const navigateToProductDetail = (data: ProductDetailData) => {
 
-        if (data.id == 3 || data.id == 4) {
-            let externalUrl = '';
-            externalUrl = 'https://line.me/R/ti/p/@975ruzwr'; // ตัวอย่าง URL สำหรับ id 4
-            if (externalUrl) { // ตรวจสอบให้แน่ใจว่ามี URL ก่อนเปลี่ยน
-        Linking.openURL(externalUrl).catch(err => console.error('An error occurred', err));
-            }
-        } else {
-            router.push({
-                pathname: data.path,
-                params: { product: JSON.stringify(data) },
-            });
-        }
+
+        router.push({
+            pathname: data.path,
+            params: { product: JSON.stringify(data) },
+        });
+
     };
 
     // Pinch/Pan Gesture Handlers (คงเดิม)
@@ -297,7 +291,7 @@ const Index: React.FC = () => {
                                         <View key={product.id} style={styles.productGrid}>
                                             <View style={styles.productSection}>
                                                 <Text style={styles.sectionTitle}>
-                                                    หมวด : {product.category_name}
+                                                    {t('Product.category')} : {product.category_name}
                                                 </Text>
                                                 <View style={styles.titleUnderline} />
                                                 <ProductCard
@@ -333,7 +327,7 @@ const additionalStyles = StyleSheet.create({
         position: 'absolute',
         top: -5,
         right: -5,
-        backgroundColor: '#2563EB',
+        //backgroundColor: '#2563EB',
         borderRadius: 10,
         paddingHorizontal: 6,
         paddingVertical: 2,
@@ -345,14 +339,12 @@ const additionalStyles = StyleSheet.create({
     },
     // NEW: Styles for selected category
     selectedCategoryItem: {
-        borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
+       // borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
         borderWidth: 2,
         borderRadius: 16, // ต้องปรับตาม borderRadius ของ categoryItem
     },
     selectedCategoryImageWrapper: {
-        backgroundColor: '#E0EFFF', // สีพื้นหลังเมื่อถูกเลือก
-        borderColor: '#2563EB', // สีขอบไอคอนเมื่อถูกเลือก
-        borderWidth: 1,
+
     },
     selectedCategoryText: {
         color: '#2563EB', // สีตัวอักษรเมื่อถูกเลือก
@@ -384,7 +376,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 3,
         marginBottom: 20,
-        backgroundColor: '#2563EB',
+       // backgroundColor: '#2563EB',
         alignSelf: 'center',
     },
     productGrid: {
@@ -463,7 +455,7 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 12,
-        backgroundColor: '#F8F8F8',
+        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 8,
@@ -474,19 +466,17 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     categoryImage: {
-        width: '60%',
-        height: '60%',
+        width: '80%',
+        height: '80%',
     },
     categoryTitle: {
         fontSize: 12,
         fontWeight: 'bold',
-        color: '#333333',
         textAlign: 'center',
         marginTop: 4,
     },
     categorySubtitle: {
         fontSize: 10,
-        color: '#666666',
         textAlign: 'center',
     },
 

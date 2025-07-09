@@ -477,7 +477,7 @@ export default function DeviceControlScreen() {
                                     onPress={() => setModeModalVisible(true)}
                                 >
                                     <Ionicons
-                                        name={deviceStatus.mode === 0 ? 'cog-outline' : 'hand-left-outline'}
+                                        name={deviceStatus.mode === 0 ? 'cog-outline' :deviceStatus.mode === 1 ? 'hand-left-outline' : 'time-outline'}
                                         size={24}
                                         color="#fff"
                                     />
@@ -591,7 +591,7 @@ export default function DeviceControlScreen() {
                                     ]}
                                     onPress={() => changeMode(2)}
                                 >
-                                    <Ionicons name="moon-outline" size={24} color="#fff" />
+                                    <Ionicons name="time-outline" size={24} color="#fff" />
                                     <Text style={styles.modeOptionText}>{t('myhome.Timming') || 'Timming'}</Text>
                                 </TouchableOpacity>
 

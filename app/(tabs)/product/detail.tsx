@@ -51,6 +51,9 @@ interface FiltrationStep {
     image: ImageSourcePropType;
     title: string;
     description: string;
+    description2: string;
+    description3: string;
+    description4: string;
 }
 
 // Data for specifications table (Example structure)
@@ -96,20 +99,29 @@ const ProductDetailPage: React.FC = () => {
         {
             id: 1,
             image: require('@/assets/images/product/Hapa_H13.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง HEPA H13 ',
-            description: 'กรองฝุ่นที่อนุภาคขนาดเล็ก ได้ถึง 99.95% ควรเปลี่ยนเมื่อครบอายุการใช้งาน ไม่สามารถล้างทำความสะอาดได้ เปลี่ยนทุกๆ 1 ปี',
+            title: t('Product.HEPA_H13'),
+            description: t('Product.Filters_dust'),
+            description2: 'ควรเปลี่ยนเมื่อครบอายุการใช้งาน',
+            description3: 'ไม่สามารถล้างทำความสะอาดได้',
+            description4: 'เปลี่ยนทุกๆ 1 ปี',
         },
         {
             id: 2,
             image: require('@/assets/images/product/Activated_Carbon.png'), // Replace with your actual filter images
-            title: 'แผ่นกรอง Activated Carbon',
-            description: 'สำหรับกรองฝุ่นอนุภาคขนาดใหญ่ กรองกลิ่นไม่พึงประสงค์ สามารถถอดล้างทำความสะอาดได้ ล้างทำความสะอาดทุกๆ 6 เดือน',
+            title: t('Product.Activated_Carbon'),
+            description: 'สำหรับกรองฝุ่นอนุภาคขนาดใหญ่',
+            description2: 'กรองกลิ่นไม่พึงประสงค์',
+            description3: 'สามารถถอดล้างทำความสะอาดได้',
+            description4: 'ล้างทำความสะอาดทุกๆ 6 เดือน',
         },
         {
             id: 3,
             image: require('@/assets/images/product/UV lamp.png'), // Replace with your actual filter images
-            title: ' หลอด UVc Lamp',
+            title: t('Product.UVc_Lamp'),
             description: 'สำหรับฆ่าเชื้อโรคและเชื้อแบคทีเรีย',
+            description2: '',
+            description3: '',
+            description4: '',
         },
     ];
 
@@ -149,12 +161,12 @@ const ProductDetailPage: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ title: 'เครื่องเติมอากาศ' }} />
+            <Stack.Screen options={{ title: t('Product.Aerator') }} />
             <StatusBar barStyle="dark-content" />
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.productHeader}>
-                    <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    <Image source={require('@/assets/images/product/PPV.png')} style={styles.mainProductImage} resizeMode="contain" />
                     <Text style={styles.productName}>{product.title}</Text>
                     <Text style={styles.productTagline}>{sas[0]}</Text>
                     <Text style={styles.productDescription}>{product.description || t('ProductDetail.DescriptionLong')}</Text>
@@ -164,8 +176,8 @@ const ProductDetailPage: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> เครื่องเติมอากาศรุ่น</Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> ราคา </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Aerator_model')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.price')} </Text>
 
                         </View>
                         {pricingData.map((item) => (
@@ -177,7 +189,7 @@ const ProductDetailPage: React.FC = () => {
                         ))}
 
                         <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * ราคารวมภาษีมูลค่าเพิ่ม 7 % * และยังไม่รวมค่าติดตั้ง  *</Text>
+                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')}  *</Text>
 
                         </View>
 
@@ -186,19 +198,22 @@ const ProductDetailPage: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> สั่งซื้อ / สอบถามข้อมูล @Line</Text>
+                        <Text style={styles.contactButtonText}> {t('Product.Additional_information')} @Line</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Filtration System Section */}
                 <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>ระบบการกรอง</Text>
+                    <Text style={styles.sectionTitle}>{t('Product.system_filter')}</Text>
                     {filtrationSteps.map((step) => (
                         <View key={step.id} style={styles.filtrationStep}>
                             <Image source={step.image} style={styles.filtrationImage} resizeMode="contain" />
                             <View style={styles.filtrationTextContent}>
                                 <Text style={styles.filtrationTitle}>{step.title}</Text>
                                 <Text style={styles.filtrationDescription}>{step.description}</Text>
+                                <Text style={styles.filtrationDescription}>{step.description2}</Text>
+                                <Text style={styles.filtrationDescription}>{step.description3}</Text>
+                                <Text style={styles.filtrationDescription}>{step.description4}</Text>
                             </View>
                         </View>
                     ))}
@@ -207,10 +222,10 @@ const ProductDetailPage: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> เครื่องเติมอากาศรุ่น</Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}>  HEPA H13 </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> Activated Carbon </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}>  หลอด UVc </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Aerator_model')}</Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>  {t('Product.HEPA_H13')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}> { t('Product.Activated_Carbon')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>  {t('Product.UVc_Lamp')} </Text>
                         </View>
                         {pricingfilter.map((item) => (
                             <View key={item.id} style={styles.priceTableRow}>
@@ -222,7 +237,7 @@ const ProductDetailPage: React.FC = () => {
                         ))}
 
                         <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * ราคารวมภาษีมูลค่าเพิ่ม 7 % * และยังไม่รวมค่าติดตั้ง  *</Text>
+                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')}  *</Text>
 
                         </View>
 
@@ -274,15 +289,15 @@ const ProductDetailPage: React.FC = () => {
                     <Text style={styles.sectionTitle}> จอควบคุม Touch Panel</Text>
                     <Image source={require('@/assets/images/product/TouchPanel.png')} style={styles.touchPanelImage} resizeMode="contain" />
                     <View style={styles.bulletPointsContainer}>
-                        <Text style={styles.bulletPoint}> แสดงอุณหภูมิและค่าความชื้น</Text>
-                        <Text style={styles.bulletPoint}> สามารถตั้งเวลาเปิด / ปิด แบบอัตโนมัติ</Text>
-                        <Text style={styles.bulletPoint}> แสดงค่าฝุ่น PM2.5</Text>
-                        <Text style={styles.bulletPoint}> แสดงค่าฝุ่น PM10</Text>
-                        <Text style={styles.bulletPoint}> แสดงค่าคาร์บอนไดออกไซด์</Text>
-                        <Text style={styles.bulletPoint}> แจ้งเตือนให้เปลยนแผ่นกรอง HEPA</Text>
-                        <Text style={styles.bulletPoint}> เชื่อมตอ Wifi และ Application</Text>
-                        <Text style={styles.bulletPoint}> ปรับความแรงลมระบบฟอกอากาศ</Text>
-                        <Text style={styles.bulletPoint}> เก็บข้อมูลค่าฝุ่น สภาพอากาศ</Text>
+                        <Text style={styles.bulletPoint}> • แสดงอุณหภูมิและค่าความชื้น</Text>
+                        <Text style={styles.bulletPoint}> • สามารถตั้งเวลาเปิด / ปิด แบบอัตโนมัติ</Text>
+                        <Text style={styles.bulletPoint}> • แสดงค่าฝุ่น PM2.5</Text>
+                        <Text style={styles.bulletPoint}> • แสดงค่าฝุ่น PM10</Text>
+                        <Text style={styles.bulletPoint}> • แสดงค่าคาร์บอนไดออกไซด์</Text>
+                        <Text style={styles.bulletPoint}> • แจ้งเตือนให้เปลยนแผ่นกรอง HEPA</Text>
+                        <Text style={styles.bulletPoint}> • เชื่อมตอ Wifi และ Application</Text>
+                        <Text style={styles.bulletPoint}> • ปรับความแรงลมระบบฟอกอากาศ</Text>
+                        <Text style={styles.bulletPoint}> • เก็บข้อมูลค่าฝุ่น สภาพอากาศ</Text>
                     </View>
                 </View>
 
@@ -504,6 +519,7 @@ const styles = StyleSheet.create({
         height: 200, // Adjust height as needed
     },
     bulletPointsContainer: {
+        marginTop: 50,
         paddingHorizontal: 10,
     },
     bulletPoint: {
