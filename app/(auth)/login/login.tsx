@@ -432,6 +432,7 @@ const LoginScreen: React.FC = () => {
                                     usernameFalse && styles.inputError
                                 ]}
                                 value={username}
+                                placeholderTextColor="#999"
                                 onChangeText={validateUsername}
                                 placeholder={t('auth.enterUsername')}
                                 autoCapitalize="none"
@@ -455,6 +456,7 @@ const LoginScreen: React.FC = () => {
                                 <TextInput
                                     style={styles.passwordInput}
                                     value={password}
+                                    placeholderTextColor="#999"
                                     onChangeText={validatePassword}
                                     secureTextEntry={!showPassword}
                                     placeholder={t('auth.enterPassword')}
