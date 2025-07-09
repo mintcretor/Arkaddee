@@ -333,6 +333,7 @@ const AddAddressScreen = () => {
         value={formData[field]}
         onChangeText={(text) => handleChange(field, text)}
         placeholder={placeholder}
+        placeholderTextColor="#999"
         keyboardType={keyboardType}
         maxLength={maxLength === null ? undefined : maxLength}
       />
@@ -369,6 +370,7 @@ const AddAddressScreen = () => {
               }}
               setItems={setProvinceItems}
               placeholder={t('address.c_province')}
+              placeholderTextColor="#999"
               onChangeValue={handleProvinceChange}
               listMode="MODAL"
               modalProps={{
@@ -382,6 +384,7 @@ const AddAddressScreen = () => {
               selectedItemContainerStyle={styles.selectedItemContainer}
               searchable={true}
               searchPlaceholder={t('address.searchprovince')}
+              placeholderTextColor="#999"
             />
             {errors.province ? <Text style={styles.errorText}>{errors.province}</Text> : null}
           </View>
@@ -403,6 +406,7 @@ const AddAddressScreen = () => {
               }}
               setItems={setDistrictItems}
               placeholder={t('address.c_District')}
+              placeholderTextColor="#999"
               onChangeValue={handleDistrictChange}
               disabled={!formData.province}
               listMode="MODAL"
@@ -417,6 +421,7 @@ const AddAddressScreen = () => {
               selectedItemContainerStyle={styles.selectedItemContainer}
               searchable={true}
               searchPlaceholder={t('address.searchDistrict')}
+              placeholderTextColor="#999"
             />
             {errors.district ? <Text style={styles.errorText}>{errors.district}</Text> : null}
           </View>
@@ -438,6 +443,7 @@ const AddAddressScreen = () => {
               }}
               setItems={setSubDistrictItems}
               placeholder={t('address.c_Subdistrict')}
+              placeholderTextColor="#999"
               onChangeValue={handleSubDistrictChange}
               disabled={!formData.district}
               listMode="MODAL"
@@ -452,6 +458,7 @@ const AddAddressScreen = () => {
               selectedItemContainerStyle={styles.selectedItemContainer}
               searchable={true}
               searchPlaceholder={t('address.searchSubDistrict')}
+              placeholderTextColor="#999"
             />
             {errors.subDistrict ? <Text style={styles.errorText}>{errors.subDistrict}</Text> : null}
           </View>

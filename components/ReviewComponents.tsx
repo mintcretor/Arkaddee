@@ -395,6 +395,7 @@ export const WriteReviewModal: React.FC<{
                         <TextInput
                             style={styles.reviewInput}
                             placeholder={t('reviews.shareYourExperience')}
+                            placeholderTextColor="#999"
                             multiline={true}
                             numberOfLines={5}
                             value={reviewText}

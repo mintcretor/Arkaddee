@@ -466,6 +466,7 @@ const EditProfileScreen = () => {
                                 style={[styles.input, styles.inputDisabled]}
                                 value={formData.username}
                                 placeholder={t('auth.username_placeholder')}
+                                placeholderTextColor="#999"
                                 editable={false}
                             />
                         </View>
@@ -477,6 +478,7 @@ const EditProfileScreen = () => {
                                 value={formData.displayName}
                                 onChangeText={(text) => handleChange('displayName', text)}
                                 placeholder={t('profile.displayname_placeholder')}
+                                placeholderTextColor="#999"
                             />
                             {errors.displayName && (
                                 <Text style={styles.errorText}>{errors.displayName}</Text>
@@ -490,6 +492,7 @@ const EditProfileScreen = () => {
                                 value={formData.email}
                                 onChangeText={(text) => handleChange('email', text)}
                                 placeholder={t('auth.email_placeholder')}
+                                placeholderTextColor="#999"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                             />

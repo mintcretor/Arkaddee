@@ -154,6 +154,7 @@ const ForgotPasswordScreen: React.FC = () => {
           <TextInput
             style={styles.input}
             value={email}
+            placeholderTextColor="#999"
             placeholder={t('auth.enterEmail')}
             autoCapitalize="none"
             onChangeText={OnchangeMail}
@@ -171,6 +172,7 @@ const ForgotPasswordScreen: React.FC = () => {
         <View style={[styles.emailInputContainer]}>
           <TextInput
             style={styles.input}
+            placeholderTextColor="#999"
             placeholder={t('auth.enterCode')}
             value={code}
             onChangeText={OnchangCode}

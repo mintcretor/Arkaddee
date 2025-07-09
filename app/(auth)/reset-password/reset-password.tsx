@@ -93,6 +93,7 @@ const ResetPasswordScreen: React.FC = () => {
             style={styles.input}
             value={email}
             placeholder={t('auth.email')}
+            placeholderTextColor="#999"
             autoCapitalize="none"
             keyboardType="email-address"
             onChangeText={setEmail}
@@ -106,6 +107,7 @@ const ResetPasswordScreen: React.FC = () => {
             style={styles.input}
             value={code}
             placeholder={t('auth.verifycode')}
+            placeholderTextColor="#999"
             onChangeText={setCode}
             editable={!params.code} // ถ้ามีการส่ง code มาจากหน้าก่อนหน้า จะไม่ให้แก้ไข
           />
@@ -117,6 +119,7 @@ const ResetPasswordScreen: React.FC = () => {
             style={styles.input}
             value={newPassword}
             placeholder={t('auth.newPassword')}
+            placeholderTextColor="#999"
             secureTextEntry
             onChangeText={(text) => {
               setNewPassword(text);
@@ -132,6 +135,7 @@ const ResetPasswordScreen: React.FC = () => {
             style={styles.input}
             value={confirmPassword}
             placeholder={t('auth.confirmNewPassword')}
+            placeholderTextColor="#999"
             secureTextEntry
             onChangeText={setConfirmPassword}
           />

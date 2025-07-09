@@ -239,6 +239,7 @@ export default function HomeProduct() {
             <TextInput
               style={[styles.input, deviceCodeError && { borderColor: '#FF3B30' }]}
               placeholder={t('myhome.Devicepassword')}
+              placeholderTextColor="#999"
               value={deviceCode}
               onChangeText={text => {
                 // อนุญาตทั้งพิมพ์เล็กและพิมพ์ใหญ่

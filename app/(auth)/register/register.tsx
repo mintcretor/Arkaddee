@@ -233,6 +233,7 @@ const SignUpScreen = () => {
                             ]}
                             value={email}
                             placeholder={t('auth.enterEmail')}
+                            placeholderTextColor="#999"
                             autoCapitalize="none"
                             keyboardType="email-address"
                             onChangeText={validateEmail}
@@ -251,6 +252,7 @@ const SignUpScreen = () => {
                             ]}
                             placeholder={t('auth.enterUsername')}
                             value={username}
+                            placeholderTextColor="#999"
                             autoCapitalize="none"
                             onChangeText={validateUsername}
                         />
@@ -282,6 +284,7 @@ const SignUpScreen = () => {
                         <TextInput
                             style={styles.input}
                             placeholder={t('auth.enterDisplayName')}
+                            placeholderTextColor="#999"
                             value={displayName}
                             onChangeText={handleDisplayNameChange}
                         />
@@ -295,6 +298,7 @@ const SignUpScreen = () => {
                                 passwordError ? styles.inputError : null
                             ]}
                             placeholder={t('auth.enterPassword')}
+                            placeholderTextColor="#999"
                             secureTextEntry
                             value={password}
                             onChangeText={validatePassword}
@@ -312,6 +316,7 @@ const SignUpScreen = () => {
                                 confirmPasswordError ? styles.inputError : null
                             ]}
                             placeholder={t('auth.enterConfirmPassword')}
+                            placeholderTextColor="#999"
                             secureTextEntry
                             value={confirmPassword}
                             onChangeText={validateConfirmPassword}

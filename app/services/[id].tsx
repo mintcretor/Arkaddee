@@ -303,6 +303,7 @@ export default function ServiceListingScreen() {
                         <TextInput
                             style={styles.searchInput}
                             placeholder={t('store.searchStorePlaceholder')} // เพิ่ม key ในไฟล์ภาษา เช่น "ค้นหาชื่อร้าน..."
+                            placeholderTextColor="#999"
                             value={searchText}
                             onChangeText={handleSearch}
                             autoFocus
