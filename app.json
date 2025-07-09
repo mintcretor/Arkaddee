@@ -5,7 +5,7 @@
     "version": "1.5.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "arkad",
+    "scheme": "com.appmatrixdevelopment.arkad",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {

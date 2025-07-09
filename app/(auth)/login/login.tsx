@@ -287,7 +287,7 @@ const LoginScreen: React.FC = () => {
 
     const handleGoogleLogin = async (): Promise<void> => {
         try {
-            // console.log('Starting Google auth flow...');
+            
             setIsRedirecting(true);
             setLoadingVisible(true); // Show loading overlay
             await AsyncStorage.setItem('auth_in_progress', 'google');
