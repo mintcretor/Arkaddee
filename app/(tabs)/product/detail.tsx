@@ -287,7 +287,7 @@ const ProductDetailPage: React.FC = () => {
 
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}> จอควบคุม Touch Panel</Text>
-                    <Image source={require('@/assets/images/product/TouchPanel.png')} style={styles.touchPanelImage} resizeMode="contain" />
+                    <Image source={require('@/assets/images/product/Touch_Panel.png')} style={styles.touchPanelImage} resizeMode="contain" />
                     <View style={styles.bulletPointsContainer}>
                         <Text style={styles.bulletPoint}> • แสดงอุณหภูมิและค่าความชื้น</Text>
                         <Text style={styles.bulletPoint}> • สามารถตั้งเวลาเปิด / ปิด แบบอัตโนมัติ</Text>

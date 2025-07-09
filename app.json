@@ -1,12 +1,11 @@
 {
   "expo": {
-    "name": "arkaddee",
+    "name": "arkad",
     "slug": "arkaddee",
-    "owner": "mintdokkan",
     "version": "1.5.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "arkaddee",
+    "scheme": "arkad",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
@@ -23,7 +22,7 @@
       "config": {
         "googleMapsApiKey": "AIzaSyDcVcJlwBUb9eGxORjEMsBBumgZGrpD6WE"
       },
-      "bundleIdentifier": "com.appmatrixdevelopment.arkaddee",
+      "bundleIdentifier": "com.appmatrixdevelopment.arkad",
       "entitlements": {
         "com.apple.developer.applesignin": [
           "Default"
@@ -64,7 +63,7 @@
           "android.hardware.location.network": false
         }
       },
-      "package": "com.appmatrixdevelopment.arkaddee",
+      "package": "com.appmatrixdevelopment.arkad",
       "versionCode": 1
     },
     "plugins": [
@@ -103,7 +102,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "24b9abc3-1588-499f-9576-5f8d3a08d67e"
+        "projectId": "57f37d74-c7e3-4164-b4df-afc966a8f78a"
       }
     }
   }
