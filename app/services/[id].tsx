@@ -829,6 +829,7 @@ const styles = StyleSheet.create({
         marginLeft: 4,
         fontSize: 12,
         fontWeight: 'bold',
+        color:'#000'
     },
     reviews: {
         fontSize: 12,
