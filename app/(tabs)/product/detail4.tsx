@@ -94,22 +94,24 @@ interface WarrantyIcon {
     label: string;
 }
 
+const { width } = Dimensions.get('window');
+
 const ProductDetail4Page: React.FC = () => {
     const { t } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
-    const sas = product?.description?.split(',');
+    const descriptionParts = product.description ? t(product.description)?.split(',') : [];
     console.log();
     // Sample data for the various sections based on the image
     const pricingData: PriceItem[] = [
-    
-        { id: '1',  price: '฿3,200' }
+
+        { id: '1', price: '฿3,200' }
     ];
- 
+
 
     // UPDATED: Using translation keys for name and description
     const airQualityParameters: AirQualityParameter[] = [
- 
+
         { id: '1', nameKey: 'AirQuality.PM2_5_Name', descriptionKey: 'AirQuality.PM2_5_Desc' },
         { id: '2', nameKey: 'AirQuality.Temp_Name', descriptionKey: 'AirQuality.Temp_Desc' },
         { id: '3', nameKey: 'AirQuality.HUM_Name', descriptionKey: 'AirQuality.HUM_Desc' }
@@ -132,7 +134,7 @@ const ProductDetail4Page: React.FC = () => {
     ];
 
     const warrantyIcons: WarrantyIcon[] = [
-        { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: 'Product.warranty_body' }, // Replace with your actual icons
+        { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: t('Product.warranty_body') }, // Replace with your actual icons
     ];
 
 
@@ -144,28 +146,31 @@ const ProductDetail4Page: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ title: sas[0] }} />
+
             <StatusBar barStyle="dark-content" />
             <ScrollView showsVerticalScrollIndicator={false}>
-
                 <View style={styles.productHeader}>
-                    <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    <View style={[{ alignItems: 'center' }]}>
+                        <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    </View>
                     <Text style={styles.productName}>{product.title}</Text>
-                    <Text style={styles.productTagline}>{sas[0]}</Text>
-                    <Text style={styles.productDescription}>{product.description || t('ProductDetail.DescriptionLong')}</Text>
+                    {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
+                    {descriptionParts.map((part, index) => (
+                        <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
+                    ))}
                 </View>
 
                 {/* Price Table Section */}
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
-                            
-                                <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductDetail.Price')}</Text>
+
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductDetail.Price')}</Text>
 
                         </View>
                         {pricingData.map((item) => (
                             <View key={item.id} style={styles.priceTableRow}>
-                            
+
                                 <Text style={styles.priceTableCell}>{item.price}</Text>
 
                             </View>
@@ -234,8 +239,8 @@ const ProductDetail4Page: React.FC = () => {
                         {warrantyIcons.map((item) => (
                             <View key={item.id} style={styles.warrantyIconItem}>
                                 <Image source={item.icon} style={styles.warrantyIcon} />
-                                <Text style={styles.warrantyIconLabel}>{item.label}</Text> 
-                                 </View>
+                                <Text style={styles.warrantyIconLabel}>{item.label}</Text>
+                            </View>
                         ))}
                     </View>
 
@@ -246,7 +251,7 @@ const ProductDetail4Page: React.FC = () => {
                         <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')}</Text>
                     </TouchableOpacity>
                 </View>
-                
+
                 <View style={{ height: 20 }} />
             </ScrollView>
         </SafeAreaView >
@@ -257,9 +262,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+        marginTop: 30
     },
     productHeader: {
-        alignItems: 'center',
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
@@ -276,6 +281,7 @@ const styles = StyleSheet.create({
         width: '80%',
         height: 200,
         marginBottom: 15,
+        marginLeft: 50
     },
     productName: {
         fontSize: 26,
@@ -294,8 +300,9 @@ const styles = StyleSheet.create({
     productDescription: {
         fontSize: 14,
         color: '#666666',
-        textAlign: 'center',
         lineHeight: 22,
+        alignItems: 'flex-start',
+        alignContent: 'flex-start',
     },
     sectionContainer: {
         paddingHorizontal: 15,

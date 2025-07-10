@@ -265,9 +265,9 @@ const Index: React.FC = () => {
                                                 key={category.id}
                                                 style={[
                                                     styles.categoryItem,
-                                                    selectedCategory === category.id && styles.selectedCategoryItem // เพิ่ม style เมื่อถูกเลือก
+                                                    selectedCategory === category.id && styles.selectedCategoryItem
                                                 ]}
-                                                onPress={() => handleCategoryPress(category.id)} // เรียกใช้ฟังก์ชันเปลี่ยนหมวดหมู่
+                                                onPress={() => handleCategoryPress(category.id)}
                                             >
                                                 <View style={[
                                                     styles.categoryImageWrapper,

@@ -161,11 +161,14 @@ const ProductDetail2Page: React.FC = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.productHeader}>
+                    <View style={[{ alignItems: 'center' }]}>
                     <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    </View>
                     <Text style={styles.productName}>{product.title}</Text>
                     {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
                     {descriptionParts.map((part, index) => (
-                        <Text key={index} style={styles.productDescription}> • {t(part.trim())}</Text>
+                        <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
+
                     ))}
                 </View>
 
@@ -311,7 +314,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F7F7',
     },
     productHeader: {
-        alignItems: 'flex-start', // Changed to flex-start for bullet points
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
@@ -401,6 +403,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 14,
         color: '#333333',
+        verticalAlign: 'top',
         paddingHorizontal: 5,
     },
     priceTableCell2: {

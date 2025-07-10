@@ -162,7 +162,9 @@ const ProductDetail3Page: React.FC = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.productHeader}>
-                    <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    <View style={[{ alignItems: 'center' }]}>
+                        <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    </View>
                     <Text style={styles.productName}>{product.title}</Text>
                     {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
                     {descriptionParts.map((part, index) => (
@@ -271,10 +273,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-        marginTop:30
+        marginTop: 30
     },
     productHeader: {
-        alignItems:'flex-start',
+        //  alignItems:'flex-start',
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
@@ -309,8 +311,10 @@ const styles = StyleSheet.create({
     productDescription: {
         fontSize: 14,
         color: '#666666',
-        textAlign: 'center',
+       //textAlign: 'center',
         lineHeight: 22,
+        alignItems: 'flex-start',
+        alignContent: 'flex-start',
     },
     sectionContainer: {
         paddingHorizontal: 15,

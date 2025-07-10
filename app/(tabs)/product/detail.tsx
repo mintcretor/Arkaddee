@@ -81,7 +81,9 @@ const ProductDetailPage: React.FC = () => {
     const { t } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
-    const sas = product?.description?.split(','); // Assuming product.description might contain comma-separated values
+
+    // Assuming product.descriptionKey will return a comma-separated string of translatable bullet points
+    const descriptionParts = product.description ? t(product.description)?.split(',') : [];
 
     // Sample data for the various sections based on the image
     // Prices are usually numbers, so they might not need translation unless formatted differently per locale
@@ -168,13 +170,18 @@ const ProductDetailPage: React.FC = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.productHeader}>
+                    <View style={[{alignItems:'center'}]}>
                     <Image source={require('@/assets/images/product/PPV.png')} style={styles.mainProductImage} resizeMode="contain" />
+                   </View>
                     <Text style={styles.productName}>{product.title}</Text>
-                    <Text style={styles.productTagline}>{sas && sas[0] ? sas[0] : ''}</Text> 
-                    <Text style={styles.productDescription}>{product.description || t('ProductDetail.DescriptionLong')}</Text>
+                    {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
+                    {descriptionParts.map((part, index) => (
+                        <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
+                        
+                    ))}
                 </View>
 
-                
+
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
@@ -199,24 +206,24 @@ const ProductDetailPage: React.FC = () => {
                     </TouchableOpacity>
                 </View>
 
-                
+
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>{t('Product.system_filter')}</Text>
                     {filtrationSteps.map((step) => (
                         <View key={step.id} style={styles.filtrationStep}>
                             <Image source={step.image} style={styles.filtrationImage} resizeMode="contain" />
                             <View style={styles.filtrationTextContent}>
-                                <Text style={styles.filtrationTitle}>{t(step.titleKey)}</Text> 
-                                <Text style={styles.filtrationDescription}>{t(step.descriptionKey)}</Text> 
-                                {step.description2Key ? <Text style={styles.filtrationDescription}>{t(step.description2Key)}</Text> : null} 
-                                {step.description3Key ? <Text style={styles.filtrationDescription}>{t(step.description3Key)}</Text> : null} 
-                                {step.description4Key ? <Text style={styles.filtrationDescription}>{t(step.description4Key)}</Text> : null} 
+                                <Text style={styles.filtrationTitle}>{t(step.titleKey)}</Text>
+                                <Text style={styles.filtrationDescription}>{t(step.descriptionKey)}</Text>
+                                {step.description2Key ? <Text style={styles.filtrationDescription}>{t(step.description2Key)}</Text> : null}
+                                {step.description3Key ? <Text style={styles.filtrationDescription}>{t(step.description3Key)}</Text> : null}
+                                {step.description4Key ? <Text style={styles.filtrationDescription}>{t(step.description4Key)}</Text> : null}
                             </View>
                         </View>
                     ))}
                 </View>
 
-                
+
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
@@ -239,12 +246,12 @@ const ProductDetailPage: React.FC = () => {
                     </View>
                 </View>
 
-                
+
                 <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> {t('Product.specifications_title')}</Text> 
+                    <Text style={styles.sectionTitle}> {t('Product.specifications_title')}</Text>
                     <View style={styles.specTable}>
                         <View style={styles.specTableHeader}>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text> 
+                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text>
                             <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 160</Text>
                             <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 250</Text>
                         </View>
@@ -252,7 +259,7 @@ const ProductDetailPage: React.FC = () => {
                             <View key={index.toString()} style={styles.specTableRow}>
                                 <Text style={[styles.specTableCell, { flex: 2 }]}>
                                     {t(spec.labelKey)}
-                                </Text> 
+                                </Text>
                                 <Text style={[styles.specTableCell, { flex: 2 }]}>
                                     {spec.ppv160t_value} {spec.ppv160t_unit_key ? t(spec.ppv160t_unit_key) : ''}
                                 </Text>
@@ -265,7 +272,7 @@ const ProductDetailPage: React.FC = () => {
 
                     <View style={styles.specTable2}>
                         <View style={styles.specTableHeader}>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text> 
+                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text>
                             <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 350</Text>
                             <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 440</Text>
                         </View>
@@ -273,7 +280,7 @@ const ProductDetailPage: React.FC = () => {
                             <View key={index.toString()} style={styles.specTableRow}>
                                 <Text style={[styles.specTableCell, { flex: 2 }]}>
                                     {t(spec.labelKey)}
-                                </Text> 
+                                </Text>
                                 <Text style={[styles.specTableCell, { flex: 2 }]}>
                                     {spec.ppv160t_value} {spec.ppv160t_unit_key ? t(spec.ppv160t_unit_key) : ''}
                                 </Text>
@@ -285,31 +292,31 @@ const ProductDetailPage: React.FC = () => {
                     </View>
                 </View>
 
-                
+
                 <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> {t('Product.touch_panel_title')}</Text> 
+                    <Text style={styles.sectionTitle}> {t('Product.touch_panel_title')}</Text>
                     <Image source={require('@/assets/images/product/Touch_Panel.png')} style={styles.touchPanelImage} resizeMode="contain" />
                     <View style={styles.bulletPointsContainer}>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_temp_humidity')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_auto_on_off')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_pm25')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_pm10')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_co2')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_hepa_alert')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_wifi_app')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_fan_speed')}</Text> 
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_data_storage')}</Text> 
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_temp_humidity')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_auto_on_off')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_pm25')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_pm10')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_co2')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_hepa_alert')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_wifi_app')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_fan_speed')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_data_storage')}</Text>
                     </View>
                 </View>
 
                 {/* Warranty Section */}
                 <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> {t('Product.warranty_title')}</Text> 
+                    <Text style={styles.sectionTitle}> {t('Product.warranty_title')}</Text>
                     <View style={styles.warrantyIconsContainer}>
                         {warrantyIcons.map((item) => (
                             <View key={item.id} style={styles.warrantyIconItem}>
                                 <Image source={item.icon} style={styles.warrantyIcon} resizeMode="contain" />
-                                <Text style={styles.warrantyIconLabel}>{t(item.labelKey)}</Text> 
+                                <Text style={styles.warrantyIconLabel}>{t(item.labelKey)}</Text>
                             </View>
                         ))}
                     </View>
@@ -318,7 +325,7 @@ const ProductDetailPage: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> {t('Product.order_inquire_line')}</Text> 
+                        <Text style={styles.contactButtonText}> {t('Product.order_inquire_line')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -334,7 +341,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F7F7',
     },
     productHeader: {
-        alignItems: 'center',
+       // alignItems: 'center',
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
@@ -369,7 +376,9 @@ const styles = StyleSheet.create({
     productDescription: {
         fontSize: 14,
         color: '#666666',
-        textAlign: 'center',
+        //textAlign: 'center',
+        alignContent:'flex-start',
+        alignItems:'flex-start',
         lineHeight: 22,
     },
     sectionContainer: {
