@@ -219,11 +219,11 @@ const ProductDetail2Page: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('ProductERV.Aerator_model')}</Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('ProductERV.HEPA_H13')} </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('ProductERV.Activated_Carbon')} </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('ProductERV.Pre_Filter')} </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('ProductERV.UVc_Lamp')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductERV.Aerator_model')}</Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductERV.HEPA_H13')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductERV.Activated_Carbon')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductERV.Pre_Filter')} </Text>
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductERV.UVc_Lamp')} </Text>
                         </View>
                         {pricingfilter.map((item) => (
                             <View key={item.id} style={styles.priceTableRow}>
@@ -412,10 +412,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#333333',
         paddingHorizontal: 5,
+        verticalAlign:'top'
     },
     headerText: {
         color: '#FFFFFF',
         fontWeight: 'bold',
+        verticalAlign:'top'
     },
     contactButton: {
         backgroundColor: '#28A745', // Green color for contact

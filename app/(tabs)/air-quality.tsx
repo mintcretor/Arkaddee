@@ -222,8 +222,6 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
       setLoadingProgress(0.7);
 
       const currentApiSource = apiSourceRef.current;
-
-      // Use the appropriate DataProvider from the Factory
       const dataProvider = DataProviderFactory.getProvider(currentApiSource);
       if (!dataProvider || typeof dataProvider.fetchData !== 'function') {
         throw new Error(t('airQuality.invalidDataProvider', { source: currentApiSource }));
