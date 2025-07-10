@@ -492,7 +492,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
           />
         ))}
       </MapView>
-      
+
       <MapControls
         isDataLoading={isDataLoading}
         apiSource={apiSource}

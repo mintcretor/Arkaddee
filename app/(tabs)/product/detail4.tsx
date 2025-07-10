@@ -132,7 +132,7 @@ const ProductDetail4Page: React.FC = () => {
     ];
 
     const warrantyIcons: WarrantyIcon[] = [
-        { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: 'ตัวเครื่อง 1 ปี' }, // Replace with your actual icons
+        { id: 'warranty1', icon: require('@/assets/images/icons/icon4.png'), label: 'Product.warranty_body' }, // Replace with your actual icons
     ];
 
 
