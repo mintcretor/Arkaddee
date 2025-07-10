@@ -7,9 +7,10 @@ import {
   Text,
   InteractionManager,
   Animated,
+  Platform,
   Alert, // Note: Alert will not function in the web-based Canvas preview.
 } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; // PROVIDER_GOOGLE requires a development build.
+import MapView, { PROVIDER_GOOGLE,PROVIDER_DEFAULT  } from 'react-native-maps'; // PROVIDER_GOOGLE requires a development build.
 import AQIModal from '@/components/AQIModal';
 import { useLocation } from '@/utils/LocationContext';
 import BeautifulLoadingScreen from '@/components/BeautifulLoadingScreen';
@@ -481,7 +482,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         loadingEnabled={true}
         loadingIndicatorColor="#2196F3"
         loadingBackgroundColor="#FFFFFF"
-        provider={PROVIDER_GOOGLE} // Keep PROVIDER_GOOGLE here, but remember it requires a development build.
+       provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
       >
         {aqiPoints.length > 0 && aqiPoints.map((point, index) => (
           <AQIMarker
@@ -491,8 +492,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
           />
         ))}
       </MapView>
-
-      {/* Use MapControls component */}
+      
       <MapControls
         isDataLoading={isDataLoading}
         apiSource={apiSource}

@@ -659,7 +659,7 @@ export default {
     Tabletop: "Tabletop air quality monitor",
     Filters_dust: "Filters dust particles as small as 99.95%.",
     Portable_meter: "Portable air quality meter, compact size, easy to carry, full functions, good air, safe for every trip, can display air quality information on APP.",
-    device_track: "A device that can track air quality in real time with a detailed air quality sensor. It can display air quality information on the APP.",
+    device_track: "A device that can track air quality in real time with a detailed air quality sensor ,It can display air quality information on the APP.",
     UVc_Lamp: "UVC Lamp",
     price: "Price",
     category: "Category",

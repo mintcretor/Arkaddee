@@ -20,7 +20,7 @@ interface ProductDetailData {
     title: string;
     name?: string; // e.g., 'Arkad ERV'
     tagline?: string; // e.g., 'เครื่องเติมอากาศ...' (this will be a direct string from params)
-    descriptionKey?: string; // Changed to key for translation, assuming it returns comma-separated bullet points
+    description?: string; // Changed to key for translation, assuming it returns comma-separated bullet points
     image: ImageSourcePropType;
     features?: string[];
     link?: string;
@@ -79,7 +79,7 @@ const ProductDetail2Page: React.FC = () => {
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
 
     // Assuming product.descriptionKey will return a comma-separated string of translatable bullet points
-    const descriptionParts = product.descriptionKey ? t(product.descriptionKey)?.split(',') : [];
+    const descriptionParts = product.description ? t(product.description)?.split(',') : [];
 
     // Sample data for the various sections based on the image
     const pricingData: PriceItem[] = [

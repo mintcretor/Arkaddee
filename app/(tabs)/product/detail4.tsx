@@ -94,8 +94,6 @@ interface WarrantyIcon {
     label: string;
 }
 
-const { width } = Dimensions.get('window');
-
 const ProductDetail4Page: React.FC = () => {
     const { t } = useTranslation();
     const params = useLocalSearchParams();
@@ -105,22 +103,22 @@ const ProductDetail4Page: React.FC = () => {
     // Sample data for the various sections based on the image
     const pricingData: PriceItem[] = [
     
-        { id: '1',  price: '฿6,500' }
+        { id: '1',  price: '฿3,200' }
     ];
  
 
     // UPDATED: Using translation keys for name and description
     const airQualityParameters: AirQualityParameter[] = [
  
-        { id: '2', nameKey: 'AirQuality.PM2_5_Name', descriptionKey: 'AirQuality.PM2_5_Desc' },
-        { id: '7', nameKey: 'AirQuality.Temp_Name', descriptionKey: 'AirQuality.Temp_Desc' },
-        { id: '8', nameKey: 'AirQuality.HUM_Name', descriptionKey: 'AirQuality.HUM_Desc' }
+        { id: '1', nameKey: 'AirQuality.PM2_5_Name', descriptionKey: 'AirQuality.PM2_5_Desc' },
+        { id: '2', nameKey: 'AirQuality.Temp_Name', descriptionKey: 'AirQuality.Temp_Desc' },
+        { id: '3', nameKey: 'AirQuality.HUM_Name', descriptionKey: 'AirQuality.HUM_Desc' }
     ];
 
     // UPDATED: Using translation keys for parameter label
     const specificData: SpecificDataItem[] = [
         { parameterKey: 'AirQuality.PM2_5_Name', range: '0-999 µg/m³', accuracy: '±10 µg/m³', resolution: '1 µg/m³' },
-        { parameterKey: 'AirQuality.Temp_Name', range: '-10 - 50 °C', accuracy: '±1 °C', resolution: '0.1 °C' },
+        { parameterKey: 'AirQuality.Temp_Name', range: '-10 - 50 °C', accuracy: '±1 °C', resolution: '1 °C' },
         { parameterKey: 'AirQuality.HUM_Name', range: '20%-85% RH', accuracy: '±4% RH', resolution: '1% RH' }
     ];
 

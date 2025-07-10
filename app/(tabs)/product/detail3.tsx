@@ -100,12 +100,14 @@ const ProductDetail3Page: React.FC = () => {
     const { t } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
-    const sas = product?.description?.split(',');
-    console.log();
+
+    // Assuming product.descriptionKey will return a comma-separated string of translatable bullet points
+    const descriptionParts = product.description ? t(product.description)?.split(',') : [];
+    console.log(descriptionParts);
     // Sample data for the various sections based on the image
     const pricingData: PriceItem[] = [
-    
-        { id: '1',  price: '฿6,500' }
+
+        { id: '1', price: '฿6,500' }
     ];
 
 
@@ -156,28 +158,28 @@ const ProductDetail3Page: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ title: sas[0] }} />
             <StatusBar barStyle="dark-content" />
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.productHeader}>
                     <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
                     <Text style={styles.productName}>{product.title}</Text>
-                    <Text style={styles.productTagline}>{sas[0]}</Text>
-                    <Text style={styles.productDescription}>{product.description || t('ProductDetail.DescriptionLong')}</Text>
+                    {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
+                    {descriptionParts.map((part, index) => (
+                        <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
+                    ))}
                 </View>
 
-                {/* Price Table Section */}
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>
                         <View style={styles.priceTableHeader}>
-                            
-                                <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductDetail.Price')}</Text>
+
+                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductDetail.Price')}</Text>
 
                         </View>
                         {pricingData.map((item) => (
                             <View key={item.id} style={styles.priceTableRow}>
-                            
+
                                 <Text style={styles.priceTableCell}>{item.price}</Text>
 
                             </View>
@@ -246,8 +248,8 @@ const ProductDetail3Page: React.FC = () => {
                         {warrantyIcons.map((item) => (
                             <View key={item.id} style={styles.warrantyIconItem}>
                                 <Image source={item.icon} style={styles.warrantyIcon} />
-                                <Text style={styles.warrantyIconLabel}>{item.label}</Text> 
-                                 </View>
+                                <Text style={styles.warrantyIconLabel}>{item.label}</Text>
+                            </View>
                         ))}
                     </View>
 
@@ -258,7 +260,7 @@ const ProductDetail3Page: React.FC = () => {
                         <Text style={styles.contactButtonText}>{t('ProductERV.order_inquire_line')}</Text>
                     </TouchableOpacity>
                 </View>
-                
+
                 <View style={{ height: 20 }} />
             </ScrollView>
         </SafeAreaView >
@@ -269,9 +271,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+        marginTop:30
     },
     productHeader: {
-        alignItems: 'center',
+        alignItems:'flex-start',
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,

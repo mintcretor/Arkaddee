@@ -97,7 +97,7 @@ const Index: React.FC = () => {
             title: 'Arkad ERV',
             category_name: t('Product.Aerator'),
             image: require('@/assets/images/product/ERV.png'),
-            features: [t('Product.air_circulation'),t('Product.pressure_room')],
+            features: [t('Product.air_circulation'), t('Product.pressure_room')],
             link: 'https://arkaddee.com/product/erv',
             path: '/product/detail2',
             category: 2// กำหนด Category ID
@@ -299,7 +299,7 @@ const Index: React.FC = () => {
                                                     onPress={(p: Product) => navigateToProductDetail({
                                                         id: p.id,
                                                         title: p.title,
-                                                        description: p.features ? p.features.join(', ') : '',
+                                                        description: p.features ? p.features.join(',') : '',
                                                         image: p.image,
                                                         link: p.link,
                                                         path: p.path,
