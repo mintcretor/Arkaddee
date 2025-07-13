@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     height: 200,
-    backgroundColor: '#F8F8F8',
+ 
     alignItems: 'center',
     justifyContent: 'center',
   },

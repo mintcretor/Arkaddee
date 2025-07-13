@@ -470,6 +470,8 @@ export default {
     balcony: "Balcony",
     recommend: "Recommend",
     Name_a_room: "Name a room or location for the device",
+    account_link:"This device is already linked to your account.",
+    account_link5:"This device is already linked to 5 other accounts and cannot be linked further.",
     easier_to_remember: "to make it easier to remember",
     Specify_room: "Specify room or location name",
     Name_the_room: "Name the room or location",

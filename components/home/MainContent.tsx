@@ -167,14 +167,14 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
   };
 
   const services = [
-    { id: 1, icon: 'coffee', label:t('home.coffee'), iconType: 'MaterialCommunity', type: 'cafe' },
+    { id: 1, icon: 'coffee', label: t('home.coffee'), iconType: 'MaterialCommunity', type: 'cafe' },
     { id: 2, icon: 'silverware-fork-knife', label: t('home.restaurant'), iconType: 'MaterialCommunity', type: 'restaurant' },
     { id: 3, icon: 'book-open-variant', label: t('home.school'), iconType: 'MaterialCommunity', type: 'school' },
     { id: 5, icon: 'bed', label: t('home.hotel'), iconType: 'Ionicons', type: 'hotel' },
     { id: 6, icon: 'school', label: t('home.university'), iconType: 'MaterialCommunity', type: 'university' },
     { id: 7, icon: 'dumbbell', label: t('home.fitness'), iconType: 'MaterialCommunity', type: 'fitness' },
     { id: 4, icon: 'stethoscope', label: t('home.clinic'), iconType: 'MaterialCommunity', type: 'clinic' },
-    { id: 8, icon: 'plus', label:t('home.other'), iconType: 'MaterialCommunity', type: 'other' },
+    { id: 8, icon: 'plus', label: t('home.other'), iconType: 'MaterialCommunity', type: 'other' },
   ];
 
   // ฟังก์ชันสำหรับการแสดงสถานที่แนะนำโดยไม่ต้องรอตำแหน่ง
@@ -550,7 +550,7 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
             onPress={useDefaultLocation}
           >
             <Text style={styles.skipLocationButtonText}>
-             {t('home.skip')}
+              {t('home.skip')}
             </Text>
           </TouchableOpacity>
         )}
@@ -697,7 +697,7 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
                   {placesHot.length > 6 && !showAllHot && (
                     <View style={{ width: '100%', alignItems: 'center', marginTop: RESPONSIVE_SIZES.spacing.medium }}>
                       <TouchableOpacity
-                        onPress={() => handleServicePress({ id: 0, icon: '', label:  t('store.all'), iconType: 'string', type: 'string' })}
+                        onPress={() => handleServicePress({ id: 0, icon: '', label: t('store.all'), iconType: 'string', type: 'string' })}
                         style={styles.viewAllButton}
                       >
                         <Text style={styles.viewAllButtonText}>{t('home.viewall')}</Text>
@@ -722,13 +722,14 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
         )}
       </View>
       {/* แสดงข่าวกิจกรรม */}
-      <View style={{ backgroundColor: '#ffffff', marginLeft: RESPONSIVE_SIZES.spacing.small, marginRight: RESPONSIVE_SIZES.spacing.small, borderRadius: RESPONSIVE_SIZES.spacing.small, marginTop: RESPONSIVE_SIZES.spacing.small, marginBottom: RESPONSIVE_SIZES.spacing.large * 1.5, paddingTop: RESPONSIVE_SIZES.spacing.large }}>
-        <Text style={[styles.sectionTitle, { marginHorizontal: RESPONSIVE_SIZES.spacing.medium }]}>
-          <Ionicons name="book" size={RESPONSIVE_SIZES.icon.normal} color="#4A6FA5" style={{ marginRight: RESPONSIVE_SIZES.spacing.small }} /> 
-          {t('home.knowledge')}
-        </Text>
+      <View style={{ backgroundColor: '#ffffff', marginLeft: RESPONSIVE_SIZES.spacing.small, marginRight: RESPONSIVE_SIZES.spacing.small, borderRadius: RESPONSIVE_SIZES.spacing.small, marginTop: RESPONSIVE_SIZES.spacing.small, marginBottom: RESPONSIVE_SIZES.spacing.large * 1.5 }}>
+        <View style={[styles.sectionTitleContainer, { marginHorizontal: RESPONSIVE_SIZES.spacing.medium }]}>
+          <Ionicons name="book" size={RESPONSIVE_SIZES.icon.normal} color="#4A6FA5" />
+          <Text style={[styles.sectionTitle, { marginLeft: RESPONSIVE_SIZES.spacing.small,marginTop:20 }]}>
+            {t('home.knowledge')}
+          </Text>
+        </View>
         <View style={[styles.sectionContainer]}>
-          {/* Replace the empty View in the เกร็ดความรู้ section with this content */}
           <View style={styles.knowledgeGrid}>
             <TouchableOpacity style={styles.knowledgeCard} onPress={() => onTopicPress(1)}>
               <View style={styles.knowledgeImageContainer}>
@@ -830,7 +831,7 @@ const styles = StyleSheet.create({
     marginBottom: RESPONSIVE_SIZES.spacing.small,
     borderRadius: RESPONSIVE_SIZES.spacing.small,
     padding: RESPONSIVE_SIZES.spacing.small,
- 
+
     flex: 2
   },
   logoRow: {
@@ -840,7 +841,7 @@ const styles = StyleSheet.create({
   airQualityText: {
     color: 'black',
     fontSize: RESPONSIVE_SIZES.font.normal,
-    verticalAlign: 'middle',
+    paddingTop:12,
     paddingLeft: RESPONSIVE_SIZES.spacing.large,
     fontWeight: '700',
   },
@@ -932,8 +933,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: RESPONSIVE_SIZES.font.medium,
     fontWeight: 'bold',
-    color:'#000',
+    color: '#000',
     marginBottom: RESPONSIVE_SIZES.spacing.medium,
+  }, 
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   placeGrid: {
     flexDirection: 'row',
@@ -1001,7 +1006,7 @@ const styles = StyleSheet.create({
   },
   DisAirQuality: {
     borderColor: '#d0d0d0',
-    color:'#000'
+    color: '#000'
   },
   goodAirQualityText: {
     color: '#4CAF50',
@@ -1023,7 +1028,7 @@ const styles = StyleSheet.create({
   airQualityUnit: {
     fontSize: RESPONSIVE_SIZES.font.tiny,
     fontWeight: 'bold',
-    color:'#000',
+    color: '#000',
     marginTop: scaleSize(-3), // ปรับขนาดระยะห่างให้น้อยลง
   },
   placeInfo: {
@@ -1033,7 +1038,7 @@ const styles = StyleSheet.create({
     fontSize: RESPONSIVE_SIZES.font.normal,
     fontWeight: 'bold',
     marginBottom: RESPONSIVE_SIZES.spacing.tiny,
-    color:'#000'
+    color: '#000'
   },
   ratingContainer: {
     flexDirection: 'row',

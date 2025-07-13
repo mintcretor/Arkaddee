@@ -62,7 +62,7 @@ export default function DeviceLocation() {
       });
       }else{
            
-      Alert.alert(t('common.error'),response.message );
+      Alert.alert(t('common.error'),t(response.message) );
       }
       // นำทางไปยังหน้าสำเร็จ
 

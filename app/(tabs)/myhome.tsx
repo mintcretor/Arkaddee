@@ -99,7 +99,7 @@ export default function ArkadDashboard() {
     if (device_type === 'Arkad_OS') return require('@/assets/images/device/Arkad_OS.png');
     if (device_type === 'Arkad_PBM') return require('@/assets/images/device/Arkad_PBM.png');
     if (device_type === 'Arkad_PBM-001') return require('@/assets/images/device/Arkad_PBM.png');
-    if (device_type === 'Arkad_PCM') return require('@/assets/images/device/Arkad_PCM.jpg');
+    if (device_type === 'Arkad_PCM') return require('@/assets/images/device/Arkad_PCM.png');
     return require('@/assets/images/device/Arkad_WM.png');
   };
 

@@ -39,11 +39,11 @@ const ReviewsFeedScreen = () => {
     useEffect(() => {
         loadReviews();
     }, []);
-useFocusEffect(
-  React.useCallback(() => {
-    loadReviews();
-  }, [])
-);
+    useFocusEffect(
+        React.useCallback(() => {
+            loadReviews();
+        }, [])
+    );
     const loadReviews = async () => {
         try {
             setLoading(true);
@@ -230,8 +230,6 @@ useFocusEffect(
             >
                 <View style={styles.modalContainer}>
                     <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.9)" />
-
-                    {/* Header */}
                     <View style={styles.modalHeader}>
                         <TouchableOpacity
                             style={styles.closeButton}
@@ -245,7 +243,6 @@ useFocusEffect(
                         </Text>
                     </View>
 
-                    {/* Image Container */}
                     <View style={styles.imageContainer}>
                         <Image
                             source={{ uri: selectedImages[currentImageIndex] }}
@@ -428,11 +425,10 @@ useFocusEffect(
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
     safeArea: {
         flex: 1,
-        paddingTop: 30,
+        paddingTop: StatusBar.currentHeight || 30,
     },
     headerContainer: {
         paddingHorizontal: 16,
@@ -440,6 +436,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
+        marginLeft:20,
+        marginRight:20
     },
     backButton: {
         flexDirection: 'row',

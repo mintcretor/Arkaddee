@@ -76,7 +76,7 @@ export default function HomeProduct() {
           device_type: 'Arkad_PCM',
           model: 'Model Arkad-PCM',
           description: 'Portable Control Monitor',
-          image: require('@/assets/images/device/Arkad_PCM.jpg'),
+          image: require('@/assets/images/device/Arkad_PCM.png'),
         },
         {
           id: '6',
@@ -237,7 +237,7 @@ export default function HomeProduct() {
             <Text style={styles.modalTitle}>{t('myhome.Devicepassword')}</Text>
             <Text style={styles.modalDesc}>{t('myhome.note_password')}</Text>
             <TextInput
-              style={[styles.input, deviceCodeError && { borderColor: '#FF3B30' }]}
+              style={[styles.input, deviceCodeError && { borderColor: '#FF3B30',color:'#000' }]}
               placeholder={t('myhome.Devicepassword')}
               placeholderTextColor="#999"
               value={deviceCode}
@@ -436,6 +436,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderWidth: 1,
     borderColor: '#ddd',
+    color:'#000',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,

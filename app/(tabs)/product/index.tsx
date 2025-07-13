@@ -214,7 +214,7 @@ const Index: React.FC = () => {
     };
 
     // ***** ฟังก์ชันจัดการการกด Category ด้านบน *****
-    const handleCategoryPress = (categoryId: string) => {
+    const handleCategoryPress = (categoryId: number) => {
         setSelectedCategory(categoryId); // อัปเดต State ของหมวดหมู่ที่ถูกเลือก
     };
 
@@ -357,6 +357,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+      
     },
     scrollView: {
         flex: 1,
@@ -434,6 +435,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         paddingHorizontal: 10,
         paddingVertical: 20,
+          marginTop:30,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
         borderBottomLeftRadius: 16,
@@ -449,6 +451,7 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width / 4 - 20,
         paddingVertical: 8, // เพิ่ม padding เพื่อให้มีพื้นที่สำหรับ border
         paddingHorizontal: 4,
+        
         borderRadius: 16, // ควรมีค่าเท่ากับ selectedCategoryItem
     },
     categoryImageWrapper: {
@@ -474,10 +477,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginTop: 4,
+        color:'#000'
     },
     categorySubtitle: {
         fontSize: 10,
         textAlign: 'center',
+        color:'#000'
     },
 
     featuredProductSection: {

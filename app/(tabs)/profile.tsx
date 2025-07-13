@@ -463,9 +463,7 @@ const ProfileScreen: React.FC = () => {
               <AntDesign name="heart" size={20} color="#FF5252" />
             </View>
             <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>{t('profile.favarite')}</Text>
-            <View style={styles.favoritesBadge}>
-              <Text style={styles.favoritesBadgeText}>{favoritesCount}</Text>
-            </View>
+          
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
 
@@ -518,10 +516,6 @@ const ProfileScreen: React.FC = () => {
 
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavContainer}>
-        <View style={styles.homeIndicator} />
-      </View>
     </View>
   );
 };

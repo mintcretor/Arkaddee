@@ -635,7 +635,6 @@ export const ReviewsSection: React.FC<{
                     <StarRating rating={stats.averageRating} size={18} />
                     <Text style={styles.totalReviews}>{t('store.from_reviews', { count: stats.totalReviews })}</Text>
                 </View>
-
                 <View style={styles.ratingBreakdown}>
                     {[5, 4, 3, 2, 1].map(star => {
                         const count = stats.ratingBreakdown[star] || 0;
@@ -645,7 +644,7 @@ export const ReviewsSection: React.FC<{
 
                         return (
                             <View key={star} style={styles.ratingBar}>
-                                <Text style={styles.starLabel}>{t('store.star', { count: star })}</Text>
+                                <Text style={styles.starLabel}>{star}  {t('store.star', { count: star })}</Text>
                                 <View style={styles.progressBarContainer}>
                                     <View
                                         style={[
@@ -654,6 +653,7 @@ export const ReviewsSection: React.FC<{
                                         ]}
                                     />
                                 </View>
+                                <Text style={[{marginLeft:10}]}>({count})</Text>
                             </View>
                         );
                     })}
