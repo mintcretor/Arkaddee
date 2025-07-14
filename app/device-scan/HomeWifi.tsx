@@ -344,8 +344,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     marginBottom: 10,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5'
+    borderRadius: 12
   },
   productName: {
     fontSize: 16,

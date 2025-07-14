@@ -651,6 +651,11 @@ export default {
   },
   Product: {
     measuring: "เครื่องตรวจวัดคุณภาพอากาศ",
+ "available_colors_title": "สีที่มีจำหน่าย",
+    "color_white": "สีขาว",
+    "color_white_description": "สะอาดและทันสมัย เข้ากับการตกแต่งทุกรูปแบบได้อย่างลงตัว",
+    "color_black": "สีดำ",
+    "color_black_description": "ดูเรียบหรูและมีสไตล์ เหมาะสำหรับลุคที่ร่วมสมัย",
     air_circulation: "เครื่องเติมอากาศแรงดันบวก ระบบหมุนเวียนอากาศ Energy Recover Ventilation",
     Positive_pressure: "เครื่องเติมอากาศสะอาดหลักการห้องแรงดันบวก โดยจะทำการดึงอากาศจากภายนอกอาคาร หรือนอกห้อง ผ่านระบบกรองอากาศประสิทธิภาพสูง ก่อนที่จะเติมอากาศเข้าห้อง",
     Purifier_Ventilation: "เครื่องเติมอากาศแรงดันบวก Positive Air Purifier Ventilation",

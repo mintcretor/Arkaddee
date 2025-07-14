@@ -75,6 +75,14 @@ interface WarrantyIcon {
     labelKey: string; // Changed to key for translation
 }
 
+// New interface for Color Options
+interface ColorOption {
+    id: string;
+    image: ImageSourcePropType;
+    colorNameKey: string; // Key for color name translation
+    descriptionKey: string; // Key for color description translation
+}
+
 const { width } = Dimensions.get('window');
 
 const ProductDetailPage: React.FC = () => {
@@ -157,6 +165,22 @@ const ProductDetailPage: React.FC = () => {
         { id: 'warranty3', icon: require('@/assets/images/icons/icon5.png'), labelKey: 'Product.warranty_control_panel' },
     ];
 
+    // New Data for Color Options
+    const colorOptions: ColorOption[] = [
+        {
+            id: 'white',
+            image: require('@/assets/images/product/PPV_white.png'), // Assuming you have this image
+            colorNameKey: 'Product.color_white',
+            descriptionKey: 'Product.color_white_description',
+        },
+        {
+            id: 'black',
+            image: require('@/assets/images/product/PPV_black.png'), // Assuming you have this image
+            colorNameKey: 'Product.color_black',
+            descriptionKey: 'Product.color_black_description',
+        },
+    ];
+
     const handleContactPress = (link: string) => {
         if (link) {
             Linking.openURL(link).catch(err => console.error('An error occurred', err));
@@ -170,14 +194,14 @@ const ProductDetailPage: React.FC = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.productHeader}>
-                    <View style={[{alignItems:'center'}]}>
-                    <Image source={require('@/assets/images/product/PPV.png')} style={styles.mainProductImage} resizeMode="contain" />
-                   </View>
+                    <View style={[{ alignItems: 'center' }]}>
+                        <Image source={require('@/assets/images/product/PPV.png')} style={styles.mainProductImage} resizeMode="contain" />
+                    </View>
                     <Text style={styles.productName}>{product.title}</Text>
                     {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
                     {descriptionParts.map((part, index) => (
                         <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
-                        
+
                     ))}
                 </View>
 
@@ -309,6 +333,20 @@ const ProductDetailPage: React.FC = () => {
                     </View>
                 </View>
 
+                {/* New Color Options Section */}
+                <View style={styles.sectionContainer}>
+                    <Text style={styles.sectionTitle}>{t('Product.available_colors_title')}</Text>
+                    {colorOptions.map((color) => (
+                        <View key={color.id} style={styles.colorOptionItem}>
+                            <Image source={color.image} style={styles.colorOptionImage} resizeMode="contain" />
+                            <View style={styles.colorOptionTextContent}>
+                                <Text style={styles.colorOptionName}>{t(color.colorNameKey)}</Text>
+                                <Text style={styles.colorOptionDescription}>{t(color.descriptionKey)}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+
                 {/* Warranty Section */}
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}> {t('Product.warranty_title')}</Text>
@@ -339,9 +377,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+        marginTop: 30,
     },
     productHeader: {
-       // alignItems: 'center',
+        // alignItems: 'center',
         padding: 20,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
@@ -377,8 +416,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666666',
         //textAlign: 'center',
-        alignContent:'flex-start',
-        alignItems:'flex-start',
+        alignContent: 'flex-start',
+        alignItems: 'flex-start',
         lineHeight: 22,
     },
     sectionContainer: {
@@ -537,6 +576,41 @@ const styles = StyleSheet.create({
         color: '#333333', // Explicitly set color for consistency
         marginBottom: 8,
         marginLeft: 10,
+    },
+
+    // New Color Options Styles
+    colorOptionItem: {
+        flexDirection: 'column', // Changed to column for image above text
+        alignItems: 'center',
+        marginBottom: 20,
+        padding: 15,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 1,
+    },
+    colorOptionImage: {
+        width: '80%', // Make image wider
+        height: 150, // Adjust height as needed
+        marginBottom: 10, // Add space between image and text
+    },
+    colorOptionTextContent: {
+        alignItems: 'center', // Center text content
+    },
+    colorOptionName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333333',
+        marginBottom: 5,
+    },
+    colorOptionDescription: {
+        fontSize: 14,
+        color: '#666666',
+        textAlign: 'center', // Center description
+        paddingHorizontal: 10,
     },
 
     // Warranty Section Styles
