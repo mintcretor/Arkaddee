@@ -703,7 +703,6 @@ export default {
     "filter_uvc_description": "For killing germs and bacteria",
     "Aerator_model": "Aerator Model",
     "price": "Price (Baht)",
-    "note_vat": "Price does not include VAT",
     "Additional_information": "More info",
     "system_filter": "Filtration System",
     "specifications_title": "Positive Air Purifier Series (PPV) Specifications",

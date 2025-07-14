@@ -706,7 +706,6 @@ export default {
     filter_uvc_description: "สำหรับฆ่าเชื้อโรคและเชื้อแบคทีเรีย",
     Aerator_model: "รุ่นเครื่องเติมอากาศ",
     price: "ราคา (บาท)",
-    note_vat: "ราคานี้ยังไม่รวมภาษีมูลค่าเพิ่ม",
     Additional_information: "ข้อมูลเพิ่มเติม",
     system_filter: "ระบบการกรอง",
     specifications_title: "ข้อมูลจำเพาะเครื่องเติมอากาศรุ่น Positive Air Purifier Series (PPV)",

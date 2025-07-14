@@ -177,7 +177,7 @@ const ProductDetail4Page: React.FC = () => {
                         ))}
 
                         <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat2')}  *</Text>
+                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat2')} *</Text>
 
                         </View>
 

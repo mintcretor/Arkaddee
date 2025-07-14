@@ -219,7 +219,7 @@ const ProductDetailPage: React.FC = () => {
                             </View>
                         ))}
                         <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')} *</Text>
+                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')} * </Text>
                         </View>
                     </View>
                     <TouchableOpacity
