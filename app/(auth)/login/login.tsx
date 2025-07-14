@@ -34,16 +34,7 @@ interface SocialButtonProps {
     type?: 'google' | 'apple' | 'guest';
 }
 
-// interface AuthResponse { // This interface is not used in this file
-//     success: boolean;
-//     token?: string;
-//     user?: any;
-//     message?: string;
-// }
-
 const SocialButton: React.FC<SocialButtonProps> = ({ icon, text, onPress, disabled }) => {
-    // Simplified: All social buttons currently have the same white background and black text.
-    // If different colors are needed in the future, re-introduce 'type' based logic here.
     const backgroundColor = '#ffffff';
     const textColor = '#000000';
 
@@ -103,6 +94,16 @@ const LoginScreen: React.FC = () => {
                     // console.log('Found pending Google auth, waiting for response...');
                     setLoadingVisible(true); // Show loading if a pending auth was detected
                     setIsRedirecting(true); // Indicate redirect is still expected
+                    // Add a timeout to clear loading if no response comes back within a reasonable time
+                    const timeoutId = setTimeout(async () => {
+                        console.warn('Google auth response timed out, clearing loading state.');
+                        setLoadingVisible(false);
+                        setIsRedirecting(false);
+                        await AsyncStorage.removeItem('auth_in_progress');
+                    }, 15000); // 15 seconds timeout
+
+                    // Return a cleanup function to clear the timeout if the effect re-runs or component unmounts
+                    return () => clearTimeout(timeoutId);
                 } else {
                     setLoadingVisible(false); // No pending login, hide loading
                     setIsRedirecting(false);
@@ -115,7 +116,7 @@ const LoginScreen: React.FC = () => {
         };
 
         checkPendingAuth();
-    }, []);
+    }, []); // Empty dependency array means this runs once on mount
 
     useEffect(() => {
         handleGoogleResponse();
@@ -132,9 +133,11 @@ const LoginScreen: React.FC = () => {
         if (!response) {
             return;
         }
-        console.log('google',response.params.id_token)
-        if (response.type === 'success') {
-            try {
+        console.log('Google Auth Response Type:', response.type); // Log response type for debugging
+        console.log('Google Auth Response Params:', response.params); // Log response params for debugging
+
+        try {
+            if (response.type === 'success') {
                 setLoadingVisible(true); // Ensure loading is visible during processing
 
                 if (!response.params?.id_token) {
@@ -155,23 +158,19 @@ const LoginScreen: React.FC = () => {
                 } else {
                     Alert.alert('Login Failed', authResponse.message || 'Google login failed');
                 }
-            } catch (error) {
-                console.error('Error processing Google response:', error);
-                Alert.alert('Error', 'Failed to process authentication');
-            } finally {
-                setLoadingVisible(false);
-                setIsRedirecting(false);
-                await AsyncStorage.removeItem('auth_in_progress'); // Ensure removed on all paths
+            } else if (response.type === 'error') {
+                console.error('Google auth error:', response.error);
+                Alert.alert('Error', 'Google authentication failed');
+            } else if (response.type === 'dismiss' || response.type === 'cancel') {
+                console.log('Google auth dismissed/cancelled');
+                // No alert needed for dismiss/cancel, just hide loading
             }
-        } else if (response.type === 'error') {
-            console.error('Google auth error:', response.error);
-            Alert.alert('Error', 'Google authentication failed');
+        } catch (error) {
+            console.error('Error processing Google response:', error);
+            Alert.alert('Error', 'Failed to process authentication');
+        } finally {
+            // Always hide loading and clear redirect state, and clear AsyncStorage flag
             setLoadingVisible(false);
-            setIsRedirecting(false);
-            await AsyncStorage.removeItem('auth_in_progress');
-        } else if (response.type === 'dismiss' || response.type === 'cancel') {
-            // console.log('Google auth dismissed/cancelled');
-            setLoadingVisible(false); // Hide loading if dismissed
             setIsRedirecting(false);
             await AsyncStorage.removeItem('auth_in_progress');
         }
@@ -189,7 +188,6 @@ const LoginScreen: React.FC = () => {
             setDeviceIdAvailable(true); // Device ID fetched successfully
         } catch (error) {
             console.error('Error getting device ID:', error);
-            // No Alert.alert here to prevent double alerts
             setDeviceIdAvailable(false); // Indicate device ID is not available
         }
     };
@@ -239,7 +237,6 @@ const LoginScreen: React.FC = () => {
                                     router.push({
                                         pathname: '/(auth)/verify-otp/VerifyOTPScreen',
                                         params: {
-
                                             tempUserId: response.userId,
                                             phoneNumber: response.phoneNumber,
                                             username: username, // ส่ง username ไปด้วยเผื่อใช้แสดงผล
@@ -287,7 +284,6 @@ const LoginScreen: React.FC = () => {
 
     const handleGoogleLogin = async (): Promise<void> => {
         try {
-            
             setIsRedirecting(true);
             setLoadingVisible(true); // Show loading overlay
             await AsyncStorage.setItem('auth_in_progress', 'google');
@@ -295,17 +291,33 @@ const LoginScreen: React.FC = () => {
             if (!request) {
                 console.error('Google auth request not ready');
                 Alert.alert('Error', 'Google authentication is not ready. Please try again.');
+                setLoadingVisible(false); // Hide loading here if request is not ready
+                setIsRedirecting(false);
+                await AsyncStorage.removeItem('auth_in_progress');
                 return;
             }
 
-            // promptAsync will handle the redirect, response will be handled in useEffect
-            await promptAsync({
+            // promptAsync will open the browser. Its promise resolves when the browser is closed/redirected.
+            const authResult = await promptAsync({
                 showInRecents: false,
                 dismissButtonStyle: 'cancel',
             });
 
+            // This block handles immediate resolution from promptAsync itself.
+            // This is crucial for cases where the user dismisses the browser directly.
+            if (authResult.type === 'dismiss' || authResult.type === 'cancel' || authResult.type === 'error') {
+                console.log(`Google auth flow ended with type: ${authResult.type}. Clearing loading state.`);
+                setLoadingVisible(false);
+                setIsRedirecting(false);
+                await AsyncStorage.removeItem('auth_in_progress');
+                // No need to alert here, as handleGoogleResponse (triggered by `response` useEffect)
+                // will handle specific error/dismiss messages if the `response` object also updates.
+                // This is a fail-safe to ensure loading is hidden.
+            }
+            // If authResult.type is 'success', the `response` useEffect will handle it.
+
         } catch (error: any) {
-            console.error('Google prompt error:', error);
+            console.error('Google prompt error (outer catch):', error);
             Alert.alert('Error', `Google login failed: ${error.message}`);
             setLoadingVisible(false);
             setIsRedirecting(false);
@@ -318,13 +330,11 @@ const LoginScreen: React.FC = () => {
             setLoadingVisible(true); // Show loading overlay
 
             if (Platform.OS !== 'ios') {
-                // console.log('Apple Sign In only available on iOS');
                 Alert.alert('ไม่พร้อมใช้งาน', 'Apple Sign In รองรับเฉพาะ iOS เท่านั้น');
                 return;
             }
 
             if (!appleAuthAvailable) {
-                // console.log('Apple Sign In not available on this device');
                 Alert.alert('ไม่พร้อมใช้งาน', 'Apple Sign In ไม่พร้อมใช้งานบนอุปกรณ์นี้');
                 return;
             }
