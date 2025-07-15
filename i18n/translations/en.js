@@ -105,7 +105,8 @@ export default {
     address: "Address",
     review: "Review",
     editProfile: "Edit Profile",
-
+    displayname_placeholder: "Displayname Placeholder",
+    email_placeholder: "Email Placeholder",
     ChangePhoto: "Change Profile Picture",
     displayName: "Display Name",
     sex: "Sex",

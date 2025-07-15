@@ -104,6 +104,8 @@ export default {
     open_recent: "เปิดล่าสุด",
     favarite: "รายการโปรด",
     profile: "ข้อมูลส่วนตัว",
+    displayname_placeholder: "กรุณากรอกชื่อที่ต้องการแสดง",
+    email_placeholder: "กรุณากรอกอีเมลล์",
     successfully_updated: "อัพเดทข้อมูลส่วนตัวเรียบร้อยแล้ว",
     address: "ที่อยู่",
     review: "รีวิว",
@@ -386,7 +388,7 @@ export default {
     checking_login: "กำลังตรวจสอบการเข้าสู่ระบบ...",
     optimizing_for_ipad: "กำลังปรับแต่งสำหรับ iPad...",
     starting_app: "กำลังเริ่มต้นแอป...",
-    update_failed:"อัพเดทล้มเหลว"
+    update_failed: "อัพเดทล้มเหลว"
   },
   myhome: {
     device_deleted_successfully: "ลบอุปกรณ์สำเร็จ",
@@ -414,7 +416,7 @@ export default {
     edit_device_name: "แก้ไขชื่ออุปกรณ์",
     device_settings: "การตั้งค่าอุปกรณ์",
     you_do_not_have_any_device_yet: "คุณยังไม่มีอุปกรณ์",
-    account_link5:"ไม่สามารถเชื่อมโยงอุปกรณ์ได้ อุปกรณ์นี้เชื่อมโยงกับบัญชีอื่นครบ 5 บัญชีแล้ว",
+    account_link5: "ไม่สามารถเชื่อมโยงอุปกรณ์ได้ อุปกรณ์นี้เชื่อมโยงกับบัญชีอื่นครบ 5 บัญชีแล้ว",
     no_products_found: "ไม่พบอุปกรณ์",
     select_your_product: "เลือกอุปกรณ์ของคุณ",
     productsFound: "รายการอุปกรณ์ทั้งหมด",
@@ -445,7 +447,7 @@ export default {
     balcony: "ระเบียง",
     recommend: "แนะนำ",
     Name_a_room: "ตั้งชื่อห้องหรือสถานที่สำหรับอุปกรณ์",
-    account_link:"บัญชีนี้เชื่อมกับอุปกรณืนี้อยู่แล้ว",
+    account_link: "บัญชีนี้เชื่อมกับอุปกรณืนี้อยู่แล้ว",
     easier_to_remember: "เพื่อให้ง่ายต่อการจดจำ",
     searching_device: "กำลังค้นหาอุปกรณ์",
     Specify_room: "ระบุชื่อห้องหรือสถานที่",
@@ -651,7 +653,7 @@ export default {
   },
   Product: {
     measuring: "เครื่องตรวจวัดคุณภาพอากาศ",
- "available_colors_title": "สีที่มีจำหน่าย",
+    "available_colors_title": "สีที่มีจำหน่าย",
     "color_white": "สีขาว",
     "color_white_description": "สะอาดและทันสมัย เข้ากับการตกแต่งทุกรูปแบบได้อย่างลงตัว",
     "color_black": "สีดำ",
