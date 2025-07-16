@@ -491,7 +491,7 @@ const EditProfileScreen = () => {
                                 style={[styles.input, errors.email && styles.inputError]}
                                 value={formData.email}
                                 onChangeText={(text) => handleChange('email', text)}
-                                placeholder={t('auth.email_placeholder')}
+                                placeholder={t('profile.email_placeholder')}
                                 placeholderTextColor="#999"
                                 keyboardType="email-address"
                                 autoCapitalize="none"

@@ -644,7 +644,7 @@ export const ReviewsSection: React.FC<{
 
                         return (
                             <View key={star} style={styles.ratingBar}>
-                                <Text style={styles.starLabel}>{star}  {t('store.star', { count: star })}</Text>
+                                <Text style={styles.starLabel}>{t('store.star', { count: star })}</Text>
                                 <View style={styles.progressBarContainer}>
                                     <View
                                         style={[
