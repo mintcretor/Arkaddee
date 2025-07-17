@@ -2,7 +2,7 @@
   "expo": {
     "name": "arkad",
     "slug": "arkaddee",
-    "version": "1.5.7",
+    "version": "1.6.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.appmatrixdevelopment.arkad",
@@ -64,7 +64,7 @@
         }
       },
       "package": "com.appmatrixdevelopment.arkad",
-      "versionCode": 1
+      "versionCode": 60
     },
     "plugins": [
       "expo-router",
