@@ -10,8 +10,7 @@ import {
   Platform,
   Alert, // Note: Alert will not function in the web-based Canvas preview.
 } from 'react-native';
-// Import Region type for better type safety
-import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT, Region } from 'react-native-maps'; // PROVIDER_GOOGLE requires a development build.
+import MapView, { PROVIDER_GOOGLE,PROVIDER_DEFAULT  } from 'react-native-maps'; // PROVIDER_GOOGLE requires a development build.
 import AQIModal from '@/components/AQIModal';
 import { useLocation } from '@/utils/LocationContext';
 import BeautifulLoadingScreen from '@/components/BeautifulLoadingScreen';
@@ -26,19 +25,18 @@ import AQIRankingModal from '@/components/AQIRankingModal'; // Added ranking mod
 import { useTranslation } from 'react-i18next';
 
 const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for clarity as it's now the route component
-  const mapRef = useRef<MapView | null>(null); // Added type for mapRef
+  const mapRef = useRef(null);
   const [aqiPoints, setAqiPoints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
-  // FIX: Explicitly type 'region' state to be either 'Region' or 'null'
-  const [region, setRegion] = useState<Region | null>(null);
+  const [region, setRegion] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
   // Fix: Explicitly set initial value to false
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { location, loading: locationLoading, error: locationError, refreshLocation } = useLocation();
   const isLoadingRef = useRef(false);
   const apiSourceRef = useRef('default');
-  const regionChangeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null); // Added type for setTimeout ref
+  const regionChangeTimeoutRef = useRef(null);
   const [apiSource, setApiSource] = useState('default');
   const dataFetchedRef = useRef(false);
   const { t } = useTranslation();
@@ -51,98 +49,117 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
   const [isRankingModalVisible, setIsRankingModalVisible] = useState(false);
 
   // Use location from LocationContext
-useEffect(() => {
-  let mounted = true;
-  let locationProgress = 0;
-  let progressInterval: ReturnType<typeof setInterval> | null = null; // Type for setInterval
+  useEffect(() => {
+    let mounted = true;
+    let locationProgress = 0;
 
-  const initializeMap = async () => {
-    try {
-      // ... (loading message and progress updates)
+    const initializeMap = async () => {
+      try {
+        setLoadingMessage(t('airQuality.loadingMap'));
+        setLoadingProgress(0.1);
+        setLoadingProgress(0.2);
 
-      if (location) {
-        const initialRegion: Region = {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.5,
-        };
-        if (mounted) {
-          setRegion(initialRegion); // <-- setState
-        }
-      } else if (locationError || !locationLoading) {
-        const defaultRegion: Region = {
-          latitude: 18.7883,
-          longitude: 98.9853,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.5,
-        };
-        if (mounted) {
-          setRegion(defaultRegion); // <-- setState
-        }
-      }
+        // Wait for location to be ready
+        if (location) {
+          const initialRegion = {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
+          };
 
-      // THIS BLOCK IS PROBLEMATIC
-      if (region && mounted) { // 'region' is a dependency, and you're setting it inside this effect
-        setLoadingMessage(t('airQuality.loadingLocation'));
-        setLoadingProgress(0.4);
+          setLoadingProgress(0.3);
 
-        progressInterval = setInterval(() => {
-          if (locationProgress < 0.9) {
-            locationProgress += 0.1;
-            setLoadingProgress(locationProgress);
-          } else {
-            if (progressInterval) clearInterval(progressInterval);
+          if (mounted) {
+            setRegion(initialRegion);
           }
-        }, 500);
+        } else if (locationError || !locationLoading) {
+          // Use default location
+          const defaultRegion = {
+            latitude: 18.7883,
+            longitude: 98.9853,
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
+          };
+
+          if (mounted) {
+            setRegion(defaultRegion);
+            setLoadingProgress(0.3);
+          }
+        }
+
+        if (region && mounted) {
+          setLoadingMessage(t('airQuality.loadingLocation'));
+          setLoadingProgress(0.4);
+
+          const progressInterval = setInterval(() => {
+            if (locationProgress < 0.9) {
+              locationProgress += 0.1;
+              setLoadingProgress(locationProgress);
+            } else {
+              clearInterval(progressInterval);
+            }
+          }, 500);
+
+          return () => {
+            clearInterval(progressInterval);
+          };
+        }
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        if (mounted) {
+          const defaultRegion = {
+            latitude: 18.7883,
+            longitude: 98.9853,
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
+          };
+          setRegion(defaultRegion);
+          setLoadingProgress(0.5);
+        }
       }
-    } catch (error) {
-      // ... (error handling)
-    }
-  };
+    };
 
-  initializeMap(); // Call the async function
+    const cleanup = initializeMap();
 
-  return () => {
-    mounted = false;
-    if (regionChangeTimeoutRef.current) {
-      clearTimeout(regionChangeTimeoutRef.current);
-    }
-    if (progressInterval) { // Clear the interval on unmount
-      clearInterval(progressInterval);
-    }
-  };
-}, [location, locationLoading, locationError, region, t]);  // Added 'region' and 't' to dependencies
+    return () => {
+      mounted = false;
+      if (regionChangeTimeoutRef.current) {
+        clearTimeout(regionChangeTimeoutRef.current);
+      }
+      if (cleanup && typeof cleanup === 'function') {
+        cleanup();
+      }
+    };
+  }, [location, locationLoading, locationError]);
 
   // Load AQI data after map is ready
   useEffect(() => {
-    // Only fetch data if region is not null, data hasn't been fetched, and no other loading is in progress
     if (region && !dataFetchedRef.current && !isLoadingRef.current) {
-      dataFetchedRef.current = true; // Mark as data fetch initiated
+      dataFetchedRef.current = true;
       fetchAQIData();
     }
-  }, [region]); // Dependency on 'region' ensures this runs when region is set
+  }, [region]);
 
   // Detect apiSource changes
   useEffect(() => {
     apiSourceRef.current = apiSource;
-    if (dataFetchedRef.current) { // Only refetch if data was already fetched at least once
-      setAqiPoints([]); // Clear current points to show loading
-      // Use InteractionManager to ensure UI is responsive before starting heavy fetch
-      InteractionManager.runAfterInteractions(() => {
+    if (dataFetchedRef.current) {
+      setAqiPoints([]);
+      setTimeout(() => {
         fetchAQIData();
-      });
+      }, 100);
     }
   }, [apiSource]);
 
-  const getApiSourceName = useCallback(() => { // Memoize this function
+  const getApiSourceName = () => {
     try {
       return DataProviderFactory.getProviderName(apiSource);
     } catch (error) {
       console.error('Error getting API source name:', error);
       return t('airQuality.unknownSource');
     }
-  }, [apiSource, t]);
+  };
 
   // Function to toggle API source
   const toggleApiSource = useCallback(() => {
@@ -171,7 +188,7 @@ useEffect(() => {
       );
       setIsDataLoading(false);
     }
-  }, [apiSource, availableApiSources, t]); // Removed isLoadingRef.current from dependencies as it's a ref
+  }, [apiSource, isLoadingRef.current, availableApiSources, t]);
 
   // Function to open ranking modal
   const handleOpenRanking = useCallback(() => {
@@ -190,13 +207,13 @@ useEffect(() => {
   }, [aqiPoints.length, isDataLoading, getApiSourceName, t]);
 
   // Function to fetch AQI data using DataProvider
-  const fetchAQIData = useCallback(async () => { // Memoize fetchAQIData
+  const fetchAQIData = async () => {
     if (isLoadingRef.current) {
       console.log("fetchAQIData is already running. Skipping duplicate call.");
       return;
     }
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null; // Type for setTimeout ID
+    let timeoutId;
 
     try {
       isLoadingRef.current = true;
@@ -252,7 +269,7 @@ useEffect(() => {
         });
       }, 500);
 
-    } catch (error: any) { // Explicitly type error as 'any' or 'Error'
+    } catch (error) {
       console.error('Error fetching AQI data:', error);
       // Display alert message
       setLoadingMessage(t('airQuality.errorLoadingData', { error: error.message || 'Unknown reason' }));
@@ -284,40 +301,39 @@ useEffect(() => {
       isLoadingRef.current = false;
     }
 
-    // No need to return cleanup function here, as it's part of the useEffect's return
-    // This function is called directly, not within a useEffect that expects a cleanup.
-  }, [aqiPoints.length, fadeAnim, getApiSourceName, t]); // Added dependencies for useCallback
+    // Return cleanup function
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  };
 
   // Function to handle region change
-  const handleRegionChange = useCallback((newRegion: Region) => { // Type newRegion as Region
+  const handleRegionChange = useCallback((newRegion) => {
     if (regionChangeTimeoutRef.current) {
       clearTimeout(regionChangeTimeoutRef.current);
     }
 
     regionChangeTimeoutRef.current = setTimeout(() => {
-      // Only update region if it's significantly different to avoid excessive re-renders
       if (region) {
         const latDiff = Math.abs(newRegion.latitude - region.latitude);
         const lngDiff = Math.abs(newRegion.longitude - region.longitude);
         const deltaLatDiff = Math.abs(newRegion.latitudeDelta - region.latitudeDelta);
 
-        // A threshold to determine "significant" change
-        const threshold = 0.001; // Adjust as needed
-
-        if (latDiff > threshold || lngDiff > threshold || deltaLatDiff > threshold) {
+        if (latDiff > 0.01 || lngDiff > 0.01 || deltaLatDiff > 0.01) {
           setRegion(newRegion);
         }
       } else {
-        // If region is null (initial load), always set it
         setRegion(newRegion);
       }
 
       regionChangeTimeoutRef.current = null;
     }, 300);
-  }, [region]); // Dependency on 'region'
+  }, [region]);
 
   // Function to handle marker press
-  const handleMarkerPress = useCallback((marker: any) => { // Type marker as any for now, or define a specific type
+  const handleMarkerPress = useCallback((marker) => {
     if (marker && marker.id) {
       // Fix: Check marker data before showing modal
       InteractionManager.runAfterInteractions(() => {
@@ -329,8 +345,8 @@ useEffect(() => {
   }, []);
 
   // Function to skip location loading
-  const skipLocationLoading = useCallback(() => { // Memoize skipLocationLoading
-    const defaultRegion: Region = { // Explicitly type defaultRegion as Region
+  const skipLocationLoading = () => {
+    const defaultRegion = {
       latitude: 18.7883,
       longitude: 98.9853,
       latitudeDelta: 0.5,
@@ -339,7 +355,7 @@ useEffect(() => {
     setRegion(defaultRegion);
     setLoadingProgress(0.4);
     setLoadingMessage(t('airQuality.loadingSkipped'));
-  }, [t]);
+  };
 
   // Function to go to current location
   const goToCurrentLocation = useCallback(async () => {
@@ -411,7 +427,7 @@ useEffect(() => {
           }
         }, 1000);
       }
-    } catch (error: any) { // Explicitly type error as 'any' or 'Error'
+    } catch (error) {
       console.error('Error going to current location:', error);
       Alert.alert(
         t('airQuality.locationError'),
@@ -424,21 +440,21 @@ useEffect(() => {
   }, [location, refreshLocation, t]);
 
   // Display beautiful loading screen
-  if (isLoading || !region) { // Ensure map is not rendered until 'region' is set
+  if (isLoading) {
     return (
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <BeautifulLoadingScreen
           progress={loadingProgress}
           message={loadingMessage}
         />
-        {loadingProgress <= 0.3 && (
+       
           <TouchableOpacity
             style={styles.skipButton}
             onPress={skipLocationLoading}
           >
             <Text style={styles.skipButtonText}>{t('airQuality.skiplocation')}</Text>
           </TouchableOpacity>
-        )}
+  
       </Animated.View>
     );
   }
@@ -448,7 +464,7 @@ useEffect(() => {
       <MapView
         ref={mapRef}
         style={styles.map}
-        initialRegion={region} // 'region' is guaranteed to be a 'Region' object here
+        initialRegion={region}
         showsUserLocation={true}
         onRegionChangeComplete={handleRegionChange}
         maxZoomLevel={16}
@@ -464,7 +480,7 @@ useEffect(() => {
         loadingEnabled={true}
         loadingIndicatorColor="#2196F3"
         loadingBackgroundColor="#FFFFFF"
-        provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
+       provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
       >
         {aqiPoints.length > 0 && aqiPoints.map((point, index) => (
           <AQIMarker
@@ -488,7 +504,7 @@ useEffect(() => {
 
       {/* Modal to display AQI point details */}
       {/* Fix: Ensure modal only shows when a marker is selected and visible status is true */}
-      {selectedMarker && ( // Render only if selectedMarker exists
+      {selectedMarker && (
         <AQIModal
           visible={isModalVisible}
           marker={selectedMarker}
@@ -519,7 +535,7 @@ const styles = StyleSheet.create({
   map: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    marginTop: 40
+    marginTop:40
   },
   skipButton: {
     position: 'absolute',
@@ -536,4 +552,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(AirQualityScreen);
+export default React.memo(AirQualityScreen); // Changed export to match the new component name
