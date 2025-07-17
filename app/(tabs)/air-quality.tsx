@@ -267,7 +267,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         }).start(() => {
           setIsLoading(false);
         });
-      }, 500);
+      }, 100);
 
     } catch (error) {
       console.error('Error fetching AQI data:', error);
@@ -294,7 +294,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         }).start(() => {
           setIsLoading(false);
         });
-      }, 1000);
+      }, 1200);
     } finally {
       // Cleanup
       setIsDataLoading(false);
@@ -439,25 +439,6 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
     }
   }, [location, refreshLocation, t]);
 
-  // Display beautiful loading screen
-  if (isLoading) {
-    return (
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        <BeautifulLoadingScreen
-          progress={loadingProgress}
-          message={loadingMessage}
-        />
-       
-          <TouchableOpacity
-            style={styles.skipButton}
-            onPress={skipLocationLoading}
-          >
-            <Text style={styles.skipButtonText}>{t('airQuality.skiplocation')}</Text>
-          </TouchableOpacity>
-  
-      </Animated.View>
-    );
-  }
 
   return (
     <View style={styles.container}>
