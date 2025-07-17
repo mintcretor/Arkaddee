@@ -265,7 +265,7 @@ export default {
     searchStorePlaceholder: "ค้นหาชื่อร้าน...",
     services: "บริการ",
     from_reviews: "จาก {{count}} รีวิว",
-    star_count: "{{count}} ดาว", // Renamed to avoid conflict with generic 'star'
+    star: "{{count}} ดาว", // Renamed to avoid conflict with generic 'star'
     loading_reviews: "กำลังโหลดรีวิว...",
     no_reviews: "ยังไม่มีรีวิว เป็นคนแรกที่รีวิวร้านนี้",
     add_images: "เพิ่มรูปภาพ ({{count}}/5)",
@@ -327,6 +327,7 @@ export default {
     clickfordetail: "กดเพื่อดูรายละเอียด",
     loadingInProgress: "กำลังโหลดข้อมูล...",
     errorLoadingData: "เกิดข้อผิดพลาดในการโหลดข้อมูล",
+    info: 'ข้อผิดพลาด',
     error: "ข้อผิดพลาด",
     checkerror: "กรุณาตรวจสอบข้อมูลให้ถูกต้อง",
     loading: "กำลังโหลดข้อมูล...",
@@ -369,6 +370,9 @@ export default {
     fileSizeLimit: "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 20MB",
     loginRequiredUpload: "กรุณาเข้าสู่ระบบก่อนอัปโหลดรูปโปรไฟล์",
     profilePicUpdated: "อัปเดตรูปโปรไฟล์เรียบร้อยแล้ว",
+    displayname_required: "กรุณากรอกชื่อเล่น",
+    email_required: "กรุณกรอกอีเมลล์",
+    email_invalid_format: "รูปแบบอีเมลล์ไม่ถูกต้อง",
     uploadFailed: "ไม่สามารถอัปโหลดรูปภาพได้",
     uploadFailedTryAgain: "ไม่สามารถอัปโหลดรูปโปรไฟล์ได้ กรุณาลองใหม่อีกครั้ง",
     choosePhotoMethod: "เลือกวิธีการเปลี่ยนรูปโปรไฟล์",

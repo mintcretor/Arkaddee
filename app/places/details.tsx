@@ -1104,6 +1104,7 @@ const styles = StyleSheet.create({
         fontSize: 8,
         fontWeight: 'bold',
         marginTop: -5,
+        color:'#000'
     },
 
     // Weather overlay styles

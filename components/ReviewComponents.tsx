@@ -653,7 +653,7 @@ export const ReviewsSection: React.FC<{
                                         ]}
                                     />
                                 </View>
-                                <Text style={[{marginLeft:10}]}>({count})</Text>
+                                <Text style={[{marginLeft:10,color:'#000'}]}>({count})</Text>
                             </View>
                         );
                     })}
