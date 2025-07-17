@@ -250,7 +250,7 @@ function MainLayout() {
   const handleBackPress = useCallback(() => {
     console.log(isMounted.current);
     try {
-      if (!isAuthReady || !isMounted.current) {
+      if (!isAuthReady) {
         console.log('Auth not ready or component unmounted, ignoring back press');
         return true;
       }
@@ -273,7 +273,7 @@ function MainLayout() {
 
       // ขั้นที่ 3: ถ้าออกจากระบบแล้ว และอยู่ในหน้า Auth อื่นๆ (ไม่ใช่ login)
       // ให้ไปหน้า login แทนการกลับหน้า home
-      if (!isSignedIn && isAuthScreen() && !isLoginScreen()) {
+      if (!isSignedIn || isAuthScreen() && !isLoginScreen()) {
         safeNavigate(router, () => router.replace('/(auth)/login/login'));
         return true;
       }
@@ -284,9 +284,15 @@ function MainLayout() {
         safeNavigate(
           router,
           () => {
+            if (!isSignedIn || isAuthScreen() && !isLoginScreen()) {
+              safeNavigate(router, () => router.replace('/(auth)/login/login'));
+              return true;
+            } else {
+              router.replace('/(tabs)/home');
+            }
             // Always navigate to home when going back from a non-main, non-auth screen
             console.log('Navigating back to home screen.');
-            router.replace('/(tabs)/home');
+
           },
           () => {
             // Fallback if replace fails
