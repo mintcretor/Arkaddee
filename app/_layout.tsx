@@ -225,7 +225,7 @@ function MainLayout() {
               onPress={() => setShowModal(false)}
             >
               <View>
-              <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
+                <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -250,7 +250,6 @@ function MainLayout() {
   // ✅ จัดการกับการกดปุ่มย้อนกลับ - ปรับปรุงให้ปลอดภัยขึ้น
   const handleBackPress = useCallback(() => {
     try {
-      // ✅ Basic safety checks
       if (!isAuthReady || !isMounted.current) {
         console.log('Auth not ready or component unmounted, ignoring back press');
         return true;
@@ -265,53 +264,43 @@ function MainLayout() {
         return true;
       }
 
-      // ขั้นที่ 2: ถ้าอยู่ในหน้าหลักหรือหน้า login ให้แสดงกล่องยืนยันการออก
+      // ขั้นที่ 2: ถ้าอยู่ในหน้าหลักอยู่แล้ว หรือเป็นหน้าล็อกอิน
+      // ให้แสดงกล่องยืนยันการออกแอป ไม่ใช่กลับหน้า home
       if (isMainScreen() || isLoginScreen() || pathname === '/(auth)' || pathname === '/(auth)/') {
         setShowModal(true);
         return true;
       }
 
-      // ขั้นที่ 3: ถ้าออกจากระบบแล้ว ให้แสดงกล่องยืนยันการออกจากแอพ
-      if (!isSignedIn && isAuthScreen()) {
-        setShowModal(true);
+      // ขั้นที่ 3: ถ้าออกจากระบบแล้ว และอยู่ในหน้า Auth อื่นๆ (ไม่ใช่ login)
+      // ให้ไปหน้า login แทนการกลับหน้า home
+      if (!isSignedIn && isAuthScreen() && !isLoginScreen()) {
+        safeNavigate(router, () => router.replace('/(auth)/login/login'));
         return true;
       }
 
-      // ✅ ขั้นที่ 4: Safe back navigation
+      // ขั้นที่ 4: ถ้าสามารถย้อนกลับได้ และไม่ได้อยู่ในกรณีข้างต้น ให้กลับไปที่หน้า home เสมอ
       const canGoBack = router?.canGoBack?.();
       if (canGoBack) {
-        // safeNavigate is async, but BackHandler expects a sync return.
-        // So we call safeNavigate but always return true synchronously.
         safeNavigate(
           router,
           () => {
-            if (isSignedIn) {
-              console.log('User is logged in, going back normally');
-              router.back();
-            } else if (!isAuthScreen()) {
-              console.log('User not logged in, redirecting to login');
-              router.replace('/(auth)/login/login');
-            } else {
-              console.log('Normal back navigation');
-              router.back();
-            }
+            // Always navigate to home when going back from a non-main, non-auth screen
+            console.log('Navigating back to home screen.');
+            router.replace('/(tabs)/home');
           },
           () => {
-            // Fallback: ไปหน้าที่เหมาะสม
-            if (isSignedIn) {
-              router.replace('/(tabs)/home');
-            } else {
-              router.replace('/(auth)/login/login');
-            }
+            // Fallback if replace fails
+            console.error('Fallback navigation to home failed.');
+            router.replace('/(tabs)/home');
           }
         );
         return true;
       }
 
-      // ขั้นที่ 5: ถ้าไม่มีที่ให้กลับแล้ว ให้แสดงกล่องยืนยันการออก
+      // ขั้นที่ 5: ถ้าไม่มีที่ให้กลับแล้ว (เช่น เริ่มต้นแอปที่หน้า Home โดยตรง)
+      // ให้แสดงกล่องยืนยันการออก
       setShowModal(true);
       return true;
-
     } catch (error) {
       console.error('Error in handleBackPress:', error);
       // แสดงโมดัลแทน crash
@@ -326,8 +315,10 @@ function MainLayout() {
     router,
     isMainScreen,
     isAuthScreen,
-    isLoginScreen
+    isLoginScreen,
+    safeNavigate // Make sure safeNavigate is in the dependency array
   ]);
+
 
   // ✅ BackHandler setup - ปรับปรุงให้ปลอดภัยขึ้น
   useEffect(() => {

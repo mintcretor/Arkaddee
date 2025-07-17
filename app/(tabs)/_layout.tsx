@@ -23,14 +23,8 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colorScheme === 'dark' ? '#4B74B3' : '#4B74B3',
-          height: 60 + insets.bottom, // *** เพิ่มความสูงตาม insets.bottom ***
-          paddingBottom: insets.bottom, // *** เพิ่ม padding ด้านล่างตาม insets.bottom เพื่อดันเนื้อหาขึ้น ***
-          // ลบ position: 'absolute' และ bottom: 0 ออก หรือปรับใช้อย่างระมัดระวัง
-          // ถ้าใช้ position: 'absolute', bottom: 0; มันจะเพิกเฉย safe area insets
-          // ถ้าไม่ลบออก, ต้องมั่นใจว่า paddingBottom ได้ผลจริงๆ
-          // สำหรับกรณีนี้, หากยังซ้อนทับ ให้ลองลบ 'position' และ 'bottom' ออก
-          // หรือลองใช้ bottom: insets.bottom แทน bottom: 0;
-          // แต่โดยทั่วไป, ถ้าไม่ได้กำหนด position, ระบบจะจัดการให้
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom, 
         },
         tabBarInactiveTintColor: '#fff',
         tabBarActiveTintColor: '#000',
