@@ -231,16 +231,16 @@ const ProductDetailPage: React.FC = () => {
                             <Image source={step.image} style={styles.filtrationImage} resizeMode="contain" />
                             <View style={styles.filtrationTextContent}>
                                 <Text style={styles.filtrationTitle}>{t(step.titleKey)}</Text>
-                                <Text style={styles.filtrationDescription}>{t(step.descriptionKey)}</Text>
-                                {step.description2Key ? <Text style={styles.filtrationDescription}>{t(step.description2Key)}</Text> : null}
-                                {step.description3Key ? <Text style={styles.filtrationDescription}>{t(step.description3Key)}</Text> : null}
-                                {step.description4Key ? <Text style={styles.filtrationDescription}>{t(step.description4Key)}</Text> : null}
-                                {step.description5Key ? <Text style={styles.filtrationDescription}>{t(step.description5Key)}</Text> : null}
+                                <Text style={styles.filtrationDescription}> • {t(step.descriptionKey)}</Text>
+                                {step.description2Key ? <Text style={styles.filtrationDescription}> • {t(step.description2Key)}</Text> : null}
+                                {step.description3Key ? <Text style={styles.filtrationDescription}> • {t(step.description3Key)}</Text> : null}
+                                {step.description4Key ? <Text style={styles.filtrationDescription}> • {t(step.description4Key)}</Text> : null}
+                                {step.description5Key ? <Text style={styles.filtrationDescription}> • {t(step.description5Key)}</Text> : null}
                             </View>
                         </View>
                     ))}
                 </View>
-
+      
 
                 <View style={styles.sectionContainer}>
                     <View style={styles.priceTable}>

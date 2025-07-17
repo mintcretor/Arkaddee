@@ -8,30 +8,29 @@ import {
   InteractionManager,
   Animated,
   Platform,
-  Alert, // Note: Alert will not function in the web-based Canvas preview.
+  Alert,
 } from 'react-native';
-import MapView, { PROVIDER_GOOGLE,PROVIDER_DEFAULT  } from 'react-native-maps'; // PROVIDER_GOOGLE requires a development build.
+import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import AQIModal from '@/components/AQIModal';
 import { useLocation } from '@/utils/LocationContext';
 import BeautifulLoadingScreen from '@/components/BeautifulLoadingScreen';
 import * as Location from 'expo-location';
-import { Linking } from 'react-native'; // Linking.openSettings() will not function in the web-based Canvas preview.
+import { Linking } from 'react-native';
 
 // Import separated components
 import AQIMarker from '@/components/map/AQIMarker';
 import MapControls from '@/components/map/MapControls';
 import DataProviderFactory from '@/services/DataProviders/DataProviderFactory';
-import AQIRankingModal from '@/components/AQIRankingModal'; // Added ranking modal import
+import AQIRankingModal from '@/components/AQIRankingModal';
 import { useTranslation } from 'react-i18next';
 
-const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for clarity as it's now the route component
+const AirQualityScreen = () => {
   const mapRef = useRef(null);
   const [aqiPoints, setAqiPoints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [region, setRegion] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
-  // Fix: Explicitly set initial value to false
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { location, loading: locationLoading, error: locationError, refreshLocation } = useLocation();
   const isLoadingRef = useRef(false);
@@ -41,26 +40,65 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
   const dataFetchedRef = useRef(false);
   const { t } = useTranslation();
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [loadingMessage, setLoadingMessage] = useState("กำลังโหลดแผนที่..."); // Initial message in Thai
+  const [loadingMessage, setLoadingMessage] = useState("กำลังโหลดแผนที่...");
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const availableApiSources = DataProviderFactory.getAvailableProviders();
+  
+  // Add timeout refs for better control
+  const locationTimeoutRef = useRef(null);
+  const dataTimeoutRef = useRef(null);
+  const mountedRef = useRef(true);
 
   // State for ranking modal
   const [isRankingModalVisible, setIsRankingModalVisible] = useState(false);
 
-  // Use location from LocationContext
+  // **MODIFIED: Extended timeout to 2 minutes (120 seconds)**
   useEffect(() => {
     let mounted = true;
-    let locationProgress = 0;
+    mountedRef.current = true;
+    
+    const DEFAULT_REGION = {
+      latitude: 18.7883,
+      longitude: 98.9853,
+      latitudeDelta: 0.5,
+      longitudeDelta: 0.5,
+    };
 
     const initializeMap = async () => {
       try {
+        if (!mounted) return;
+        
         setLoadingMessage(t('airQuality.loadingMap'));
         setLoadingProgress(0.1);
-        setLoadingProgress(0.2);
+        
+        // **MODIFIED: Extended location timeout to 2 minutes (120 seconds)**
+        locationTimeoutRef.current = setTimeout(() => {
+          if (mounted && !region) {
+            console.log('Location timeout after 2 minutes - using default region');
+            setRegion(DEFAULT_REGION);
+            setLoadingProgress(0.4);
+            setLoadingMessage(t('airQuality.loadingData'));
+          }
+        }, 120000); // Changed from 5000 to 120000 (2 minutes)
 
-        // Wait for location to be ready
-        if (location) {
+        // **MODIFIED: Slower progressive loading updates for 2-minute duration**
+        const progressInterval = setInterval(() => {
+          if (mounted) {
+            setLoadingProgress(prev => {
+              // Slower progress increment to stretch over 2 minutes
+              const newProgress = Math.min(prev + 0.01, 0.35); // Reduced from 0.05 to 0.01
+              return newProgress;
+            });
+          }
+        }, 1000); // Changed from 200ms to 1000ms (1 second intervals)
+
+        // Handle location
+        if (location && location.latitude && location.longitude) {
+          if (locationTimeoutRef.current) {
+            clearTimeout(locationTimeoutRef.current);
+          }
+          clearInterval(progressInterval);
+          
           const initialRegion = {
             latitude: location.latitude,
             longitude: location.longitude,
@@ -68,54 +106,39 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
             longitudeDelta: 0.5,
           };
 
-          setLoadingProgress(0.3);
-
           if (mounted) {
             setRegion(initialRegion);
+            setLoadingProgress(0.4);
+            setLoadingMessage(t('airQuality.loadingData'));
           }
-        } else if (locationError || !locationLoading) {
-          // Use default location
-          const defaultRegion = {
-            latitude: 18.7883,
-            longitude: 98.9853,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
-          };
-
+        } else if (locationError || (!locationLoading && !location)) {
+          if (locationTimeoutRef.current) {
+            clearTimeout(locationTimeoutRef.current);
+          }
+          clearInterval(progressInterval);
+          
           if (mounted) {
-            setRegion(defaultRegion);
-            setLoadingProgress(0.3);
+            console.log('Using default location due to error or no location');
+            setRegion(DEFAULT_REGION);
+            setLoadingProgress(0.4);
+            setLoadingMessage(t('airQuality.loadingData'));
           }
         }
 
-        if (region && mounted) {
-          setLoadingMessage(t('airQuality.loadingLocation'));
-          setLoadingProgress(0.4);
+        // Cleanup function
+        return () => {
+          clearInterval(progressInterval);
+          if (locationTimeoutRef.current) {
+            clearTimeout(locationTimeoutRef.current);
+          }
+        };
 
-          const progressInterval = setInterval(() => {
-            if (locationProgress < 0.9) {
-              locationProgress += 0.1;
-              setLoadingProgress(locationProgress);
-            } else {
-              clearInterval(progressInterval);
-            }
-          }, 500);
-
-          return () => {
-            clearInterval(progressInterval);
-          };
-        }
       } catch (error) {
         console.error('Error initializing map:', error);
         if (mounted) {
-          const defaultRegion = {
-            latitude: 18.7883,
-            longitude: 98.9853,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
-          };
-          setRegion(defaultRegion);
-          setLoadingProgress(0.5);
+          setRegion(DEFAULT_REGION);
+          setLoadingProgress(0.4);
+          setLoadingMessage(t('airQuality.loadingData'));
         }
       }
     };
@@ -124,19 +147,51 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
 
     return () => {
       mounted = false;
+      mountedRef.current = false;
       if (regionChangeTimeoutRef.current) {
         clearTimeout(regionChangeTimeoutRef.current);
+      }
+      if (locationTimeoutRef.current) {
+        clearTimeout(locationTimeoutRef.current);
+      }
+      if (dataTimeoutRef.current) {
+        clearTimeout(dataTimeoutRef.current);
       }
       if (cleanup && typeof cleanup === 'function') {
         cleanup();
       }
     };
-  }, [location, locationLoading, locationError]);
+  }, [location, locationLoading, locationError, t]);
 
-  // Load AQI data after map is ready
+  // **MODIFIED: Extended data fetching timeout to 2 minutes**
   useEffect(() => {
-    if (region && !dataFetchedRef.current && !isLoadingRef.current) {
+    if (region && !dataFetchedRef.current && !isLoadingRef.current && mountedRef.current) {
       dataFetchedRef.current = true;
+      
+      // **MODIFIED: Extended data fetch timeout to 2 minutes (120 seconds)**
+      dataTimeoutRef.current = setTimeout(() => {
+        if (mountedRef.current && isLoadingRef.current) {
+          console.log('Data fetch timeout after 2 minutes - proceeding with empty data');
+          setIsDataLoading(false);
+          isLoadingRef.current = false;
+          setLoadingProgress(1);
+          
+          setTimeout(() => {
+            if (mountedRef.current) {
+              Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+              }).start(() => {
+                if (mountedRef.current) {
+                  setIsLoading(false);
+                }
+              });
+            }
+          }, 500);
+        }
+      }, 120000); // Changed from 15000 to 120000 (2 minutes)
+      
       fetchAQIData();
     }
   }, [region]);
@@ -144,10 +199,12 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
   // Detect apiSource changes
   useEffect(() => {
     apiSourceRef.current = apiSource;
-    if (dataFetchedRef.current) {
+    if (dataFetchedRef.current && mountedRef.current) {
       setAqiPoints([]);
       setTimeout(() => {
-        fetchAQIData();
+        if (mountedRef.current) {
+          fetchAQIData();
+        }
       }, 100);
     }
   }, [apiSource]);
@@ -183,7 +240,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
       console.error('Error toggling API source:', error);
       Alert.alert(
         t('common.error'),
-        t('common.errorLoadingData', { error: error.message || 'Unknown reason' }), // Translated error message
+        t('common.errorLoadingData', { error: error.message || 'Unknown reason' }),
         [{ text: t('common.ok'), style: 'default' }]
       );
       setIsDataLoading(false);
@@ -192,7 +249,6 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
 
   // Function to open ranking modal
   const handleOpenRanking = useCallback(() => {
-    // Check if there is data on the map
     if (aqiPoints.length === 0 && !isDataLoading) {
       Alert.alert(
         t('airQuality.noData'),
@@ -201,110 +257,163 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
       );
       return;
     }
-
-    // Open ranking modal
     setIsRankingModalVisible(true);
   }, [aqiPoints.length, isDataLoading, getApiSourceName, t]);
 
-  // Function to fetch AQI data using DataProvider
+  // **MODIFIED: Extended fetchAQIData timeout to 2 minutes**
   const fetchAQIData = async () => {
-    if (isLoadingRef.current) {
-      console.log("fetchAQIData is already running. Skipping duplicate call.");
+    if (isLoadingRef.current || !mountedRef.current) {
+      console.log("fetchAQIData is already running or component unmounted. Skipping duplicate call.");
       return;
     }
 
     let timeoutId;
+    let progressInterval;
 
     try {
       isLoadingRef.current = true;
       setIsDataLoading(true);
       setLoadingMessage(t('airQuality.loadingData'));
-      setLoadingProgress(0.7);
+      setLoadingProgress(0.5);
+
+      // Clear any existing data timeout
+      if (dataTimeoutRef.current) {
+        clearTimeout(dataTimeoutRef.current);
+      }
+
+      // **MODIFIED: Slower progressive loading for data fetch over 2 minutes**
+      progressInterval = setInterval(() => {
+        if (mountedRef.current) {
+          setLoadingProgress(prev => {
+            // Slower progress increment to stretch over 2 minutes
+            const newProgress = Math.min(prev + 0.01, 0.9); // Reduced from 0.05 to 0.01
+            return newProgress;
+          });
+        }
+      }, 2000); // Changed from 300ms to 2000ms (2 second intervals)
 
       const currentApiSource = apiSourceRef.current;
       const dataProvider = DataProviderFactory.getProvider(currentApiSource);
+      
       if (!dataProvider || typeof dataProvider.fetchData !== 'function') {
         throw new Error(t('airQuality.invalidDataProvider', { source: currentApiSource }));
       }
-      const formattedData = await dataProvider.fetchData();
 
-      setLoadingProgress(0.8);
+      // **MODIFIED: Extended Promise.race timeout to 2 minutes**
+      const fetchPromise = dataProvider.fetchData();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Data fetch timeout')), 120000); // Changed from 10000 to 120000
+      });
+
+      const formattedData = await Promise.race([fetchPromise, timeoutPromise]);
+
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+
+      if (!mountedRef.current) return;
+
+      setLoadingProgress(0.9);
 
       // Check if the user changed API source during loading
       if (currentApiSource !== apiSourceRef.current) {
-        //console.log(`apiSource changed during loading: ${currentApiSource} -> ${apiSourceRef.current}`);
-        // Do not throw error - but skip state update
+        console.log(`apiSource changed during loading: ${currentApiSource} -> ${apiSourceRef.current}`);
         return;
       }
 
       // Check if there is enough data to display
       if (!formattedData || formattedData.length === 0) {
-        //console.warn(`No data found for API: ${currentApiSource}`);
-        Alert.alert(
-          t('airQuality.noData'),
-          t('airQuality.noDataAvailable', { source: getApiSourceName() }),
-          [{ text: t('common.ok'), style: 'default' }]
-        );
-        // Keep existing data if any
-        if (aqiPoints.length === 0) {
-          // If no existing data, set to empty array
-          setAqiPoints([]);
+        console.warn(`No data found for API: ${currentApiSource}`);
+        if (mountedRef.current) {
+          Alert.alert(
+            t('airQuality.noData'),
+            t('airQuality.noDataAvailable', { source: getApiSourceName() }),
+            [{ text: t('common.ok'), style: 'default' }]
+          );
+          if (aqiPoints.length === 0) {
+            setAqiPoints([]);
+          }
         }
       } else {
-        // Set new data
-        setAqiPoints(formattedData);
-        // console.log(`Data loaded successfully: ${formattedData.length} points`);
+        if (mountedRef.current) {
+          setAqiPoints(formattedData);
+          console.log(`Data loaded successfully: ${formattedData.length} points`);
+        }
       }
 
-      setLoadingProgress(1);
+      if (mountedRef.current) {
+        setLoadingProgress(1);
+      }
 
       // Set timeout to hide loading screen
       timeoutId = setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() => {
-          setIsLoading(false);
-        });
-      }, 100);
+        if (mountedRef.current) {
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }).start(() => {
+            if (mountedRef.current) {
+              setIsLoading(false);
+            }
+          });
+        }
+      }, 500);
 
     } catch (error) {
       console.error('Error fetching AQI data:', error);
-      // Display alert message
-      setLoadingMessage(t('airQuality.errorLoadingData', { error: error.message || 'Unknown reason' }));
-
-      // Display Alert instead of throwing
-      Alert.alert(
-        t('airQuality.error'),
-        t('airQuality.errorLoadingData', { error: error.message || 'Unknown reason' }),
-        [{ text: t('common.ok'), style: 'default' }]
-      );
-
-      // If no existing data, set to empty array
-      if (aqiPoints.length === 0) {
-        setAqiPoints([]);
+      
+      if (progressInterval) {
+        clearInterval(progressInterval);
       }
 
-      timeoutId = setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() => {
-          setIsLoading(false);
-        });
-      }, 1200);
+      if (mountedRef.current) {
+        setLoadingMessage(t('airQuality.errorLoadingData', { error: error.message || 'Unknown reason' }));
+
+        Alert.alert(
+          t('airQuality.error'),
+          t('airQuality.errorLoadingData', { error: error.message || 'Unknown reason' }),
+          [{ text: t('common.ok'), style: 'default' }]
+        );
+
+        if (aqiPoints.length === 0) {
+          setAqiPoints([]);
+        }
+
+        setLoadingProgress(1);
+
+        timeoutId = setTimeout(() => {
+          if (mountedRef.current) {
+            Animated.timing(fadeAnim, {
+              toValue: 0,
+              duration: 500,
+              useNativeDriver: true,
+            }).start(() => {
+              if (mountedRef.current) {
+                setIsLoading(false);
+              }
+            });
+          }
+        }, 1000);
+      }
     } finally {
-      // Cleanup
-      setIsDataLoading(false);
+      if (mountedRef.current) {
+        setIsDataLoading(false);
+      }
       isLoadingRef.current = false;
+      
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
     }
 
     // Return cleanup function
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
+      }
+      if (progressInterval) {
+        clearInterval(progressInterval);
       }
     };
   };
@@ -335,38 +444,47 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
   // Function to handle marker press
   const handleMarkerPress = useCallback((marker) => {
     if (marker && marker.id) {
-      // Fix: Check marker data before showing modal
       InteractionManager.runAfterInteractions(() => {
-        //console.log('Marker pressed:', marker.id);
         setSelectedMarker(marker);
         setIsModalVisible(true);
       });
     }
   }, []);
 
-  // Function to skip location loading
-  const skipLocationLoading = () => {
+  // **MODIFIED: Updated skip function message for 2-minute wait**
+  const skipLocationLoading = useCallback(() => {
+    if (locationTimeoutRef.current) {
+      clearTimeout(locationTimeoutRef.current);
+    }
+    
     const defaultRegion = {
       latitude: 18.7883,
       longitude: 98.9853,
       latitudeDelta: 0.5,
       longitudeDelta: 0.5,
     };
+    
     setRegion(defaultRegion);
     setLoadingProgress(0.4);
-    setLoadingMessage(t('airQuality.loadingSkipped'));
-  };
+    setLoadingMessage(t('airQuality.loadingData'));
+    
+    // Force immediate data fetch
+    setTimeout(() => {
+      if (mountedRef.current && !dataFetchedRef.current) {
+        dataFetchedRef.current = true;
+        fetchAQIData();
+      }
+    }, 100);
+  }, [t]);
 
   // Function to go to current location
   const goToCurrentLocation = useCallback(async () => {
     try {
       setIsDataLoading(true);
 
-      // Check permission status
       const { status } = await Location.getForegroundPermissionsAsync();
 
       if (status !== 'granted') {
-        // Request permission if not granted
         const { status: newStatus } = await Location.requestForegroundPermissionsAsync();
 
         if (newStatus !== 'granted') {
@@ -386,7 +504,6 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         }
       }
 
-      // Check if GPS is enabled
       const providerStatus = await Location.getProviderStatusAsync();
 
       if (!providerStatus.locationServicesEnabled) {
@@ -407,7 +524,6 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
           longitudeDelta: 0.05,
         }, 1000);
       } else {
-        // Try refreshing location
         await refreshLocation();
 
         setTimeout(() => {
@@ -439,6 +555,26 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
     }
   }, [location, refreshLocation, t]);
 
+  // Display beautiful loading screen
+  if (isLoading || !region) {
+    return (
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        <BeautifulLoadingScreen
+          progress={loadingProgress}
+          message={loadingMessage}
+        />
+        {/* **MODIFIED: Show skip button throughout 2-minute loading period** */}
+        {loadingProgress <= 0.9 && (
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={skipLocationLoading}
+          >
+            <Text style={styles.skipButtonText}>{t('airQuality.skiplocation')}</Text>
+          </TouchableOpacity>
+        )}
+      </Animated.View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -461,7 +597,7 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         loadingEnabled={true}
         loadingIndicatorColor="#2196F3"
         loadingBackgroundColor="#FFFFFF"
-       provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
+        provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
       >
         {aqiPoints.length > 0 && aqiPoints.map((point, index) => (
           <AQIMarker
@@ -483,14 +619,11 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         onOpenRanking={handleOpenRanking}
       />
 
-      {/* Modal to display AQI point details */}
-      {/* Fix: Ensure modal only shows when a marker is selected and visible status is true */}
       {selectedMarker && (
         <AQIModal
           visible={isModalVisible}
           marker={selectedMarker}
           onClose={() => {
-            // Fix: Explicitly reset state when closing modal
             setIsModalVisible(false);
             setSelectedMarker(null);
           }}
@@ -498,7 +631,6 @@ const AirQualityScreen = () => { // Renamed from AQIMap to AirQualityScreen for 
         />
       )}
 
-      {/* Modal to display AQI ranking */}
       <AQIRankingModal
         visible={isRankingModalVisible}
         onClose={() => setIsRankingModalVisible(false)}
@@ -516,7 +648,7 @@ const styles = StyleSheet.create({
   map: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    marginTop:40
+    marginTop: 40
   },
   skipButton: {
     position: 'absolute',
@@ -533,4 +665,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(AirQualityScreen); // Changed export to match the new component name
+export default React.memo(AirQualityScreen);
