@@ -546,6 +546,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    color:'#000'
   },
   rightPlaceholder: {
     width: 40,
@@ -560,6 +561,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingTop: 10,
+    color:'#000',
     paddingBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

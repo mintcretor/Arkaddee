@@ -460,6 +460,7 @@ const styles = StyleSheet.create({
         padding: 16,
         elevation: 2,
         shadowColor: '#000',
+        color:'#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -566,6 +567,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        color:'#000'
     },
     emptyContainer: {
         flex: 1,

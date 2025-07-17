@@ -13,7 +13,7 @@ import { BackHandler, Modal, View, Text, TouchableOpacity, StyleSheet, ActivityI
 import AqiCacheService from '@/utils/AqiCacheService';
 import { RecentlyViewedProvider } from '@/hooks/useRecentlyViewed';
 import { useTranslation } from 'react-i18next';
-
+import * as Device from 'expo-device'
 // ป้องกัน SplashScreen จากการซ่อนโดยอัตโนมัติ
 SplashScreen.preventAutoHideAsync();
 
@@ -59,7 +59,6 @@ function MainLayout() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const { t } = useTranslation();
-
   // ✅ ใช้ useRef เพื่อ track timers และป้องกัน memory leaks
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const isMounted = useRef(true);
@@ -249,6 +248,7 @@ function MainLayout() {
 
   // ✅ จัดการกับการกดปุ่มย้อนกลับ - ปรับปรุงให้ปลอดภัยขึ้น
   const handleBackPress = useCallback(() => {
+    console.log(isMounted.current);
     try {
       if (!isAuthReady || !isMounted.current) {
         console.log('Auth not ready or component unmounted, ignoring back press');
@@ -291,7 +291,7 @@ function MainLayout() {
           () => {
             // Fallback if replace fails
             console.error('Fallback navigation to home failed.');
-            router.replace('/(tabs)/home');
+            //router.replace('/(tabs)/home');
           }
         );
         return true;
@@ -470,10 +470,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#000'
   },
   modalMessage: {
     fontSize: 16,
     marginBottom: 20,
+    color: '#000'
   },
   buttonContainer: {
     flexDirection: 'row',

@@ -147,7 +147,7 @@ const { t } = useTranslation();
         console.warn('Geocoding failed:', geoError);
       }
     } catch (error) {
-      console.error('Error getting location:', error);
+      //console.error('Error getting location:', error);
       setLocationData({
         location: null,
         address: 'เกิดข้อผิดพลาดในการรับตำแหน่ง',

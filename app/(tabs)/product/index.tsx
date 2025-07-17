@@ -87,7 +87,7 @@ const Index: React.FC = () => {
             title: ' Arkad PPV',
             category_name: t('Product.Aerator'),
             image: require('@/assets/images/product/PPV.png'),
-            features: [t('Product.Purifier_Ventilation'), t('Product.Positive_pressure')],
+            features: [t('Product.Purifier_Ventilation'), t('Product.Positive_pressure_env')],
             link: 'https://arkaddee.com/product/sng',
             path: '/product/detail',
             category: 1 // กำหนด Category ID
@@ -107,7 +107,7 @@ const Index: React.FC = () => {
             title: ' Arkad Portable Monitor',
             category_name: t('Product.measuring'),
             image: require('@/assets/images/device/Arkad_PBM.png'),
-            features: [t('Product.Tabletop'),t('Product.device_track')],
+            features: [t('Product.Tabletop'), t('Product.device_track')],
             link: 'https://arkaddee.com/product/normal',
             path: '/product/detail3',
             category: 3 // กำหนด Category ID
@@ -219,7 +219,7 @@ const Index: React.FC = () => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1,marginTop:20 }}>
+        <GestureHandlerRootView style={{ flex: 1, marginTop: 20 }}>
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="dark-content" />
                 <PanGestureHandler
@@ -339,7 +339,7 @@ const additionalStyles = StyleSheet.create({
     },
     // NEW: Styles for selected category
     selectedCategoryItem: {
-       // borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
+        // borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
         borderWidth: 2,
         borderRadius: 16, // ต้องปรับตาม borderRadius ของ categoryItem
     },
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-      
+
     },
     scrollView: {
         flex: 1,
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 3,
         marginBottom: 20,
-       // backgroundColor: '#2563EB',
+        // backgroundColor: '#2563EB',
         alignSelf: 'center',
     },
     productGrid: {
@@ -432,10 +432,11 @@ const styles = StyleSheet.create({
 
     topCategoriesContainer: {
         flexDirection: 'row',
+        height:180,
         justifyContent: 'space-around',
         paddingHorizontal: 10,
         paddingVertical: 20,
-          marginTop:30,
+        marginTop: 30,
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
         borderBottomLeftRadius: 16,
@@ -451,7 +452,7 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width / 4 - 20,
         paddingVertical: 8, // เพิ่ม padding เพื่อให้มีพื้นที่สำหรับ border
         paddingHorizontal: 4,
-        
+
         borderRadius: 16, // ควรมีค่าเท่ากับ selectedCategoryItem
     },
     categoryImageWrapper: {
@@ -477,12 +478,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginTop: 4,
-        color:'#000'
+        color: '#000'
     },
     categorySubtitle: {
         fontSize: 10,
         textAlign: 'center',
-        color:'#000'
+        color: '#000'
     },
 
     featuredProductSection: {

@@ -51,6 +51,7 @@ interface FiltrationStep {
     description2Key: string; // Changed to key for translation
     description3Key: string; // Changed to key for translation
     description4Key: string; // Changed to key for translation
+    description5Key: string;
 }
 
 // Updated Specification interface to handle values and optional units
@@ -78,7 +79,7 @@ interface WarrantyIcon {
 const { width } = Dimensions.get('window');
 
 const ProductDetailPage: React.FC = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
 
@@ -106,10 +107,11 @@ const ProductDetailPage: React.FC = () => {
             id: 1,
             image: require('@/assets/images/product/Hapa_H13.png'),
             titleKey: 'Product.HEPA_H13',
-            descriptionKey: 'Product.Filters_dust',
-            description2Key: 'Product.filter_lifespan_note', // New key
-            description3Key: 'Product.filter_not_washable', // New key
-            description4Key: 'Product.filter_change_yearly', // New key
+            descriptionKey: 'ProductERV.Filters_dust_99_95',
+            description2Key: 'Product.filter_not_washable', // New key
+            description3Key: 'Product.filter_change_yearly', // New key
+            description4Key: '', // New key
+            description5Key: ''
         },
         {
             id: 2,
@@ -119,6 +121,7 @@ const ProductDetailPage: React.FC = () => {
             description2Key: 'Product.filter_odor', // New key
             description3Key: 'Product.filter_washable', // New key
             description4Key: 'Product.filter_wash_six_months', // New key
+            description5Key: "ProductERV.filter_change_two_years"
         },
         {
             id: 3,
@@ -128,9 +131,23 @@ const ProductDetailPage: React.FC = () => {
             description2Key: '', // No translation needed if empty
             description3Key: '',
             description4Key: '',
+            description5Key: ''
+
         },
     ];
+    const getTouchPanelImage = () => {
+        const currentLanguage = i18n.language; // Gets the active language code (e.g., 'th', 'en')
 
+        switch (currentLanguage) {
+            case 'th':
+                return require('@/assets/images/product/Touch_Panel_th.png');
+            case 'en':
+                return require('@/assets/images/product/Touch_Panel_en.png');
+            default:
+                // Always provide a fallback image for unsupported or missing languages
+                return require('@/assets/images/product/Touch_Panel_en.png');
+        }
+    };
     // Updated Specifications Data with translation keys and separate values/units
     const specifications: Specification[] = [
         { labelKey: 'Product.room_size', ppv160t_value: '32', ppv160t_unit_key: 'Product.sq_m', ppv250_value: '50', ppv250_unit_key: 'Product.sq_m' },
@@ -138,7 +155,7 @@ const ProductDetailPage: React.FC = () => {
         { labelKey: 'Product.air_delivery', ppv160t_value: '160 | 120', ppv160t_unit_key: 'Product.cmh', ppv250_value: '250 | 200', ppv250_unit_key: 'Product.cmh' },
         { labelKey: 'Product.air_delivery_cfm', ppv160t_value: '88 | 70', ppv160t_unit_key: 'Product.cfm', ppv250_value: '147 | 117', ppv250_unit_key: 'Product.cfm' },
         { labelKey: 'Product.power', ppv160t_value: '45 | 30', ppv160t_unit_key: 'Product.watt', ppv250_value: '60 | 50', ppv250_unit_key: 'Product.watt' },
-        { labelKey: 'Product.noise_level', ppv160t_value: '24 | 21', ppv160t_unit_key: 'Product.decibel', ppv250_value: '31 | 25', ppv250_unit_key: 'Product.decibel' },
+        { labelKey: 'Product.noise_level', ppv160t_value: '55 | 50', ppv160t_unit_key: 'Product.decibel', ppv250_value: '57 | 52', ppv250_unit_key: 'Product.decibel' },
     ];
 
     const specifications2: Specification2[] = [
@@ -147,7 +164,7 @@ const ProductDetailPage: React.FC = () => {
         { labelKey: 'Product.air_delivery', ppv160t_value: '350 | 290', ppv160t_unit_key: 'Product.cmh', ppv250_value: '440 | 350', ppv250_unit_key: 'Product.cmh' },
         { labelKey: 'Product.air_delivery_cfm', ppv160t_value: '206 | 170', ppv160t_unit_key: 'Product.cfm', ppv250_value: '258 | 206', ppv250_unit_key: 'Product.cfm' },
         { labelKey: 'Product.power', ppv160t_value: '75 | 55', ppv160t_unit_key: 'Product.watt', ppv250_value: '85 | 70', ppv250_unit_key: 'Product.watt' },
-        { labelKey: 'Product.noise_level', ppv160t_value: '35 | 28', ppv160t_unit_key: 'Product.decibel', ppv250_value: '45 | 35', ppv250_unit_key: 'Product.decibel' },
+        { labelKey: 'Product.noise_level', ppv160t_value: '60 | 55', ppv160t_unit_key: 'Product.decibel', ppv250_value: '67 | 60', ppv250_unit_key: 'Product.decibel' },
     ];
 
     // Updated Warranty Icons Data with translation keys
@@ -202,7 +219,7 @@ const ProductDetailPage: React.FC = () => {
                         style={styles.contactButton}
                         onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
                     >
-                        <Text style={styles.contactButtonText}> {t('Product.Additional_information')} @Line</Text>
+                        <Text style={styles.contactButtonText}> {t('Product.Additional_information_order')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -218,6 +235,7 @@ const ProductDetailPage: React.FC = () => {
                                 {step.description2Key ? <Text style={styles.filtrationDescription}>{t(step.description2Key)}</Text> : null}
                                 {step.description3Key ? <Text style={styles.filtrationDescription}>{t(step.description3Key)}</Text> : null}
                                 {step.description4Key ? <Text style={styles.filtrationDescription}>{t(step.description4Key)}</Text> : null}
+                                {step.description5Key ? <Text style={styles.filtrationDescription}>{t(step.description5Key)}</Text> : null}
                             </View>
                         </View>
                     ))}
@@ -295,17 +313,12 @@ const ProductDetailPage: React.FC = () => {
 
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}> {t('Product.touch_panel_title')}</Text>
-                    <Image source={require('@/assets/images/product/Touch_Panel.png')} style={styles.touchPanelImage} resizeMode="contain" />
+                    <Image source={getTouchPanelImage()} style={styles.touchPanelImage} resizeMode="contain" />
                     <View style={styles.bulletPointsContainer}>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_temp_humidity')}</Text>
                         <Text style={styles.bulletPoint}> • {t('Product.touch_panel_auto_on_off')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_pm25')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_pm10')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_co2')}</Text>
                         <Text style={styles.bulletPoint}> • {t('Product.touch_panel_hepa_alert')}</Text>
                         <Text style={styles.bulletPoint}> • {t('Product.touch_panel_wifi_app')}</Text>
                         <Text style={styles.bulletPoint}> • {t('Product.touch_panel_fan_speed')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_data_storage')}</Text>
                     </View>
                 </View>
 

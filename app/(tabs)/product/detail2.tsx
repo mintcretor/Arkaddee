@@ -74,7 +74,7 @@ interface WarrantyIcon {
 const { width } = Dimensions.get('window');
 
 const ProductDetail2Page: React.FC = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const params = useLocalSearchParams();
     const product: ProductDetailData = params.product ? JSON.parse(params.product as string) : {};
 
@@ -139,7 +139,7 @@ const ProductDetail2Page: React.FC = () => {
         { labelKey: 'ProductERV.air_delivery', ppv160t_value: '150 | 120 | 250', ppv160t_unit_key: 'ProductERV.cmh', ppv250_value: '200 | 350 | 290', ppv250_unit_key: 'ProductERV.cmh' },
         { labelKey: 'ProductERV.air_delivery_cfm', ppv160t_value: '88 | 70 | 147', ppv160t_unit_key: 'ProductERV.cfm', ppv250_value: '117 | 206 | 170', ppv250_unit_key: 'ProductERV.cfm' },
         { labelKey: 'ProductERV.power', ppv160t_value: '70 | 65 | 60', ppv160t_unit_key: 'ProductERV.watt', ppv250_value: '85 | 75 | 65', ppv250_unit_key: 'ProductERV.watt' },
-        { labelKey: 'ProductERV.noise_level', ppv160t_value: '24 | 23 | 22', ppv160t_unit_key: 'ProductERV.decibel', ppv250_value: '31 | 28 | 25', ppv250_unit_key: 'ProductERV.decibel' },
+        { labelKey: 'ProductERV.noise_level', ppv160t_value: '55 | 52 | 50', ppv160t_unit_key: 'ProductERV.decibel', ppv250_value: '58 | 55 | 52', ppv250_unit_key: 'ProductERV.decibel' },
     ];
 
     const warrantyIcons: WarrantyIcon[] = [
@@ -153,7 +153,19 @@ const ProductDetail2Page: React.FC = () => {
             Linking.openURL(link).catch(err => console.error('An error occurred', err));
         }
     };
+    const getTouchPanelImage = () => {
+        const currentLanguage = i18n.language; // Gets the active language code (e.g., 'th', 'en')
 
+        switch (currentLanguage) {
+            case 'th':
+                return require('@/assets/images/product/Touch_Panel_th.png');
+            case 'en':
+                return require('@/assets/images/product/Touch_Panel_en.png');
+            default:
+                // Always provide a fallback image for unsupported or missing languages
+                return require('@/assets/images/product/Touch_Panel_en.png');
+        }
+    };
     return (
         <SafeAreaView style={styles.container}>
             <Stack.Screen options={{ title: t('ProductERV.Aerator') }} />
@@ -162,7 +174,7 @@ const ProductDetail2Page: React.FC = () => {
 
                 <View style={styles.productHeader}>
                     <View style={[{ alignItems: 'center' }]}>
-                    <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                        <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
                     </View>
                     <Text style={styles.productName}>{product.title}</Text>
                     {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
@@ -268,17 +280,12 @@ const ProductDetail2Page: React.FC = () => {
                 {/* Touch Panel Section */}
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}> {t('ProductERV.touch_panel_title')}</Text>
-                    <Image source={require('@/assets/images/product/Touch_Panel.png')} style={styles.touchPanelImage} resizeMode="contain" />
+                    <Image source={getTouchPanelImage()} style={styles.touchPanelImage} resizeMode="contain" />
                     <View style={styles.bulletPointsContainer}>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_temp_humidity')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_auto_on_off')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_pm25')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_pm10')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_co2')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_hepa_alert')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_wifi_app')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_fan_speed')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('ProductERV.touch_panel_data_storage')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_auto_on_off')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_hepa_alert')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_wifi_app')}</Text>
+                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_fan_speed')}</Text>
                     </View>
                 </View>
 
@@ -312,7 +319,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-         marginTop: 30,
+        marginTop: 30,
     },
     productHeader: {
         padding: 20,
@@ -413,12 +420,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#333333',
         paddingHorizontal: 5,
-        verticalAlign:'top'
+        verticalAlign: 'top'
     },
     headerText: {
         color: '#FFFFFF',
         fontWeight: 'bold',
-        verticalAlign:'top'
+        verticalAlign: 'top'
     },
     contactButton: {
         backgroundColor: '#28A745', // Green color for contact
