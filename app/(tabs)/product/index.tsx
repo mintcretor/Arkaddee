@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     StyleSheet,
     View,
@@ -10,10 +10,12 @@ import {
     Animated,
     StatusBar,
     SafeAreaView,
+    Linking,
     ImageSourcePropType,
 } from 'react-native';
 import { GestureHandlerRootView, PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
+
 import { router } from 'expo-router';
 
 // Import your components and types
@@ -24,97 +26,109 @@ interface Category {
     title: string;
     subtitle: string;
     image: ImageSourcePropType;
+    // ไม่จำเป็นต้องมี productData ตรงๆ แล้ว เพราะจะใช้ id ในการกรอง
 }
 
-// Interface สำหรับข้อมูลสินค้าที่จะส่งไปหน้า Detail
-// เปลี่ยนให้รับแค่ id และ path ที่จำเป็นสำหรับการนำทาง
-interface ProductDetailNavigationParams {
+// Interface สำหรับข้อมูลสินค้าที่จะส่งไปหน้า Detail (ควรอยู่ในไฟล์ types กลางถ้ามี)
+interface ProductDetailData {
     id: number;
-    path: string; // เช่น '/product/detail', '/product/detail2', etc.
+    title: string;
+    name?: string;
+    tagline?: string;
+    description?: string;
+    image: ImageSourcePropType;
+    features?: string[];
+    link?: string;
+    subtext?: string;
+    path: string;
 }
-
-// ข้อมูลทั้งหมด (All Products Data) และ Categories ควรอยู่นอก Component
-// เพื่อไม่ให้ถูกสร้างใหม่ทุกครั้งที่ Component Re-render
-const getProductData = (t: any): Product[] => [
-    {
-        id: 1,
-        title: ' Arkad PPV',
-        category_name: t('Product.Aerator'),
-        image: require('@/assets/images/product/PPV.png'),
-        features: [t('Product.Purifier_Ventilation'), t('Product.Positive_pressure_env')],
-        link: 'https://arkaddee.com/product/sng',
-        path: '/product/detail', // Path สำหรับหน้ารายละเอียดของสินค้านี้
-        category: 1
-    },
-    {
-        id: 2,
-        title: 'Arkad ERV',
-        category_name: t('Product.Aerator'),
-        image: require('@/assets/images/product/ERV.png'),
-        features: [t('Product.air_circulation'), t('Product.pressure_room')],
-        link: 'https://arkaddee.com/product/erv',
-        path: '/product/detail2',
-        category: 2
-    },
-    {
-        id: 3,
-        title: ' Arkad Portable Monitor',
-        category_name: t('Product.measuring'),
-        image: require('@/assets/images/device/Arkad_PBM.png'),
-        features: [t('Product.Tabletop'), t('Product.device_track')],
-        link: 'https://arkaddee.com/product/normal',
-        path: '/product/detail3',
-        category: 3
-    },
-    {
-        id: 4,
-        title: 'Arkad Dust Walker',
-        category_name: t('Product.measuring'),
-        image: require('@/assets/images/device/Arkad_WM.png'),
-        features: [t('Product.Portable_meter')],
-        link: 'https://arkaddee.com/product/portable',
-        path: '/product/detail4',
-        category: 4
-    },
-];
-
-const getTopCategoriesData = (t: any): Category[] => [
-    {
-        id: 1,
-        title: 'PPV',
-        subtitle: t('Product.Positive_pressure_air_supply_system'),
-        image: require('@/assets/images/product/PPV.png'),
-    },
-    {
-        id: 2,
-        title: 'ERV',
-        subtitle: t('Product.ERV_heat_recovery'),
-        image: require('@/assets/images/product/ERV.png'),
-    },
-    {
-        id: 3,
-        title: 'Monitor',
-        subtitle: t('Product.Desktop_sensor'),
-        image: require('@/assets/images/device/Arkad_PBM.png'),
-    },
-    {
-        id: 4,
-        title: 'Arkad Dust Walker',
-        subtitle: t('Product.Portable_sensor'),
-        image: require('@/assets/images/device/Arkad_WM.png'),
-    },
-];
 
 
 const Index: React.FC = () => {
     const { t } = useTranslation();
 
-    // ดึงข้อมูลสินค้าและหมวดหมู่โดยใช้ useMemo เพื่อให้สร้างแค่ครั้งเดียว
-    // หรือเมื่อค่า t (ภาษา) เปลี่ยนแปลง
-    const allProducts = React.useMemo(() => getProductData(t), [t]);
-    const topCategories = React.useMemo(() => getTopCategoriesData(t), [t]);
+    // ***** เพิ่ม State สำหรับเก็บหมวดหมู่ที่เลือก *****
+    const [selectedCategory, setSelectedCategory] = useState<number>(1); // 'all' คือค่าเริ่มต้น แสดงสินค้าทั้งหมด
 
-    const [selectedCategory, setSelectedCategory] = useState<number>(1); // ค่าเริ่มต้นคือ 1 (PPV)
+    // Data for top categories
+    const topCategories: Category[] = [
+        {
+            id: 1,
+            title: 'PPV',
+            subtitle: t('Product.Positive_pressure_air_supply_system'),
+            image: require('@/assets/images/product/PPV.png'),
+        },
+        {
+            id: 2,
+            title: 'ERV',
+            subtitle: t('Product.ERV_heat_recovery'),
+            image: require('@/assets/images/product/ERV.png'),
+        },
+        {
+            id: 3,
+            title: 'Monitor',
+            subtitle: t('Product.Desktop_sensor'),
+            image: require('@/assets/images/device/Arkad_PBM.png'),
+        },
+        {
+            id: 4,
+            title: 'Arkad Dust Walker',
+            subtitle: t('Product.Portable_sensor'),
+            image: require('@/assets/images/device/Arkad_WM.png'),
+        },
+    ];
+
+
+    // All Products Data (รวมสินค้าทั้งหมดที่มี Category ID)
+    // ***** เพิ่ม id: categoryId ให้กับแต่ละ Product เพื่อใช้ในการกรอง *****
+    const allProducts: Product[] = [
+        {
+            id: 1, // เพิ่ม id
+            title: ' Arkad PPV',
+            category_name: t('Product.Aerator'),
+            image: require('@/assets/images/product/PPV.png'),
+            features: [t('Product.Purifier_Ventilation'), t('Product.Positive_pressure_env')],
+            link: 'https://arkaddee.com/product/sng',
+            path: '/product/detail',
+            category: 1 // กำหนด Category ID
+        },
+        {
+            id: 2, // เพิ่ม id
+            title: 'Arkad ERV',
+            category_name: t('Product.Aerator'),
+            image: require('@/assets/images/product/ERV.png'),
+            features: [t('Product.air_circulation'), t('Product.pressure_room')],
+            link: 'https://arkaddee.com/product/erv',
+            path: '/product/detail2',
+            category: 2// กำหนด Category ID
+        },
+        {
+            id: 3, // เพิ่ม id
+            title: ' Arkad Portable Monitor',
+            category_name: t('Product.measuring'),
+            image: require('@/assets/images/device/Arkad_PBM.png'),
+            features: [t('Product.Tabletop'), t('Product.device_track')],
+            link: 'https://arkaddee.com/product/normal',
+            path: '/product/detail3',
+            category: 3 // กำหนด Category ID
+        },
+        {
+            id: 4, // เพิ่ม id
+            title: 'Arkad Dust Walker',
+            category_name: t('Product.measuring'),
+            image: require('@/assets/images/device/Arkad_WM.png'),
+            features: [t('Product.Portable_meter')],
+            link: 'https://arkaddee.com/product/portable',
+            path: '/product/detail4',
+            category: 4 // กำหนด Category ID
+        },
+    ];
+
+    // ***** ฟังก์ชันกรองสินค้าตามหมวดหมู่ที่เลือก *****
+    const getFilteredProducts = () => {
+        return allProducts.filter(product => product.category === selectedCategory);
+    };
+
 
     const scrollY = useRef<Animated.Value>(new Animated.Value(0)).current;
     const fadeAnim = useRef<Animated.Value>(new Animated.Value(0)).current;
@@ -136,24 +150,26 @@ const Index: React.FC = () => {
             duration: 1000,
             useNativeDriver: true
         }).start();
-    }, [fadeAnim]); // เพิ่ม fadeAnim เป็น dependency
+    }, []);
 
-    // ฟังก์ชันนำทางไปยังหน้า Detail (ใช้ useCallback เพื่อ Optimize)
-    const navigateToProductDetail = useCallback((data: ProductDetailNavigationParams) => {
-        // ส่งแค่ ID และ Path ไป
+    // ฟังก์ชันนำทางไปยังหน้า Detail (ยังคงเหมือนเดิม)
+    const navigateToProductDetail = (data: ProductDetailData) => {
+
+
         router.push({
             pathname: data.path,
-            params: { productId: data.id.toString() }, // ส่ง ID เป็น string
+            params: { product: JSON.stringify(data) },
         });
-    }, []); // ไม่มี dependencies เนื่องจาก router ไม่เปลี่ยน
 
-    // Pinch/Pan Gesture Handlers (คงเดิมแต่ควรอยู่ใน useCallback ถ้ามีการใช้ dependencies)
+    };
+
+    // Pinch/Pan Gesture Handlers (คงเดิม)
     const onPinchEvent = Animated.event(
         [{ nativeEvent: { scale: scale } }],
         { useNativeDriver: true }
     );
 
-    const onPinchStateChange = useCallback((event: { nativeEvent: { oldState: State; scale: number } }) => {
+    const onPinchStateChange = (event: { nativeEvent: { oldState: State; scale: number } }) => {
         if (event.nativeEvent.oldState === State.ACTIVE) {
             baseScale.current *= event.nativeEvent.scale;
             baseScale.current = Math.min(Math.max(baseScale.current, 1), 3);
@@ -163,30 +179,21 @@ const Index: React.FC = () => {
                 resetPan();
             }
         }
-    }, [scale, setIsZoomed]); // เพิ่ม dependencies ที่เกี่ยวข้อง
+    };
 
     const onPanEvent = Animated.event(
         [{ nativeEvent: { translationX: translateX, translationY: translateY } }],
         { useNativeDriver: true }
     );
 
-    const resetPan = useCallback(() => {
-        lastOffset.current = { x: 0, y: 0 };
-        translateX.setOffset(0);
-        translateX.setValue(0);
-        translateY.setOffset(0);
-        translateY.setValue(0);
-    }, [translateX, translateY]); // เพิ่ม dependencies
-
-    const onPanStateChange = useCallback((event: { nativeEvent: { oldState: State; translationX: number; translationY: number } }) => {
+    const onPanStateChange = (event: { nativeEvent: { oldState: State; translationX: number; translationY: number } }) => {
         if (event.nativeEvent.oldState === State.ACTIVE) {
             lastOffset.current.x += event.nativeEvent.translationX;
             lastOffset.current.y += event.nativeEvent.translationY;
 
             const { width, height } = Dimensions.get('window');
-            const currentScale = baseScale.current; // ใช้ค่า scale ปัจจุบันจาก ref
-            const maxPanX = (currentScale - 1) * width / 2;
-            const maxPanY = (currentScale - 1) * height / 2;
+            const maxPanX = (baseScale.current - 1) * width / 2;
+            const maxPanY = (baseScale.current - 1) * height / 2;
 
             lastOffset.current.x = Math.min(Math.max(lastOffset.current.x, -maxPanX), maxPanX);
             lastOffset.current.y = Math.min(Math.max(lastOffset.current.y, -maxPanY), maxPanY);
@@ -196,18 +203,20 @@ const Index: React.FC = () => {
             translateY.setOffset(lastOffset.current.y);
             translateY.setValue(0);
         }
-    }, [translateX, translateY]); // เพิ่ม dependencies
+    };
 
-    // ฟังก์ชันจัดการการกด Category ด้านบน (ใช้ useCallback เพื่อ Optimize)
-    const handleCategoryPress = useCallback((categoryId: number) => {
-        setSelectedCategory(categoryId);
-    }, []); // ไม่มี dependencies เพราะ setSelectedCategory ไม่เปลี่ยน
+    const resetPan = () => {
+        lastOffset.current = { x: 0, y: 0 };
+        translateX.setOffset(0);
+        translateX.setValue(0);
+        translateY.setOffset(0);
+        translateY.setValue(0);
+    };
 
-    // ฟังก์ชันกรองสินค้าตามหมวดหมู่ที่เลือก (ใช้ useMemo เพื่อ Optimize)
-    const getFilteredProducts = React.useMemo(() => {
-        return allProducts.filter(product => product.category === selectedCategory);
-    }, [allProducts, selectedCategory]);
-
+    // ***** ฟังก์ชันจัดการการกด Category ด้านบน *****
+    const handleCategoryPress = (categoryId: number) => {
+        setSelectedCategory(categoryId); // อัปเดต State ของหมวดหมู่ที่ถูกเลือก
+    };
 
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 20 }}>
@@ -245,7 +254,7 @@ const Index: React.FC = () => {
                                     scrollEnabled={!isZoomed}
                                     onScroll={Animated.event(
                                         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                                        { useNativeDriver: false } // ถ้าไม่ใช้ NativeDriver ต้องแน่ใจว่าไม่มีภาระงาน JS หนัก
+                                        { useNativeDriver: false }
                                     )}
                                     scrollEventThrottle={16}
                                 >
@@ -278,8 +287,7 @@ const Index: React.FC = () => {
                                         ))}
                                     </View>
 
-                                    {/* Product List */}
-                                    {getFilteredProducts.map((product) => (
+                                    {getFilteredProducts().map((product) => (
                                         <View key={product.id} style={styles.productGrid}>
                                             <View style={styles.productSection}>
                                                 <Text style={styles.sectionTitle}>
@@ -288,15 +296,19 @@ const Index: React.FC = () => {
                                                 <View style={styles.titleUnderline} />
                                                 <ProductCard
                                                     product={product}
-                                                    // ส่งแค่ ID และ Path ไปที่ navigateToProductDetail
                                                     onPress={(p: Product) => navigateToProductDetail({
                                                         id: p.id,
+                                                        title: p.title,
+                                                        description: p.features ? p.features.join(',') : '',
+                                                        image: p.image,
+                                                        link: p.link,
                                                         path: p.path,
                                                     })}
                                                 />
                                             </View>
                                         </View>
                                     ))}
+
 
                                 </ScrollView>
                             </Animated.View>
@@ -315,6 +327,7 @@ const additionalStyles = StyleSheet.create({
         position: 'absolute',
         top: -5,
         right: -5,
+        //backgroundColor: '#2563EB',
         borderRadius: 10,
         paddingHorizontal: 6,
         paddingVertical: 2,
@@ -324,13 +337,14 @@ const additionalStyles = StyleSheet.create({
         fontSize: 10,
         fontWeight: 'bold',
     },
+    // NEW: Styles for selected category
     selectedCategoryItem: {
+        // borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
         borderWidth: 2,
-        borderRadius: 16,
-        borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
+        borderRadius: 16, // ต้องปรับตาม borderRadius ของ categoryItem
     },
     selectedCategoryImageWrapper: {
-        // สามารถเพิ่มสไตล์เพิ่มเติมเมื่อรูปถูกเลือกได้
+
     },
     selectedCategoryText: {
         color: '#2563EB', // สีตัวอักษรเมื่อถูกเลือก
@@ -343,6 +357,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+
     },
     scrollView: {
         flex: 1,
@@ -362,7 +377,7 @@ const styles = StyleSheet.create({
         width: 80,
         height: 3,
         marginBottom: 20,
-        backgroundColor: '#2563EB', // เพิ่มสีให้เห็นชัดเจน
+        // backgroundColor: '#2563EB',
         alignSelf: 'center',
     },
     productGrid: {
@@ -414,9 +429,10 @@ const styles = StyleSheet.create({
         gap: 20,
         marginBottom: 20,
     },
+
     topCategoriesContainer: {
         flexDirection: 'row',
-        height: 180,
+        height:180,
         justifyContent: 'space-around',
         paddingHorizontal: 10,
         paddingVertical: 20,
@@ -434,9 +450,10 @@ const styles = StyleSheet.create({
     categoryItem: {
         alignItems: 'center',
         width: Dimensions.get('window').width / 4 - 20,
-        paddingVertical: 8,
+        paddingVertical: 8, // เพิ่ม padding เพื่อให้มีพื้นที่สำหรับ border
         paddingHorizontal: 4,
-        borderRadius: 16,
+
+        borderRadius: 16, // ควรมีค่าเท่ากับ selectedCategoryItem
     },
     categoryImageWrapper: {
         width: 60,
@@ -468,6 +485,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#000'
     },
+
     featuredProductSection: {
         paddingHorizontal: 20,
         marginBottom: 20,

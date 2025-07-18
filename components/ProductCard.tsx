@@ -1,49 +1,35 @@
-import React from 'react'; // Make sure React is imported for React.memo
+import React from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, ImageSourcePropType } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 // Define the Product interface
 export interface Product {
-  id: number;
+  id:number;
   title: string;
-  category_name: string;
+  category_name:string;
   image: ImageSourcePropType; // Use ImageSourcePropType for require() images
   features: string[];
   link: string;
-  category: number;
-  path: string;
+  category:number;
+  path:string;
 }
 
 // Define the props for ProductCard component
 interface ProductCardProps {
   product: Product;
-  // onPress now expects the full product object.
-  // We're passing a specific type for navigation to make it clearer what's expected.
-  // This type (ProductDetailNavigationParams) should be defined in Index.tsx or a shared types file.
-  onPress: (params: { id: number; path: string }) => void;
+  onPress: (product: Product) => void; // onPress now expects the full product object
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
   const { t } = useTranslation();
 
-  // Memoize the onPress handler for the card itself to prevent unnecessary re-renders
-  // if 'onPress' or 'product' objects change structurally but not functionally.
-  const handleCardPress = React.useCallback(() => {
-    // Only pass the essential data for navigation: id and path
-    onPress({ id: product.id, path: product.path });
-  }, [onPress, product.id, product.path]); // Dependencies for useCallback
-
   return (
     <TouchableOpacity
       style={styles.productCard}
-      onPress={handleCardPress} // Use the memoized handler
+      onPress={() => onPress(product)} // Pass the whole product object
       activeOpacity={0.9}
     >
       <View style={styles.imageContainer}>
-        {/*
-          IMPORTANT: Ensure images loaded via require() are optimized (resized and compressed)
-          This is a critical step for iPad performance, not directly fixable in code here.
-        */}
         <Image source={product.image} style={styles.productImage} resizeMode="contain" />
       </View>
       <View style={styles.content}>
@@ -51,8 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
         {product.features && product.features.map((feature, idx) => (
           <Text key={idx} style={styles.feature}>• {feature}</Text>
         ))}
-        {/* The "More Info" button also triggers the same navigation */}
-        <TouchableOpacity style={styles.moreInfoBtn} onPress={handleCardPress}>
+        <TouchableOpacity style={styles.moreInfoBtn} onPress={() => onPress(product)}>
           <Text style={styles.btnText}>{t('Product.Additional_information')}</Text>
         </TouchableOpacity>
       </View>
@@ -74,6 +59,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     height: 200,
+ 
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -110,7 +96,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// --- Key Optimization ---
-// Use React.memo to prevent unnecessary re-renders of the ProductCard.
-// This means the component will only re-render if its props (product or onPress) change.
-export default React.memo(ProductCard);
+export default ProductCard;

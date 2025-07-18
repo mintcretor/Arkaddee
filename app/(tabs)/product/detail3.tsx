@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next'; // Assuming you have this set up
 import { Stack, useLocalSearchParams, router } from 'expo-router'; // For navigation and params
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 
 // Define a type for the data structure if not already defined globally
 // This should match the ProductDetailData interface you already have,
@@ -155,15 +156,26 @@ const ProductDetail3Page: React.FC = () => {
             Linking.openURL(link).catch(err => console.error('An error occurred', err));
         }
     };
+    console.log('123456',product);
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
             <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => router.back()}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#333" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>{product.title}</Text>
+                    <View style={styles.placeholder} />
+                </View>
 
                 <View style={styles.productHeader}>
                     <View style={[{ alignItems: 'center' }]}>
-                        <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
+                        <Image source={product.image || require('@/assets/images/device/Arkad_PBM.png')} style={styles.mainProductImage} resizeMode="contain" />
                     </View>
                     <Text style={styles.productName}>{product.title}</Text>
                     {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
@@ -275,6 +287,39 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F7F7',
         marginTop: 30
     },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e9ecef',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    }, backButton: {
+        padding: 8,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#000',
+        flex: 1,
+        textAlign: 'center',
+    },
+    countText: {
+        fontSize: 14,
+        color: '#666',
+        minWidth: 40,
+        textAlign: 'right',
+    },
+    placeholder: {
+        width: 40,
+    },
     productHeader: {
         //  alignItems:'flex-start',
         padding: 20,
@@ -311,7 +356,7 @@ const styles = StyleSheet.create({
     productDescription: {
         fontSize: 14,
         color: '#666666',
-       //textAlign: 'center',
+        //textAlign: 'center',
         lineHeight: 22,
         alignItems: 'flex-start',
         alignContent: 'flex-start',

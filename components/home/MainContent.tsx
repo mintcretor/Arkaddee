@@ -11,7 +11,7 @@ import {
   PixelRatio,
   Platform
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { fetchNearbyRestaurants } from '@/api/baseapi';
@@ -305,6 +305,32 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
     return Promise.resolve();
   }, [formatPlaceData]);
 
+  useFocusEffect(
+    useCallback(() => {
+      let intervalId;
+
+      if (autoRefresh) {
+        // สร้าง interval สำหรับอัพเดทข้อมูลทุกๆ 1 นาที
+        intervalId = setInterval(() => {
+          // เรียกฟังก์ชันโหลดข้อมูลใหม่
+          if (location) {
+            loadPlacesWithLocation(location);
+            //console.log('กำลังอัพเดทข้อมูลอัตโนมัติ...');
+          } else if (usingDefaultLocation) {
+            loadPlacesWithLocation(defaultLocation);
+            //  console.log('กำลังอัพเดทข้อมูลอัตโนมัติด้วยตำแหน่งเริ่มต้น...');
+          }
+        }, 60000); // 60000 มิลลิวินาที = 1 นาที
+      }
+
+      // เคลียร์ interval เมื่อ component unmount หรือเมื่อ dependency เปลี่ยน
+      return () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      };
+    }, [location, usingDefaultLocation, autoRefresh, loadPlacesWithLocation])
+  );
   // เพิ่ม useEffect สำหรับตั้งเวลาการอัพเดททุกๆ 1 นาที (60000 มิลลิวินาที)
   useEffect(() => {
     let intervalId;
@@ -725,7 +751,7 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
       <View style={{ backgroundColor: '#ffffff', marginLeft: RESPONSIVE_SIZES.spacing.small, marginRight: RESPONSIVE_SIZES.spacing.small, borderRadius: RESPONSIVE_SIZES.spacing.small, marginTop: RESPONSIVE_SIZES.spacing.small, marginBottom: RESPONSIVE_SIZES.spacing.large * 1.5 }}>
         <View style={[styles.sectionTitleContainer, { marginHorizontal: RESPONSIVE_SIZES.spacing.medium }]}>
           <Ionicons name="book" size={RESPONSIVE_SIZES.icon.normal} color="#4A6FA5" />
-          <Text style={[styles.sectionTitle, { marginLeft: RESPONSIVE_SIZES.spacing.small,marginTop:20 }]}>
+          <Text style={[styles.sectionTitle, { marginLeft: RESPONSIVE_SIZES.spacing.small, marginTop: 20 }]}>
             {t('home.knowledge')}
           </Text>
         </View>
@@ -841,7 +867,7 @@ const styles = StyleSheet.create({
   airQualityText: {
     color: 'black',
     fontSize: RESPONSIVE_SIZES.font.normal,
-    paddingTop:12,
+    paddingTop: 12,
     paddingLeft: RESPONSIVE_SIZES.spacing.large,
     fontWeight: '700',
   },
@@ -935,7 +961,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
     marginBottom: RESPONSIVE_SIZES.spacing.medium,
-  }, 
+  },
   sectionTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
