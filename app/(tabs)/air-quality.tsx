@@ -26,7 +26,8 @@ import { useTranslation } from 'react-i18next';
 
 const AirQualityScreen = () => {
   const mapRef = useRef(null);
-  const [aqiPoints, setAqiPoints] = useState([]);
+  const [allAqiPoints, setAllAqiPoints] = useState([]); // Store all fetched data
+  const [visibleAqiPoints, setVisibleAqiPoints] = useState([]); // Only points to render
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [region, setRegion] = useState(null);
@@ -43,7 +44,7 @@ const AirQualityScreen = () => {
   const [loadingMessage, setLoadingMessage] = useState("กำลังโหลดแผนที่...");
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const availableApiSources = DataProviderFactory.getAvailableProviders();
-  
+
   // Add timeout refs for better control
   const locationTimeoutRef = useRef(null);
   const dataTimeoutRef = useRef(null);
@@ -52,26 +53,58 @@ const AirQualityScreen = () => {
   // State for ranking modal
   const [isRankingModalVisible, setIsRankingModalVisible] = useState(false);
 
-  // **MODIFIED: Extended timeout to 2 minutes (120 seconds)**
+  // Define a zoom level threshold for loading more markers
+  // Smaller delta values mean more zoomed in.
+  // Adjust these values based on how "zoomed out" you want the map to be before showing more markers.
+  const ZOOM_THRESHOLD_DELTA = 0.2; // Example: If latitudeDelta or longitudeDelta is greater than this, show more markers.
+
+  const DEFAULT_REGION = {
+    latitude: 18.7883,
+    longitude: 98.9853,
+    latitudeDelta: 0.5,
+    longitudeDelta: 0.5,
+  };
+
+  // Function to filter markers based on the current region
+  const filterMarkersForRegion = useCallback((currentRegion, allPoints) => {
+    if (!currentRegion || !allPoints || allPoints.length === 0) {
+      return [];
+    }
+
+    const { latitude, longitude, latitudeDelta, longitudeDelta } = currentRegion;
+    const minLat = latitude - latitudeDelta / 2;
+    const maxLat = latitude + latitudeDelta / 2;
+    const minLon = longitude - longitudeDelta / 2;
+    const maxLon = longitude + longitudeDelta / 2;
+
+    const shouldShowAll = latitudeDelta > ZOOM_THRESHOLD_DELTA || longitudeDelta > ZOOM_THRESHOLD_DELTA;
+
+    if (shouldShowAll) {
+      // If zoomed out beyond threshold, show all (or a larger subset)
+      return allPoints;
+    } else {
+      // If zoomed in, show only markers within the visible bounds (or a very limited set)
+      // For initial load, you might want to show only a few closest markers or a very small delta.
+      return allPoints.filter(point =>
+        point.latitude >= minLat &&
+        point.latitude <= maxLat &&
+        point.longitude >= minLon &&
+        point.longitude <= maxLon
+      );
+    }
+  }, [ZOOM_THRESHOLD_DELTA]);
+
   useEffect(() => {
     let mounted = true;
     mountedRef.current = true;
-    
-    const DEFAULT_REGION = {
-      latitude: 18.7883,
-      longitude: 98.9853,
-      latitudeDelta: 0.5,
-      longitudeDelta: 0.5,
-    };
 
     const initializeMap = async () => {
       try {
         if (!mounted) return;
-        
+
         setLoadingMessage(t('airQuality.loadingMap'));
         setLoadingProgress(0.1);
-        
-        // **MODIFIED: Extended location timeout to 2 minutes (120 seconds)**
+
         locationTimeoutRef.current = setTimeout(() => {
           if (mounted && !region) {
             console.log('Location timeout after 2 minutes - using default region');
@@ -79,31 +112,28 @@ const AirQualityScreen = () => {
             setLoadingProgress(0.4);
             setLoadingMessage(t('airQuality.loadingData'));
           }
-        }, 120000); // Changed from 5000 to 120000 (2 minutes)
+        }, 120000);
 
-        // **MODIFIED: Slower progressive loading updates for 2-minute duration**
         const progressInterval = setInterval(() => {
           if (mounted) {
             setLoadingProgress(prev => {
-              // Slower progress increment to stretch over 2 minutes
-              const newProgress = Math.min(prev + 0.01, 0.35); // Reduced from 0.05 to 0.01
+              const newProgress = Math.min(prev + 0.01, 0.35);
               return newProgress;
             });
           }
-        }, 1000); // Changed from 200ms to 1000ms (1 second intervals)
+        }, 1000);
 
-        // Handle location
         if (location && location.latitude && location.longitude) {
           if (locationTimeoutRef.current) {
             clearTimeout(locationTimeoutRef.current);
           }
           clearInterval(progressInterval);
-          
+
           const initialRegion = {
             latitude: location.latitude,
             longitude: location.longitude,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
+            latitudeDelta: 0.05, // Start more zoomed in for initial view
+            longitudeDelta: 0.05, // Start more zoomed in for initial view
           };
 
           if (mounted) {
@@ -116,16 +146,15 @@ const AirQualityScreen = () => {
             clearTimeout(locationTimeoutRef.current);
           }
           clearInterval(progressInterval);
-          
+
           if (mounted) {
             console.log('Using default location due to error or no location');
-            setRegion(DEFAULT_REGION);
+            setRegion({ ...DEFAULT_REGION, latitudeDelta: 0.05, longitudeDelta: 0.05 }); // Also start default more zoomed in
             setLoadingProgress(0.4);
             setLoadingMessage(t('airQuality.loadingData'));
           }
         }
 
-        // Cleanup function
         return () => {
           clearInterval(progressInterval);
           if (locationTimeoutRef.current) {
@@ -136,7 +165,7 @@ const AirQualityScreen = () => {
       } catch (error) {
         console.error('Error initializing map:', error);
         if (mounted) {
-          setRegion(DEFAULT_REGION);
+          setRegion({ ...DEFAULT_REGION, latitudeDelta: 0.05, longitudeDelta: 0.05 });
           setLoadingProgress(0.4);
           setLoadingMessage(t('airQuality.loadingData'));
         }
@@ -163,19 +192,18 @@ const AirQualityScreen = () => {
     };
   }, [location, locationLoading, locationError, t]);
 
-  // **MODIFIED: Extended data fetching timeout to 2 minutes**
+
   useEffect(() => {
     if (region && !dataFetchedRef.current && !isLoadingRef.current && mountedRef.current) {
       dataFetchedRef.current = true;
-      
-      // **MODIFIED: Extended data fetch timeout to 2 minutes (120 seconds)**
+
       dataTimeoutRef.current = setTimeout(() => {
         if (mountedRef.current && isLoadingRef.current) {
           console.log('Data fetch timeout after 2 minutes - proceeding with empty data');
           setIsDataLoading(false);
           isLoadingRef.current = false;
           setLoadingProgress(1);
-          
+
           setTimeout(() => {
             if (mountedRef.current) {
               Animated.timing(fadeAnim, {
@@ -190,17 +218,28 @@ const AirQualityScreen = () => {
             }
           }, 500);
         }
-      }, 120000); // Changed from 15000 to 120000 (2 minutes)
-      
+      }, 120000);
+
       fetchAQIData();
     }
   }, [region]);
+
+  // Effect to update visible markers when allAqiPoints or region changes
+  useEffect(() => {
+    if (region && allAqiPoints.length > 0) {
+      setVisibleAqiPoints(filterMarkersForRegion(region, allAqiPoints));
+    } else {
+      setVisibleAqiPoints([]);
+    }
+  }, [region, allAqiPoints, filterMarkersForRegion]);
+
 
   // Detect apiSource changes
   useEffect(() => {
     apiSourceRef.current = apiSource;
     if (dataFetchedRef.current && mountedRef.current) {
-      setAqiPoints([]);
+      setAllAqiPoints([]); // Clear all points
+      setVisibleAqiPoints([]); // Clear visible points
       setTimeout(() => {
         if (mountedRef.current) {
           fetchAQIData();
@@ -218,7 +257,6 @@ const AirQualityScreen = () => {
     }
   };
 
-  // Function to toggle API source
   const toggleApiSource = useCallback(() => {
     if (isLoadingRef.current) {
       Alert.alert(
@@ -247,9 +285,9 @@ const AirQualityScreen = () => {
     }
   }, [apiSource, isLoadingRef.current, availableApiSources, t]);
 
-  // Function to open ranking modal
   const handleOpenRanking = useCallback(() => {
-    if (aqiPoints.length === 0 && !isDataLoading) {
+    // Ranking modal should probably use allAqiPoints, not just visible ones
+    if (allAqiPoints.length === 0 && !isDataLoading) {
       Alert.alert(
         t('airQuality.noData'),
         t('airQuality.noDataAvailable', { source: getApiSourceName() }),
@@ -258,9 +296,9 @@ const AirQualityScreen = () => {
       return;
     }
     setIsRankingModalVisible(true);
-  }, [aqiPoints.length, isDataLoading, getApiSourceName, t]);
+  }, [allAqiPoints.length, isDataLoading, getApiSourceName, t]);
 
-  // **MODIFIED: Extended fetchAQIData timeout to 2 minutes**
+
   const fetchAQIData = async () => {
     if (isLoadingRef.current || !mountedRef.current) {
       console.log("fetchAQIData is already running or component unmounted. Skipping duplicate call.");
@@ -276,33 +314,29 @@ const AirQualityScreen = () => {
       setLoadingMessage(t('airQuality.loadingData'));
       setLoadingProgress(0.5);
 
-      // Clear any existing data timeout
       if (dataTimeoutRef.current) {
         clearTimeout(dataTimeoutRef.current);
       }
 
-      // **MODIFIED: Slower progressive loading for data fetch over 2 minutes**
       progressInterval = setInterval(() => {
         if (mountedRef.current) {
           setLoadingProgress(prev => {
-            // Slower progress increment to stretch over 2 minutes
-            const newProgress = Math.min(prev + 0.01, 0.9); // Reduced from 0.05 to 0.01
+            const newProgress = Math.min(prev + 0.01, 0.9);
             return newProgress;
           });
         }
-      }, 2000); // Changed from 300ms to 2000ms (2 second intervals)
+      }, 2000);
 
       const currentApiSource = apiSourceRef.current;
       const dataProvider = DataProviderFactory.getProvider(currentApiSource);
-      
+
       if (!dataProvider || typeof dataProvider.fetchData !== 'function') {
         throw new Error(t('airQuality.invalidDataProvider', { source: currentApiSource }));
       }
 
-      // **MODIFIED: Extended Promise.race timeout to 2 minutes**
       const fetchPromise = dataProvider.fetchData();
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Data fetch timeout')), 120000); // Changed from 10000 to 120000
+        setTimeout(() => reject(new Error('Data fetch timeout')), 120000);
       });
 
       const formattedData = await Promise.race([fetchPromise, timeoutPromise]);
@@ -315,13 +349,11 @@ const AirQualityScreen = () => {
 
       setLoadingProgress(0.9);
 
-      // Check if the user changed API source during loading
       if (currentApiSource !== apiSourceRef.current) {
         console.log(`apiSource changed during loading: ${currentApiSource} -> ${apiSourceRef.current}`);
         return;
       }
 
-      // Check if there is enough data to display
       if (!formattedData || formattedData.length === 0) {
         console.warn(`No data found for API: ${currentApiSource}`);
         if (mountedRef.current) {
@@ -330,13 +362,15 @@ const AirQualityScreen = () => {
             t('airQuality.noDataAvailable', { source: getApiSourceName() }),
             [{ text: t('common.ok'), style: 'default' }]
           );
-          if (aqiPoints.length === 0) {
-            setAqiPoints([]);
+          if (allAqiPoints.length === 0) { // Check allAqiPoints
+            setAllAqiPoints([]);
+            setVisibleAqiPoints([]);
           }
         }
       } else {
         if (mountedRef.current) {
-          setAqiPoints(formattedData);
+          setAllAqiPoints(formattedData); // Store all fetched data
+          // Visible points will be updated by the useEffect hook
           console.log(`Data loaded successfully: ${formattedData.length} points`);
         }
       }
@@ -345,7 +379,6 @@ const AirQualityScreen = () => {
         setLoadingProgress(1);
       }
 
-      // Set timeout to hide loading screen
       timeoutId = setTimeout(() => {
         if (mountedRef.current) {
           Animated.timing(fadeAnim, {
@@ -362,7 +395,7 @@ const AirQualityScreen = () => {
 
     } catch (error) {
       console.error('Error fetching AQI data:', error);
-      
+
       if (progressInterval) {
         clearInterval(progressInterval);
       }
@@ -376,8 +409,9 @@ const AirQualityScreen = () => {
           [{ text: t('common.ok'), style: 'default' }]
         );
 
-        if (aqiPoints.length === 0) {
-          setAqiPoints([]);
+        if (allAqiPoints.length === 0) { // Check allAqiPoints
+          setAllAqiPoints([]);
+          setVisibleAqiPoints([]);
         }
 
         setLoadingProgress(1);
@@ -401,13 +435,12 @@ const AirQualityScreen = () => {
         setIsDataLoading(false);
       }
       isLoadingRef.current = false;
-      
+
       if (progressInterval) {
         clearInterval(progressInterval);
       }
     }
 
-    // Return cleanup function
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -418,30 +451,20 @@ const AirQualityScreen = () => {
     };
   };
 
-  // Function to handle region change
   const handleRegionChange = useCallback((newRegion) => {
     if (regionChangeTimeoutRef.current) {
       clearTimeout(regionChangeTimeoutRef.current);
     }
 
     regionChangeTimeoutRef.current = setTimeout(() => {
-      if (region) {
-        const latDiff = Math.abs(newRegion.latitude - region.latitude);
-        const lngDiff = Math.abs(newRegion.longitude - region.longitude);
-        const deltaLatDiff = Math.abs(newRegion.latitudeDelta - region.latitudeDelta);
-
-        if (latDiff > 0.01 || lngDiff > 0.01 || deltaLatDiff > 0.01) {
-          setRegion(newRegion);
-        }
-      } else {
-        setRegion(newRegion);
-      }
-
+      // Always update the region state to reflect the map's current view
+      setRegion(newRegion);
+      // The useEffect for visibleAqiPoints will handle re-filtering
       regionChangeTimeoutRef.current = null;
     }, 300);
-  }, [region]);
+  }, []); // Dependencies removed as setRegion is stable and filterMarkersForRegion is memoized
 
-  // Function to handle marker press
+
   const handleMarkerPress = useCallback((marker) => {
     if (marker && marker.id) {
       InteractionManager.runAfterInteractions(() => {
@@ -451,24 +474,22 @@ const AirQualityScreen = () => {
     }
   }, []);
 
-  // **MODIFIED: Updated skip function message for 2-minute wait**
   const skipLocationLoading = useCallback(() => {
     if (locationTimeoutRef.current) {
       clearTimeout(locationTimeoutRef.current);
     }
-    
+
     const defaultRegion = {
       latitude: 18.7883,
       longitude: 98.9853,
-      latitudeDelta: 0.5,
-      longitudeDelta: 0.5,
+      latitudeDelta: 0.05, // Set a tighter initial delta for skip as well
+      longitudeDelta: 0.05, // Set a tighter initial delta for skip as well
     };
-    
+
     setRegion(defaultRegion);
     setLoadingProgress(0.4);
     setLoadingMessage(t('airQuality.loadingData'));
-    
-    // Force immediate data fetch
+
     setTimeout(() => {
       if (mountedRef.current && !dataFetchedRef.current) {
         dataFetchedRef.current = true;
@@ -477,7 +498,6 @@ const AirQualityScreen = () => {
     }, 100);
   }, [t]);
 
-  // Function to go to current location
   const goToCurrentLocation = useCallback(async () => {
     try {
       setIsDataLoading(true);
@@ -555,7 +575,6 @@ const AirQualityScreen = () => {
     }
   }, [location, refreshLocation, t]);
 
-  // Display beautiful loading screen
   if (isLoading || !region) {
     return (
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
@@ -563,7 +582,6 @@ const AirQualityScreen = () => {
           progress={loadingProgress}
           message={loadingMessage}
         />
-        {/* **MODIFIED: Show skip button throughout 2-minute loading period** */}
         {loadingProgress <= 0.9 && (
           <TouchableOpacity
             style={styles.skipButton}
@@ -599,7 +617,7 @@ const AirQualityScreen = () => {
         loadingBackgroundColor="#FFFFFF"
         provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
       >
-        {aqiPoints.length > 0 && aqiPoints.map((point, index) => (
+        {visibleAqiPoints.length > 0 && visibleAqiPoints.map((point, index) => (
           <AQIMarker
             key={point.id || `marker-${index}`}
             point={point}
@@ -615,7 +633,7 @@ const AirQualityScreen = () => {
         toggleApiSource={toggleApiSource}
         goToCurrentLocation={goToCurrentLocation}
         fetchAQIData={fetchAQIData}
-        aqiPoints={aqiPoints}
+        aqiPoints={allAqiPoints}
         onOpenRanking={handleOpenRanking}
       />
 
@@ -634,7 +652,7 @@ const AirQualityScreen = () => {
       <AQIRankingModal
         visible={isRankingModalVisible}
         onClose={() => setIsRankingModalVisible(false)}
-        aqiPoints={aqiPoints}
+        aqiPoints={allAqiPoints}
       />
     </View>
   );

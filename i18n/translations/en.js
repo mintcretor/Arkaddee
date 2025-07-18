@@ -308,7 +308,7 @@ export default {
     airQualitys: "Air Quality",
     skiplocation: "Skip Location Search",
     best: "Best Air Quality",
-    worst: "Worst Air Quality",
+    worst: "Bad Air Quality",
     locationError: "Location Error",
     locationErrorMessage: "Unable to determine your location. Please check your GPS settings or enter a location manually.",
     noData: "No data available",
@@ -336,7 +336,7 @@ export default {
     indoors: "Indoors",
     outdoors: "Outdoors",
     The_best_air_quality: "The best air quality",
-    the_worst_air_quality: "The worst air quality",
+    the_worst_air_quality: "The Bad air quality",
     Air_Quality_Index: "Air Quality Index",
   },
   common: {
