@@ -288,7 +288,14 @@ function MainLayout() {
               safeNavigate(router, () => router.replace('/(auth)/login/login'));
               return true;
             } else {
-              router.replace('/(tabs)/home');
+              if (isLoginScreen()) {
+                // ถ้าอยู่ในหน้า login ให้ไปหน้า home แทน
+               // safeNavigate(router, () => router.replace('/(tabs)/home'));
+               return true;
+              } else {
+                router.replace('/(tabs)/home');
+              }
+              // 
             }
             // Always navigate to home when going back from a non-main, non-auth screen
             console.log('Navigating back to home screen.');

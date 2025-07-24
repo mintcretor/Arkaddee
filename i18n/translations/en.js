@@ -399,6 +399,7 @@ export default {
     loginRequiredFavorites: "Please log in to view your favorites.",
     guestTitle: "Members only",
     guestReviewOrFav: "Please sign up before you can review or add favorites.",
+    guestMyhome:"Please sign up to manage your devices.",
     signup: "Sign up",
     alert: "Alert",
     login_before_like: "Please log in before liking a review.",

@@ -20,7 +20,7 @@ import Header from '@/components/Header';
 import { router, useFocusEffect } from 'expo-router';
 import { fetchDeviceAccount, fetchDevicePrimary } from '@/api/baseapi';
 import { useTranslation } from 'react-i18next';
-
+import { useAuth } from '@/hooks/useAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -53,7 +53,8 @@ export default function ArkadDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { t, i18n } = useTranslation();
-
+  const { user, refreshUser } = useAuth();
+  const isGuest = user?.authType === 'guest';
   const updateClock = () => {
     const now = new Date();
 
@@ -102,7 +103,13 @@ export default function ArkadDashboard() {
     if (device_type === 'Arkad_PCM') return require('@/assets/images/device/Arkad_PCM.png');
     return require('@/assets/images/device/Arkad_WM.png');
   };
-
+  useFocusEffect(
+    React.useCallback(() => {
+      // ถ้ามีฟังก์ชัน refreshUser ใน useAuth ให้เรียก
+      if (refreshUser) refreshUser();
+      // หรือจะ fetch user ใหม่จาก API ตรงนี้ก็ได้
+    }, [])
+  );
 
   // Load device data
   const loadDevices = async () => {
@@ -412,7 +419,20 @@ export default function ArkadDashboard() {
             ListFooterComponent={
               <TouchableOpacity
                 style={styles.addDeviceButton}
-                onPress={() => router.push('/device-scan/HomeWifi')}
+                onPress={() => {
+                  if (!user || user.authType === 'guest') {
+                    Alert.alert(
+                      t('common.guestTitle'),
+                      t('common.guestMyhome'),
+                      [
+                        { text: t('common.cancel'), style: 'cancel' },
+                        { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
+                      ]
+                    );
+                    return;
+                  }
+                  router.push('/device-scan/HomeWifi')
+                }}
                 activeOpacity={0.8}
               >
                 <View style={styles.addButtonIcon}>
