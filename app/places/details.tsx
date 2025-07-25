@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
-    Image,
     TouchableOpacity,
     ScrollView,
     Platform,
@@ -29,7 +28,7 @@ import { BackHandler } from 'react-native';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from 'expo-router';
-
+import { Image } from 'expo-image';
 // Import the review components
 import { ReviewsSection, WriteReviewModal, StarRating } from '@/components/ReviewComponents';
 // Import our new OpeningHours component
