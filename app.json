@@ -2,7 +2,7 @@
   "expo": {
     "name": "Arkad",
     "slug": "arkaddee",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "orientation": "portrait",
     "icon": "./assets/images/Arkad.png",
     "scheme": "com.appmatrixdevelopment.arkad",
@@ -102,7 +102,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "25eb52ef-0555-48e7-91a5-faf579d03b39"
+        "projectId": "12967459-333b-4619-b37d-10a156c37065"
       }
     }
   }
