@@ -160,7 +160,10 @@ const LoginScreen: React.FC = () => {
                 }
             } else if (response.type === 'error') {
                 console.error('Google auth error:', response.error);
+                setLoadingVisible(false); // Hide loading on error
+                router.replace('/(auth)/login/login'); // Redirect to login page
                 Alert.alert('Error', 'Google authentication failed');
+                
             } else if (response.type === 'dismiss' || response.type === 'cancel') {
                 console.log('Google auth dismissed/cancelled');
                 // No alert needed for dismiss/cancel, just hide loading
