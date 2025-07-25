@@ -137,12 +137,12 @@ const EditReviewScreen = () => {
 
     // อัปเดตรีวิว
     const handleSave = async () => {
-        if (!reviewText.trim()) {
-            Alert.alert(
-                t('common.warning'), // "แจ้งเตือน"
-                t('reviews.pleaseEnterReview') // "กรุณากรอกรีวิว"
-            ); return;
-        }
+        //if (!reviewText.trim()) {
+        //    Alert.alert(
+        //        t('common.warning'), // "แจ้งเตือน"
+        //        t('reviews.pleaseEnterReview') // "กรุณากรอกรีวิว"
+        //    ); return;
+        //}
         if (rating < 1 || rating > 5) {
             Alert.alert(
                 t('common.warning'),
