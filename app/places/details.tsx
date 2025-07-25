@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
+    Image,
     TouchableOpacity,
     ScrollView,
     Platform,
@@ -11,11 +12,9 @@ import {
     Dimensions,
     Linking,
     FlatList,
-    Modal,
-    TouchableWithoutFeedback,
+    Alert,
     ActivityIndicator,
-    StyleSheet,
-    Alert
+    StyleSheet // เพิ่ม StyleSheet เพราะคุณใช้ในส่วน styles.fullScreenImageLoading
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '@/components/Header';
@@ -28,12 +27,16 @@ import { BackHandler } from 'react-native';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from 'expo-router';
-import { Image } from 'expo-image';
+import ImageItem from '@/components/ImageItem'; // สมมติว่าไฟล์ ImageItem.tsx อยู่ใน components
+
 // Import the review components
 import { ReviewsSection, WriteReviewModal, StarRating } from '@/components/ReviewComponents';
 // Import our new OpeningHours component
 import OpeningHours from '@/components/store_hours';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// *** เพิ่มการ import ImageGalleryModal.tsx เข้ามาที่นี่ ***
+import ImageGalleryModal from '@/components/ImageGalleryModal';
 
 const HEADER_HEIGHT = 50;
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
@@ -49,14 +52,12 @@ const addFavorite = async (restaurantId: any) => {
             throw new Error('กรุณาเข้าสู่ระบบก่อนใช้งาน');
         }
 
-        // แก้ไข URL และไม่ต้องส่ง body
         const response = await fetch(`${BASEAPI_CONFIG.baseUrl}/stores/favorite/${restaurantId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             }
-            // ไม่ต้องส่ง body เพราะ restaurantId มาจาก URL parameter แล้ว
         });
 
         const data = await response.json();
@@ -84,7 +85,6 @@ const removeFavorite = async (restaurantId: any) => {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                // เพิ่ม authorization header ถ้าจำเป็น
                 'Authorization': `Bearer ${token}`,
             }
         });
@@ -100,12 +100,17 @@ const removeFavorite = async (restaurantId: any) => {
     }
 };
 
+
+// ========================================================================
+// ******** ลบ FullScreenImageModal และ ReviewImageModal ออกจากที่นี่ ********
+// ********** เพราะเราจะใช้ ImageGalleryModal.tsx แทนแล้ว **********
+// ========================================================================
+
+
 const ShopDetails = () => {
     const { id } = useLocalSearchParams();
-    const { user, signOut } = useAuth(); // ดึงข้อมูล user จาก auth context
-    const { recentlyViewed = [], clearRecentlyViewed, addToRecentlyViewed } = useRecentlyViewed() as { recentlyViewed?: any[]; clearRecentlyViewed: () => Promise<void> };; // เพิ่มบรรทัดนี้
-    const [imagesPreloaded, setImagesPreloaded] = useState(false);
-
+    const { user, signOut } = useAuth();
+    const { recentlyViewed = [], clearRecentlyViewed, addToRecentlyViewed } = useRecentlyViewed() as { recentlyViewed?: any[]; clearRecentlyViewed: () => Promise<void> };
     const [restaurantBaseInfo, setRestaurantBaseInfo] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteLoading, setFavoriteLoading] = useState(false);
@@ -126,29 +131,22 @@ const ShopDetails = () => {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const flatListRef = useRef(null);
     const [lastUpdateTime, setLastUpdateTime] = useState(null);
-    const [imageLoading, setImageLoading] = useState(true);
+    // const [imageLoading, setImageLoading] = useState(true); // ย้ายไปอยู่ใน ImageItem แล้ว
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-    // เพิ่ม state สำหรับรูปภาพในรีวิว
     const [reviewImageModalVisible, setReviewImageModalVisible] = useState(false);
     const [selectedReviewImageIndex, setSelectedReviewImageIndex] = useState(0);
-    const [reviewImages, setReviewImages] = useState([]);
+    const [reviewImages, setReviewImages] = useState<string[]>([]); // กำหนด type ให้ชัดเจน
 
     const loadInitialData = async () => {
         try {
-
             setLoading(true);
             const details = await fetchRestaurantById(id);
-            // แยกข้อมูลเซ็นเซอร์ออกจากข้อมูลหลัก
             const { environmentalMetrics, ...baseInfo } = details;
-            // ตั้งค่าข้อมูลพื้นฐานของร้าน
             setRestaurantBaseInfo(baseInfo);
-            //console.log('Restaurant Base Info:', baseInfo);
-            // ตั้งค่าสถานะ favorite
             setIsFavorite(baseInfo.is_favorite || false);
 
-            // ตั้งค่าข้อมูลเซ็นเซอร์
             if (environmentalMetrics) {
                 setEnvironmentalData({
                     temperature: environmentalMetrics.temperature || null,
@@ -164,30 +162,24 @@ const ShopDetails = () => {
             setLastUpdate(Date.now());
 
         } catch (error) {
-            //  console.error('Failed to load place details:', error);
+            console.error('Failed to load place details:', error);
         } finally {
             setLoading(false);
         }
     };
     useFocusEffect(
         React.useCallback(() => {
-            // ถ้ามีฟังก์ชัน refreshUser ใน useAuth ให้เรียก
             loadInitialData();
-            // หรือจะ fetch user ใหม่จาก API ตรงนี้ก็ได้
         }, [])
     );
     useEffect(() => {
         const backAction = () => {
-
-            // ตรวจสอบว่าสามารถกลับได้
             if (router.canGoBack()) {
                 router.back();
             } else {
-                // ถ้าไม่มีที่กลับ ให้ไปหน้าหลัก
                 router.replace('/(tabs)/home');
             }
-
-            return true; // ป้องกัน default behavior
+            return true;
         };
 
         const backHandler = BackHandler.addEventListener(
@@ -195,11 +187,9 @@ const ShopDetails = () => {
             backAction
         );
 
-        return () => backHandler.remove(); // ล้างเมื่อ component unmount
+        return () => backHandler.remove();
     }, []);
 
-
-    // ฟังก์ชันสำหรับจัดการ favorite - ปรับปรุงแล้ว
     const handleFavoritePress = async () => {
         if (!user || user.authType === 'guest') {
             Alert.alert(
@@ -210,12 +200,8 @@ const ShopDetails = () => {
 
                     {
                         text: t('common.signup'), onPress: async () => {
-                            //await signOut();
-                            //await clearRecentlyViewed()
-
                             router.push('/(auth)/register/register');
                         }
-
                     }
                 ]
             );
@@ -226,22 +212,17 @@ const ShopDetails = () => {
             setFavoriteLoading(true);
 
             if (isFavorite) {
-                // ลบออกจาก favorite
                 await removeFavorite(id);
                 setIsFavorite(false);
-                Alert.alert(t('store.success')
-                    , t('store.removedFromFavorites'));
+                Alert.alert(t('store.success'), t('store.removedFromFavorites'));
             } else {
-                // เพิ่มเข้า favorite
                 await addFavorite(id);
                 setIsFavorite(true);
-                Alert.alert(t('store.success')
-                    , t('store.addedToFavorites'));
+                Alert.alert(t('store.success'), t('store.addedToFavorites'));
             }
         } catch (error) {
             console.error('Failed to update favorite:', error);
-            Alert.alert(t('store.error')
-                , t('store.failedToUpdateFavorite'));
+            Alert.alert(t('store.error'), t('store.failedToUpdateFavorite'));
         } finally {
             setFavoriteLoading(false);
         }
@@ -249,10 +230,8 @@ const ShopDetails = () => {
 
     const loadSensorData = async () => {
         try {
-            // คุณอาจต้องสร้าง API endpoint ใหม่ที่ส่งเฉพาะข้อมูลเซ็นเซอร์
             const response = await fetchAirRestaurantById(id);
 
-            // อัปเดตเฉพาะข้อมูลเซ็นเซอร์
             if (response.environmentalMetrics) {
                 setEnvironmentalData(prevData => ({
                     temperature: response.environmentalMetrics.temperature || prevData.temperature,
@@ -266,7 +245,7 @@ const ShopDetails = () => {
                 setLastUpdateTime(new Date());
             }
         } catch (error) {
-            //console.error('Failed to load sensor data:', error);
+            console.error('Failed to load sensor data:', error);
         }
     };
 
@@ -279,12 +258,10 @@ const ShopDetails = () => {
     useEffect(() => {
         if (!id || !restaurantBaseInfo) return;
 
-        // เริ่มต้น polling ทุก 30 วินาที
         const pollingInterval = setInterval(() => {
             loadSensorData();
-        }, 30000); // 30 วินาที
+        }, 30000);
 
-        // ล้างการตั้งเวลาเมื่อคอมโพเนนต์ถูกทำลาย
         return () => clearInterval(pollingInterval);
     }, [id, restaurantBaseInfo]);
 
@@ -295,45 +272,7 @@ const ShopDetails = () => {
             environmentalMetrics: environmentalData
         };
     }, [restaurantBaseInfo, environmentalData]);
-    useEffect(() => {
-        if (modalVisible && restaurantsData && restaurantsData.images && restaurantsData.images.length > 0 && !imagesPreloaded) {
-            console.log("Preloading images for FullScreenImageModal...");
-            const preloadPromises = restaurantsData.images.map(imagePath =>
-                Image.prefetch(`${BASEAPI_CONFIG.UrlImg}${imagePath}`)
-            );
 
-            Promise.all(preloadPromises)
-                .then(() => {
-                    console.log("All modal images preloaded.");
-                    setImagesPreloaded(true);
-                })
-                .catch(error => {
-                    console.error("Error preloading modal images:", error);
-                    // แม้ว่าการโหลดล่วงหน้าจะล้มเหลว ก็ยังคงอนุญาตให้ Modal เปิดได้
-                    setImagesPreloaded(true);
-                });
-        }
-    }, [modalVisible, restaurantsData, imagesPreloaded]);
-
-    useEffect(() => {
-        if (reviewImageModalVisible && reviewImages.length > 0) {
-            console.log("Preloading images for ReviewImageModal...");
-            const preloadPromises = reviewImages.map(imageUri =>
-                Image.prefetch(imageUri)
-            );
-
-            Promise.all(preloadPromises)
-                .then(() => {
-                    console.log("All review images preloaded.");
-                    // คุณอาจต้องการ state แยกต่างหากสำหรับการโหลดรูปภาพรีวิว
-                    // เพื่อความง่าย จะปล่อยให้โหลดเมื่อเปิด หรือเพิ่ม state เฉพาะ
-                })
-                .catch(error => {
-                    console.error("Error preloading review images:", error);
-                });
-        }
-    }, [reviewImageModalVisible, reviewImages]);
-    // Default coordinates for the map (should be replaced with actual restaurant location)
     const defaultLocation = {
         latitude: 18.7883, // Default for Chiang Mai
         longitude: 98.9853,
@@ -341,7 +280,6 @@ const ShopDetails = () => {
         longitudeDelta: 0.005,
     };
 
-    // Use restaurant coordinates if available, otherwise use default
     const mapRegion = restaurantsData ? {
         latitude: restaurantsData.latitude ? parseFloat(restaurantsData.latitude) : defaultLocation.latitude,
         longitude: restaurantsData.longitude ? parseFloat(restaurantsData.longitude) : defaultLocation.longitude,
@@ -356,25 +294,21 @@ const ShopDetails = () => {
         const label = encodeURIComponent(restaurantsData.name || "");
 
         if (Platform.OS === 'ios') {
-            // Try Google Maps first
             const googleUrl = `comgooglemaps://?q=${latitude},${longitude}&center=${latitude},${longitude}&directionsmode=driving`;
 
             Linking.canOpenURL(googleUrl).then(supported => {
                 if (supported) {
                     Linking.openURL(googleUrl);
                 } else {
-                    // Fallback to Apple Maps
                     const appleUrl = `http://maps.apple.com/?daddr=${latitude},${longitude}&q=${label}`;
                     Linking.openURL(appleUrl);
                 }
             }).catch(err => {
                 console.error('An error occurred', err);
-                // Fallback to browser
                 const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
                 Linking.openURL(browserUrl);
             });
         } else {
-            // Android handling stays the same
             const url = `google.navigation:q=${latitude},${longitude}`;
             Linking.canOpenURL(url).then(supported => {
                 if (supported) {
@@ -429,21 +363,19 @@ const ShopDetails = () => {
     });
 
     const handleReviewSubmit = (reviewData) => {
-        // In a real app, you would send this to your API
         console.log('123456')
         setShowWriteReviewModal(false);
-        // Switch to reviews tab to see the new review
         setActiveTab('reviews');
         loadInitialData();
     };
 
-    // ฟังก์ชันสำหรับจัดการรูปภาพรีวิว
-    const handleReviewImagePress = (images, index) => {
+    const handleReviewImagePress = (images: string[], index: number) => {
         setReviewImages(images);
         setSelectedReviewImageIndex(index);
         setReviewImageModalVisible(true);
     };
 
+    // renderImageItem ยังคงอยู่ใน ShopDetails เพราะมันถูกเรียกโดย FlatList ใน ShopDetails
     const renderImageItem = ({ item, index }) => {
         return (
             <TouchableOpacity
@@ -458,174 +390,12 @@ const ShopDetails = () => {
                     source={{ uri: `${BASEAPI_CONFIG.UrlImg}${item}` }}
                     style={styles.image}
                     resizeMode="contain"
-                    onLoadStart={() => setImageLoading(true)}
-                    onLoadEnd={() => setImageLoading(false)}
+                    onLoadStart={() => { /* no longer needed here if ImageItem handles its own loading */ }}
+                    onLoadEnd={() => { /* no longer needed here if ImageItem handles its own loading */ }}
                 />
-                {imageLoading && (
-                    <View style={styles.imageLoading}>
-                        <ActivityIndicator size="large" color="#4B74B3" />
-                    </View>
-                )}
+                {/* imageLoading component from the original code might be removed if using ImageItem */}
+                {/* You can re-add loading indicator here if not using ImageItem component to handle loading */}
             </TouchableOpacity>
-        );
-    };
-
-    // Full screen image modal component
-    const FullScreenImageModal = () => {
-        const [fullImageLoading, setFullImageLoading] = useState(true);
-
-        // รีเซ็ตสถานะการโหลดเมื่อ selectedImageIndex เปลี่ยน
-        useEffect(() => {
-            setFullImageLoading(true);
-        }, [selectedImageIndex]);
-
-        if (!restaurantsData || !restaurantsData.images) return null;
-
-        return (
-            <Modal
-                visible={modalVisible}
-                transparent={true}
-                onRequestClose={() => {
-                    setModalVisible(false);
-                    setImagesPreloaded(false); // รีเซ็ตสถานะ preloaded เมื่อปิด
-                }}
-                animationType="fade"
-            >
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => {
-                            setModalVisible(false);
-                            setImagesPreloaded(false); // รีเซ็ตสถานะ preloaded เมื่อปิด
-                        }}
-                    >
-                        <Ionicons name="close" size={30} color="#FFF" />
-                    </TouchableOpacity>
-
-                    <TouchableWithoutFeedback>
-                        <View style={styles.modalContent}>
-                            {
-                                restaurantsData.images[selectedImageIndex] && (
-                                    <Image
-                                        source={{ uri: `${BASEAPI_CONFIG.UrlImg}${restaurantsData.images[selectedImageIndex]}` }}
-                                        style={styles.fullScreenImage}
-                                        resizeMode="contain"
-                                        onLoadEnd={() => setFullImageLoading(false)}
-                                    />
-                                )
-                            }
-                            {fullImageLoading && (
-                                <View style={styles.fullScreenImageLoading}>
-                                    <ActivityIndicator size="large" color="#FFF" />
-                                </View>
-                            )}
-                        </View>
-                    </TouchableWithoutFeedback>
-
-                    {/* ปุ่มนำทาง */}
-                    {restaurantsData.images.length > 1 && (
-                        <>
-                            {selectedImageIndex > 0 && (
-                                <TouchableOpacity
-                                    style={[styles.navigationButton, styles.prevButton]}
-                                    onPress={() => setSelectedImageIndex(prev => prev - 1)}
-                                >
-                                    <Ionicons name="chevron-back" size={30} color="#FFF" />
-                                </TouchableOpacity>
-                            )}
-                            {selectedImageIndex < restaurantsData.images.length - 1 && (
-                                <TouchableOpacity
-                                    style={[styles.navigationButton, styles.nextButton]}
-                                    onPress={() => setSelectedImageIndex(prev => prev + 1)}
-                                >
-                                    <Ionicons name="chevron-forward" size={30} color="#FFF" />
-                                </TouchableOpacity>
-                            )}
-                        </>
-                    )}
-
-                    {/* ตัวนับรูปภาพ */}
-                    <View style={styles.imageCounter}>
-                        <Text style={styles.imageCounterText}>
-                            {selectedImageIndex + 1} / {restaurantsData.images.length}
-                        </Text>
-                    </View>
-                </View>
-            </Modal>
-        );
-    };
-
-    // Modal สำหรับรูปภาพรีวิว+--+-
-   const ReviewImageModal = () => {
-        const [fullImageLoading, setFullImageLoading] = useState(true);
-
-        useEffect(() => {
-            setFullImageLoading(true);
-        }, [selectedReviewImageIndex]);
-
-        return (
-            <Modal
-                visible={reviewImageModalVisible}
-                transparent={true}
-                onRequestClose={() => setReviewImageModalVisible(false)}
-                animationType="fade"
-            >
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setReviewImageModalVisible(false)}
-                    >
-                        <Ionicons name="close" size={30} color="#FFF" />
-                    </TouchableOpacity>
-
-                    <TouchableWithoutFeedback>
-                        <View style={styles.modalContent}>
-                            {reviewImages.length > 0 && reviewImages[selectedReviewImageIndex] && (
-                                <Image
-                                    source={{ uri: `${reviewImages[selectedReviewImageIndex]}` }}
-                                    style={styles.fullScreenImage}
-                                    resizeMode="contain"
-                                    onLoadEnd={() => setFullImageLoading(false)}
-                                />
-                            )}
-                            {fullImageLoading && (
-                                <View style={styles.fullScreenImageLoading}>
-                                    <ActivityIndicator size="large" color="#FFF" />
-                                </View>
-                            )}
-                        </View>
-                    </TouchableWithoutFeedback>
-
-                    {/* ปุ่มนำทางสำหรับรูปภาพรีวิว */}
-                    {reviewImages.length > 1 && (
-                        <>
-                            {selectedReviewImageIndex > 0 && (
-                                <TouchableOpacity
-                                    style={[styles.navigationButton, styles.prevButton]}
-                                    onPress={() => setSelectedReviewImageIndex(prev => prev - 1)}
-                                >
-                                    <Ionicons name="chevron-back" size={30} color="#FFF" />
-                                </TouchableOpacity>
-                            )}
-                            {selectedReviewImageIndex < reviewImages.length - 1 && (
-                                <TouchableOpacity
-                                    style={[styles.navigationButton, styles.nextButton]}
-                                    onPress={() => setSelectedReviewImageIndex(prev => prev + 1)}
-                                >
-                                    <Ionicons name="chevron-forward" size={30} color="#FFF" />
-                                </TouchableOpacity>
-                            )}
-                        </>
-                    )}
-
-                    {/* ตัวนับรูปภาพสำหรับรูปภาพรีวิว */}
-                    <View style={styles.imageCounter}>
-                        <Text style={styles.imageCounterText}>
-                            {selectedReviewImageIndex + 1} / {reviewImages.length}
-                        </Text>
-                    </View>
-                </View>
-            </Modal>
         );
     };
 
@@ -746,11 +516,9 @@ const ShopDetails = () => {
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => {
-                        // ตรวจสอบว่าสามารถกลับได้และไม่ใช่หน้า auth
                         if (router.canGoBack()) {
                             router.back();
                         } else {
-                            // ถ้าไม่มีที่กลับ ให้ไปหน้าหลัก
                             router.replace('/(tabs)/home');
                         }
                     }}
@@ -769,7 +537,12 @@ const ShopDetails = () => {
                         <FlatList
                             ref={flatListRef}
                             data={restaurantsData.images || [restaurantsData.images[0]]}
-                            renderItem={renderImageItem}
+                            renderItem={({ item, index }) => (
+                                <ImageItem item={item} index={index} onPress={() => {
+                                    setSelectedImageIndex(index);
+                                    setModalVisible(true);
+                                }} />
+                            )}
                             keyExtractor={(item, index) => `image-${index}`}
                             horizontal
                             pagingEnabled
@@ -825,7 +598,6 @@ const ShopDetails = () => {
                             </TouchableOpacity>
                         </View>
 
-                        {/* Use our new OpeningHours component */}
                         <OpeningHours openingHours={restaurantsData.openingHours} />
 
                         <View style={styles.ratingSection}>
@@ -878,13 +650,11 @@ const ShopDetails = () => {
                             <Text style={styles.sectionTitle}>{t('store.store_details')}</Text>
                         </View>
 
-                        {/* Info Content */}
                         <Text style={styles.description}>
                             {restaurantsData.description ||
                                 'เป็นที่ตั้งร้านอาหารและคาเฟ่ในเชียงใหม่ที่ผสมผสานกับธรรมชาติได้อย่างลงตัว บรรยากาศร่มรื่น ตกแต่งด้วยต้นไม้ใหญ่ได้ Tropical Thai Moss Garden ตั้งอยู่ติดกับภูเขาจำลองระบบนิเวศน์ของน้ำตกเล็ก รายล้อมไปด้วยแมกไม้นานาพันธุ์'}
                         </Text>
 
-                        {/* Map Section */}
                         <View style={styles.mapSection}>
                             <View style={styles.sectionHeader}>
                                 <Text style={styles.sectionTitle}>{t('store.store_map')}</Text>
@@ -953,7 +723,6 @@ const ShopDetails = () => {
                             </View>
                         </View>
 
-                        {/* Reviews Section */}
                         <View style={styles.reviewsContainer}>
                             <ReviewsSection
                                 restaurantId={restaurantsData}
@@ -968,7 +737,6 @@ const ShopDetails = () => {
 
                 </ScrollView>
 
-                {/* Floating Action Button for Scroll to Top */}
                 <Animated.View
                     style={[
                         styles.fab,
@@ -985,11 +753,23 @@ const ShopDetails = () => {
                     </TouchableOpacity>
                 </Animated.View>
 
-                {/* Full Screen Image Modal */}
-                <FullScreenImageModal />
+                {/* *** ใช้ ImageGalleryModal แทน FullScreenImageModal *** */}
+                <ImageGalleryModal
+                    visible={modalVisible}
+                    images={restaurantsData.images || []}
+                    initialIndex={selectedImageIndex}
+                    onClose={() => setModalVisible(false)}
+                    isReviewImage={false} // สำหรับรูปภาพหลักของร้าน
+                />
 
-                {/* Review Image Modal */}
-                <ReviewImageModal />
+                {/* *** ใช้ ImageGalleryModal แทน ReviewImageModal *** */}
+                <ImageGalleryModal
+                    visible={reviewImageModalVisible}
+                    images={reviewImages}
+                    initialIndex={selectedReviewImageIndex}
+                    onClose={() => setReviewImageModalVisible(false)}
+                    isReviewImage={true} // สำหรับรูปภาพรีวิว
+                />
 
                 {/* Write Review Modal */}
                 <WriteReviewModal
@@ -998,7 +778,7 @@ const ShopDetails = () => {
                     onSubmit={async (reviewData) => {
                         setShowWriteReviewModal(false);
                         setActiveTab('reviews');
-                        await loadInitialData(); // <-- สำคัญ! ต้องเรียกตรงนี้
+                        await loadInitialData();
                     }}
                     storeId={restaurantsData.id}
                 />
@@ -1009,7 +789,6 @@ const ShopDetails = () => {
 
 
 const styles = StyleSheet.create({
-    // Container styles
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
@@ -1019,7 +798,6 @@ const styles = StyleSheet.create({
         paddingTop: STATUSBAR_HEIGHT || 30,
     },
 
-    // Header styles
     headerContainer: {
         position: 'absolute',
         top: 0,
@@ -1036,7 +814,6 @@ const styles = StyleSheet.create({
         },
     },
 
-    // Navigation styles
     backButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -1050,7 +827,6 @@ const styles = StyleSheet.create({
         color: '#000000',
     },
 
-    // Gallery styles
     galleryWrapper: {
         height: 230,
         position: 'relative',
@@ -1093,7 +869,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
     },
 
-    // Pagination styles
     paginationContainer: {
         position: 'absolute',
         bottom: 10,
@@ -1116,7 +891,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
 
-    // Air Quality styles
     airQualityBadge: {
         position: 'absolute',
         top: 8,
@@ -1162,7 +936,6 @@ const styles = StyleSheet.create({
         color: '#000'
     },
 
-    // Weather overlay styles
     weatherOverlay: {
         position: 'absolute',
         top: 60,
@@ -1200,7 +973,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
 
-    // Details container styles
     detailsContainer: {
         padding: 16,
     },
@@ -1232,7 +1004,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
 
-    // Rating styles
     ratingSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -1257,7 +1028,6 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
     },
 
-    // Air Quality Section styles
     airQualitySection: {
         marginTop: 15,
         marginBottom: 10,
@@ -1282,7 +1052,6 @@ const styles = StyleSheet.create({
         color: '#444444',
     },
 
-    // Section styles
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -1301,7 +1070,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
 
-    // Map styles
     mapSection: {
         marginTop: 20,
         borderTopWidth: 1,
@@ -1332,7 +1100,6 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
 
-    // Address and info styles
     addressContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -1373,12 +1140,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
-    // Reviews container
     reviewsContainer: {
         marginTop: 20,
     },
 
-    // Floating Action Button styles
     fab: {
         position: 'absolute',
         right: 16,
@@ -1402,66 +1167,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    // Modal styles
-    modalContainer: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    fullScreenImage: {
-        width: width,
-        height: height * 0.8,
-    },
+    // คุณสามารถลบ styles ที่เกี่ยวข้องกับ FullScreenImageModal และ ReviewImageModal ที่ไม่จำเป็นออกได้
+    // แต่เพื่อให้โค้ดนี้ทำงานได้ทันทีโดยไม่ต้องแก้ไข styles.fullScreenImageLoading ในส่วน renderFullImage
+    // ผมจะยังคง styles เหล่านี้ไว้ แต่คุณสามารถพิจารณาลบออกได้หาก ImageGalleryModal.tsx มี styles ของตัวเองที่สมบูรณ์แล้ว
     fullScreenImageLoading: {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        ...StyleSheet.absoluteFillObject,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    closeButton: {
-        position: 'absolute',
-        top: Platform.OS === 'ios' ? 60 : 40,
-        right: 20,
-        zIndex: 2,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        borderRadius: 20,
-        padding: 5,
-    },
-    navigationButton: {
-        position: 'absolute',
-        top: '50%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        borderRadius: 20,
-        padding: 10,
-        zIndex: 2,
-    },
-    prevButton: {
-        left: 20,
-    },
-    nextButton: {
-        right: 20,
-    },
-    imageCounter: {
-        position: 'absolute',
-        bottom: Platform.OS === 'ios' ? 60 : 40,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        paddingHorizontal: 15,
-        paddingVertical: 5,
-        borderRadius: 15,
-    },
-    imageCounterText: {
-        color: '#ffffff',
-        fontSize: 14,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
     },
 });
 
