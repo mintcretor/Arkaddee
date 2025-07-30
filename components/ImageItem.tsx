@@ -22,7 +22,7 @@ const ImageItem: React.FC<ImageItemProps> = ({ item, index, onPress }) => {
             <Image
                 source={{ uri: `${BASEAPI_CONFIG.UrlImg}${item}` }}
                 style={styles.image}
-                resizeMode="cover" // เปลี่ยนเป็น cover เพื่อให้ภาพเต็มพื้นที่มากขึ้น
+                resizeMode="center"
                 onLoadStart={() => setLoading(true)}
                 onLoadEnd={() => setLoading(false)}
                 onError={(e) => {
@@ -40,31 +40,32 @@ const ImageItem: React.FC<ImageItemProps> = ({ item, index, onPress }) => {
 };
 
 const styles = StyleSheet.create({
-    imageContainer: {
+  imageContainer: {
         width: width - 70, // ใช้ Dimensions.get('window').width
         height: 230,
         borderRadius: 12,
         overflow: 'hidden',
-        backgroundColor: '#f5f5f5',
         marginHorizontal: 5, // เพิ่มระยะห่างระหว่างรูปภาพ
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        backgroundColor: '#000', // พื้นหลังสำหรับกรณีที่รูปภาพไม่โหลด
+   
         justifyContent: 'center',
         alignItems: 'center',
     },
     image: {
         width: '100%',
         height: '100%',
+        backgroundColor: 'transparent', // ป้องกันการกระพริบ
     },
     imageLoadingOverlay: {
         position: 'absolute',
-        ...StyleSheet.absoluteFillObject,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backgroundColor: 'rgba(240, 240, 240, 0.8)', // พื้นหลังโปร่งใสขณะโหลด
+        borderRadius: 12, // ต้องตรงกับ imageContainer
     },
 });
 
