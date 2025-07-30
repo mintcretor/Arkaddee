@@ -328,12 +328,6 @@ export default function EditDeviceScreen() {
                   </Text>
                 )}
               </TouchableOpacity>
-
-              {isPrimaryDevice && (
-                <Text style={styles.deleteDisabledText}>
-                  {t('myhome.primary_device_cannot_be_deleted')}
-                </Text>
-              )}
             </View>
           </ScrollView>
         </View>

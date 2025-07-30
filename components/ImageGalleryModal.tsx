@@ -1,5 +1,5 @@
 // components/ImageGalleryModal.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     Modal,
     View,
@@ -13,7 +13,7 @@ import {
     TouchableWithoutFeedback
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BASEAPI_CONFIG } from '@/config'; // ตรวจสอบให้แน่ใจว่า import ถูกต้อง
+import { BASEAPI_CONFIG } from '@/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,7 +22,7 @@ interface ImageGalleryModalProps {
     images: string[];
     initialIndex: number;
     onClose: () => void;
-    isReviewImage?: boolean; // เพิ่ม prop เพื่อแยกว่าเป็นรูปรีวิวหรือไม่
+    isReviewImage?: boolean;
 }
 
 const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
@@ -33,59 +33,104 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
     isReviewImage = false,
 }) => {
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const [isScrolling, setIsScrolling] = useState(false);
     const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
-        if (visible && flatListRef.current) {
-            flatListRef.current.scrollToIndex({ index: initialIndex, animated: false });
-            setCurrentIndex(initialIndex);
+        if (visible && flatListRef.current && images.length > 0) {
+            // ใช้ setTimeout เพื่อให้ modal render เสร็จก่อน
+            setTimeout(() => {
+                flatListRef.current?.scrollToIndex({ 
+                    index: Math.max(0, Math.min(initialIndex, images.length - 1)), 
+                    animated: false 
+                });
+                setCurrentIndex(initialIndex);
+            }, 100);
         }
-    }, [visible, initialIndex]);
-    const FullImageItem: React.FC<{ uri: string }> = ({ uri }) => {
+    }, [visible, initialIndex, images.length]);
+
+    // Component สำหรับแสดงรูปภาพแต่ละรูป
+    const FullImageItem: React.FC<{ uri: string; index: number }> = React.memo(({ uri, index }) => {
         const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(false);
 
         return (
             <View style={styles.fullImageWrapper}>
-                <Image
-                    source={{ uri }}
-                    style={styles.fullScreenImage}
-                    resizeMode="contain"
-                    onLoadStart={() => setLoading(true)}
-                    onLoadEnd={() => setLoading(false)}
-                    onError={(e) => {
-                        console.error("Failed to load full screen image:", e.nativeEvent.error);
-                        setLoading(false);
-                    }}
-                />
-                {loading && (
+                {!error ? (
+                    <Image
+                        source={{ uri }}
+                        style={styles.fullScreenImage}
+                        resizeMode="contain"
+                        onLoadStart={() => setLoading(true)}
+                        onLoadEnd={() => setLoading(false)}
+                        onError={(e) => {
+                            console.error(`Failed to load image ${index}:`, e.nativeEvent.error);
+                            setLoading(false);
+                            setError(true);
+                        }}
+                    />
+                ) : (
+                    <View style={styles.errorContainer}>
+                        <Ionicons name="image-outline" size={60} color="#666" />
+                        <Text style={styles.errorText}>ไม่สามารถโหลดรูปภาพได้</Text>
+                    </View>
+                )}
+                {loading && !error && (
                     <View style={styles.fullScreenImageLoading}>
                         <ActivityIndicator size="large" color="#FFF" />
                     </View>
                 )}
             </View>
         );
+    });
+
+    // ปรับปรุง renderItem ให้มีประสิทธิภาพดีขึ้น
+    const renderFullImage = useCallback(({ item, index }: { item: string; index: number }) => {
+        const imageUrl = isReviewImage ? item : `${BASEAPI_CONFIG.UrlImg}${item}`;
+        return <FullImageItem uri={imageUrl} index={index} />;
+    }, [isReviewImage]);
+
+    // ปรับปรุงการจัดการ scroll
+    const handleScrollBegin = () => {
+        setIsScrolling(true);
     };
-   const renderFullImage = ({ item }: { item: string }) => {
-    const imageUrl = isReviewImage ? item : `${BASEAPI_CONFIG.UrlImg}${item}`;
-    return <FullImageItem uri={imageUrl} />;
-};
-    const handleScroll = (event: any) => {
+
+    const handleScrollEnd = (event: any) => {
         const contentOffsetX = event.nativeEvent.contentOffset.x;
         const newIndex = Math.round(contentOffsetX / width);
-        setCurrentIndex(newIndex);
+        
+        // ตรวจสอบว่า index อยู่ในช่วงที่ถูกต้อง
+        if (newIndex >= 0 && newIndex < images.length && newIndex !== currentIndex) {
+            setCurrentIndex(newIndex);
+        }
+        setIsScrolling(false);
     };
 
-    const goToPrevImage = () => {
-        if (currentIndex > 0) {
-            flatListRef.current?.scrollToIndex({ index: currentIndex - 1, animated: true });
+    const goToPrevImage = useCallback(() => {
+        if (currentIndex > 0 && !isScrolling) {
+            const newIndex = currentIndex - 1;
+            flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+            setCurrentIndex(newIndex);
         }
-    };
+    }, [currentIndex, isScrolling]);
 
-    const goToNextImage = () => {
-        if (currentIndex < images.length - 1) {
-            flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
+    const goToNextImage = useCallback(() => {
+        if (currentIndex < images.length - 1 && !isScrolling) {
+            const newIndex = currentIndex + 1;
+            flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+            setCurrentIndex(newIndex);
         }
-    };
+    }, [currentIndex, images.length, isScrolling]);
+
+    // ปรับปรุง keyExtractor
+    const keyExtractor = useCallback((item: string, index: number) => `image-${index}-${item}`, []);
+
+    // ปรับปรุง getItemLayout
+    const getItemLayout = useCallback((data: any, index: number) => ({
+        length: width,
+        offset: width * index,
+        index,
+    }), []);
 
     if (!visible || !images || images.length === 0) {
         return null;
@@ -97,6 +142,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
             transparent={true}
             onRequestClose={onClose}
             animationType="fade"
+            statusBarTranslucent={true}
         >
             <View style={styles.modalContainer}>
                 <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -107,26 +153,39 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
                     ref={flatListRef}
                     data={images}
                     renderItem={renderFullImage}
-                    keyExtractor={(item, index) => `full-image-${index}`}
+                    keyExtractor={keyExtractor}
                     horizontal
                     pagingEnabled
                     showsHorizontalScrollIndicator={false}
-                    onMomentumScrollEnd={handleScroll}
-                    initialScrollIndex={initialIndex}
-                    getItemLayout={(data, index) => (
-                        { length: width, offset: width * index, index }
-                    )}
+                    onScrollBeginDrag={handleScrollBegin}
+                    onMomentumScrollEnd={handleScrollEnd}
+                    initialScrollIndex={Math.max(0, Math.min(initialIndex, images.length - 1))}
+                    getItemLayout={getItemLayout}
+                    windowSize={3} // จำกัดการ render เฉพาะรูปที่ใกล้เคียง
+                    maxToRenderPerBatch={1}
+                    initialNumToRender={1}
+                    removeClippedSubviews={false} // ปิดเพื่อป้องกันการกระตุก
+                    scrollEventThrottle={16}
+                    decelerationRate="fast"
                 />
 
                 {images.length > 1 && (
                     <>
                         {currentIndex > 0 && (
-                            <TouchableOpacity style={[styles.navigationButton, styles.prevButton]} onPress={goToPrevImage}>
+                            <TouchableOpacity 
+                                style={[styles.navigationButton, styles.prevButton]} 
+                                onPress={goToPrevImage}
+                                disabled={isScrolling}
+                            >
                                 <Ionicons name="chevron-back" size={30} color="#FFF" />
                             </TouchableOpacity>
                         )}
                         {currentIndex < images.length - 1 && (
-                            <TouchableOpacity style={[styles.navigationButton, styles.nextButton]} onPress={goToNextImage}>
+                            <TouchableOpacity 
+                                style={[styles.navigationButton, styles.nextButton]} 
+                                onPress={goToNextImage}
+                                disabled={isScrolling}
+                            >
                                 <Ionicons name="chevron-forward" size={30} color="#FFF" />
                             </TouchableOpacity>
                         )}
@@ -146,16 +205,15 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
 const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.95)', // เพิ่มความเข้มของพื้นหลัง
+        backgroundColor: 'rgba(0, 0, 0, 0.95)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     closeButton: {
         position: 'absolute',
-        top: 40, // ปรับตำแหน่งให้เหมาะสม
+        top: 50,
         right: 20,
-        zIndex: 10, // ตรวจสอบให้แน่ใจว่าอยู่บนสุด
-        // backgroundColor: 'rgba(0, 0, 0, 0.5)', // ไม่ต้องมีพื้นหลัง
+        zIndex: 10,
         borderRadius: 20,
         padding: 5,
     },
@@ -166,44 +224,56 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fullScreenImage: {
-        width: '100%',
-        height: '80%', // ปรับความสูงให้เหมาะสม
+        width: '95%', // ลดขนาดเล็กน้อยเพื่อป้องกันการตัด
+        height: '80%',
+        backgroundColor: 'transparent', // เพิ่มเพื่อป้องกันการกระพริบ
     },
     fullScreenImageLoading: {
         position: 'absolute',
         ...StyleSheet.absoluteFillObject,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.6)', // เพิ่มพื้นหลังขณะโหลด
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    },
+    errorContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
+    errorText: {
+        color: '#666',
+        marginTop: 10,
+        fontSize: 16,
     },
     navigationButton: {
         position: 'absolute',
         top: '50%',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)', // ปรับความโปร่งใส
-        borderRadius: 25, // ทำให้เป็นวงกลม
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: 25,
         width: 50,
         height: 50,
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 5,
+        transform: [{ translateY: -25 }], // จัดกึ่งกลางแนวตั้ง
     },
     prevButton: {
-        left: 10,
+        left: 15,
     },
     nextButton: {
-        right: 10,
+        right: 15,
     },
     imageCounter: {
         position: 'absolute',
-        bottom: 40, // ปรับตำแหน่งให้เหมาะสม
-        backgroundColor: 'rgba(0, 0, 0, 0.6)', // ปรับความโปร่งใส
+        bottom: 60,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         paddingHorizontal: 15,
-        paddingVertical: 8, // เพิ่ม padding
-        borderRadius: 20, // ทำให้โค้งมนขึ้น
+        paddingVertical: 8,
+        borderRadius: 20,
     },
     imageCounterText: {
         color: '#ffffff',
-        fontSize: 16, // เพิ่มขนาดตัวอักษร
+        fontSize: 16,
         fontWeight: 'bold',
     },
 });
