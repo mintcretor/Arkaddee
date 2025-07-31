@@ -39,7 +39,36 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/newicon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#000000",
+        "icons": {
+          "mdpi": {
+            "foregroundImage": "./assets/images/iconapp/48x48.png",
+            "backgroundColor": "#000000"
+          },
+          "hdpi": {
+            "foregroundImage": "./assets/images/iconapp/72x72.png",
+            "backgroundColor": "#000000"
+          },
+          "xhdpi": {
+            "foregroundImage": "./assets/images/iconapp/96x96.png",
+            "backgroundColor": "#000000"
+          },
+          "xxhdpi": {
+            "foregroundImage": "./assets/images/iconapp/144x144.png",
+            "backgroundColor": "#000000"
+          },
+          "xxxhdpi": {
+            "foregroundImage": "./assets/images/iconapp/192x192.png",
+            "backgroundColor": "#000000"
+          }
+        }
+      },
+      "icons": {
+        "mdpi": "./assets/images/android/48x48.png",
+        "hdpi": "./assets/images/android/72x72.png",
+        "xhdpi": "./assets/images/android/96x96.png",
+        "xxhdpi": "./assets/images/android/144x144.png",
+        "xxxhdpi": "./assets/images/android/192x192.png"
       },
       "jsEngine": "hermes",
       "config": {
