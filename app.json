@@ -64,11 +64,11 @@
         }
       },
       "icons": {
-        "mdpi": "./assets/images/android/48x48.png",
-        "hdpi": "./assets/images/android/72x72.png",
-        "xhdpi": "./assets/images/android/96x96.png",
-        "xxhdpi": "./assets/images/android/144x144.png",
-        "xxxhdpi": "./assets/images/android/192x192.png"
+        "mdpi": "./assets/images/iconapp/48x48.png",
+        "hdpi": "./assets/images/iconapp/72x72.png",
+        "xhdpi": "./assets/images/iconapp/96x96.png",
+        "xxhdpi": "./assets/images/iconapp/144x144.png",
+        "xxxhdpi": "./assets/images/iconapp/192x192.png"
       },
       "jsEngine": "hermes",
       "config": {
