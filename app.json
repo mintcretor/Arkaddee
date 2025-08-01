@@ -4,7 +4,7 @@
     "slug": "arkaddee",
     "version": "1.6.1",
     "orientation": "portrait",
-    "icon": "./assets/images/newicon.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "com.appmatrixdevelopment.arkad",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
