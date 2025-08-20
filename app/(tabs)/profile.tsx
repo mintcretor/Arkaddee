@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  ImageBackground,
   ScrollView,
   Alert,
   ActivityIndicator,
+  Platform,
+  InteractionManager,
 } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
 import { uploadProfileImage, getUserFavorites } from '@/api/baseapi';
@@ -41,14 +42,15 @@ interface User {
 
 interface FavoritesResponse {
   status: string;
-  data: {
+  success?: boolean | string;
+  data?: {
     favorites: any[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      total_pages: number;
-    };
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
   };
 }
 
@@ -61,102 +63,139 @@ interface UploadResponse {
 }
 
 const ProfileScreen: React.FC = () => {
-  // Ensure that deleteAccount is destructured from useAuth
-  const { signOut, user, updateUserProfile, deleteAccount, refreshUser } = useAuth(); // Added deleteAccount
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [profileImage, setProfileImage] = useState<string>(
-    user?.photoURL || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxrfvii_BfKyaxXwS7zy8WFZwnru9ZLL0MEg&s'
-  );
-  const isGuest = user?.authType === 'guest';
+  // ใช้ destructuring ที่ปลอดภัยขึ้น
+  const authContext = useAuth();
+  const { 
+    signOut, 
+    user, 
+    updateUserProfile, 
+    deleteAccount, 
+    refreshUser 
+  } = authContext || {};
 
-  // เพิ่ม state สำหรับ favorites
+  const [uploading, setUploading] = useState<boolean>(false);
   const [favoritesCount, setFavoritesCount] = useState<number>(0);
   const [loadingFavorites, setLoadingFavorites] = useState<boolean>(false);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
+  // ใช้ useMemo สำหรับ computed values
+  const profileImage = useMemo(() => {
+    return user?.photoURL || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxrfvii_BfKyaxXwS7zy8WFZwnru9ZLL0MEg&s';
+  }, [user?.photoURL]);
+
+  const isGuest = useMemo(() => {
+    return user?.authType === 'guest';
+  }, [user?.authType]);
 
   const { t } = useTranslation();
-  const { recentlyViewed = [], clearRecentlyViewed } = useRecentlyViewed() as { recentlyViewed?: any[]; clearRecentlyViewed: () => Promise<void> };
+  
+  // ใช้ optional chaining และ default values
+  const recentlyViewedContext = useRecentlyViewed();
+  const { 
+    recentlyViewed = [], 
+    clearRecentlyViewed 
+  } = recentlyViewedContext || {};
 
-  // เรียกใช้ useFocusEffect เพื่อดึงข้อมูล favorites เมื่อหน้าจอถูกเปิด
-
-  // ฟังก์ชันดึงข้อมูล favorites
-  const fetchFavoritesCount = async (): Promise<void> => {
-    if (!user) {
+  // ใช้ useCallback เพื่อหลีกเลี่ยง re-render ที่ไม่จำเป็น
+  const fetchFavoritesCount = useCallback(async (): Promise<void> => {
+    if (!user || !user.id || isGuest) {
       setFavoritesCount(0);
       return;
     }
 
+
     try {
       setLoadingFavorites(true);
-      const response: FavoritesResponse = await getUserFavorites(1, 1); // ดึงแค่หน้าแรก 1 รายการเพื่อดู total
+      
+      // ตรวจสอบว่า API function มีอยู่จริง
+      if (typeof getUserFavorites !== 'function') {
+        console.warn('getUserFavorites function is not available');
+        return;
+      }
 
-      if (response.success == true || response.success === 'success') { // Corrected access to success
-        //console.log('Favorites response:', response);
-        setFavoritesCount(response.pagination.total || 0); // Corrected access to total
+      const response: FavoritesResponse = await getUserFavorites(1, 1);
+      if (response && (response.success === true || response.success === 'success' || response.status === 'success')) {
+        const total = response.pagination?.total || response.data?.favorites?.length || 0;
+        setFavoritesCount(total);
+      } else {
+        setFavoritesCount(0);
       }
     } catch (error) {
-      // console.error('Error fetching favorites count:', error);
-      // ไม่แสดง error เพราะไม่ใช่ฟีเจอร์หลัก
+
+      console.warn('Error fetching favorites count:', error);
       setFavoritesCount(0);
     } finally {
       setLoadingFavorites(false);
     }
-  };
+  }, [user, isGuest]);
 
-  // เรียกใช้เมื่อ component mount หรือ user เปลี่ยน
+  // ใช้ InteractionManager เพื่อให้ UI render ก่อน
   useEffect(() => {
-    fetchFavoritesCount();
-  }, [user]);
+    const interaction = InteractionManager.runAfterInteractions(() => {
+      setIsInitialized(true);
+      if (user && !isGuest) {
+        // Delay การเรียก API เล็กน้อยเพื่อให้ UI render เสร็จก่อน
+          fetchFavoritesCount();
+      }
+    });
 
+    return () => interaction.cancel();
+  }, [user, isGuest, fetchFavoritesCount]);
+
+  // ใช้ useFocusEffect อย่างระมัดระวัง
   useFocusEffect(
-    React.useCallback(() => {
-      // ถ้ามีฟังก์ชัน refreshUser ใน useAuth ให้เรียก
-      if (refreshUser) refreshUser();
-      // หรือจะ fetch user ใหม่จาก API ตรงนี้ก็ได้
-    }, [])
+    useCallback(() => {
+      if (!isInitialized) return;
+      
+      // ใช้ InteractionManager เพื่อหลีกเลี่ยง blocking
+      InteractionManager.runAfterInteractions(() => {
+        if (refreshUser && typeof refreshUser === 'function') {
+          refreshUser().catch(console.warn);
+        }
+        
+        if (user && !isGuest) {
+            fetchFavoritesCount();
+        }
+      });
+    }, [isInitialized, refreshUser, user, isGuest, fetchFavoritesCount])
   );
 
-  useEffect(() => {
-    if (user?.photoURL) {
-      setProfileImage(user.photoURL);
-    }
-  }, [user?.photoURL]);
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchFavoritesCount();
-    }, [])
-  );
-
-  // ฟังก์ชันไปหน้า favorites
-  const goToFavorites = (): void => {
-    if (!user) {
+  // ใช้ useCallback สำหรับ event handlers
+  const goToFavorites = useCallback((): void => {
+    if (!user || isGuest) {
       Alert.alert(
-        t('auth.login'), // Translate "กรุณาเข้าสู่ระบบ"
-        t('common.loginRequiredFavorites'), // Translate "กรุณาเข้าสู่ระบบเพื่อดูรายการโปรด"
+        t('auth.login'),
+        t('common.loginRequiredFavorites'),
         [
-          { text: t('common.cancel'), style: 'cancel' }, // Translate "ยกเลิก"
-          { text: t('auth.login'), onPress: () => router.push('/(auth)/login') } // Translate "เข้าสู่ระบบ"
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('auth.login'), onPress: () => router.push('/(auth)/login') }
         ]
       );
       return;
     }
-
-    // ไปหน้า favorites (สร้างหน้านี้ถ้ายังไม่มี)
     router.push('/favorites');
-  };
+  }, [user, isGuest, t]);
 
-  const requestPermission = async (): Promise<boolean> => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert(
-        t('common.permissionRequired'), // Translate "ต้องการการอนุญาต"
-        t('common.galleryPermissionMessage') // Translate "แอปต้องการการอนุญาตเพื่อเข้าถึงคลังรูปภาพของคุณ"
-      );
+  const requestPermission = useCallback(async (): Promise<boolean> => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          t('common.permissionRequired'),
+          t('common.galleryPermissionMessage')
+        );
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.warn('Error requesting permission:', error);
       return false;
     }
-    return true;
-  };
+  }, [t]);
 
-  const handlePickImage = async (): Promise<void> => {
+  const handlePickImage = useCallback(async (): Promise<void> => {
+    if (uploading) return;
+    
     const hasPermission = await requestPermission();
     if (!hasPermission) return;
 
@@ -174,21 +213,23 @@ const ProfileScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert(t('common.error'), t('common.imageSelectionFailed')); // Translate "เกิดข้อผิดพลาด", "ไม่สามารถเลือกรูปภาพได้"
+      Alert.alert(t('common.error'), t('common.imageSelectionFailed'));
     }
-  };
+  }, [uploading, requestPermission, t]);
 
-  const handleTakePhoto = async (): Promise<void> => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert(
-        t('common.permissionRequired'), // Translate "ต้องการการอนุญาต"
-        t('common.cameraPermissionMessage') // Translate "แอปต้องการการอนุญาตเพื่อเข้าถึงกล้องของคุณ"
-      );
-      return;
-    }
+  const handleTakePhoto = useCallback(async (): Promise<void> => {
+    if (uploading) return;
 
     try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          t('common.permissionRequired'),
+          t('common.cameraPermissionMessage')
+        );
+        return;
+      }
+
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [1, 1],
@@ -201,101 +242,107 @@ const ProfileScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error taking photo:', error);
-      Alert.alert(t('common.error'), t('common.photoCaptureFailed')); // Translate "เกิดข้อผิดพลาด", "ไม่สามารถถ่ายรูปได้"
+      Alert.alert(t('common.error'), t('common.photoCaptureFailed'));
     }
-  };
+  }, [uploading, t]);
 
-  const handleUploadImage = async (uri: string): Promise<void> => {
+  const handleUploadImage = useCallback(async (uri: string): Promise<void> => {
+    if (uploading) return;
+    
     setUploading(true);
     try {
       const fileInfo = await FileSystem.getInfoAsync(uri);
       const fileSize = (fileInfo.size || 0) / (1024 * 1024);
 
       if (fileSize > 20) {
-        Alert.alert(t('common.fileTooLarge'), t('common.fileSizeLimit')); // Translate "ไฟล์มีขนาดใหญ่เกินไป", "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 20MB"
-        setUploading(false);
+        Alert.alert(t('common.fileTooLarge'), t('common.fileSizeLimit'));
         return;
       }
 
       if (!user) {
-        Alert.alert(t('common.error'), t('common.loginRequiredUpload')); // Translate "ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อนอัพโหลดรูปโปรไฟล์"
-        setUploading(false);
+        Alert.alert(t('common.error'), t('common.loginRequiredUpload'));
         return;
       }
 
       const response: UploadResponse = await uploadProfileImage(uri);
 
       if (response.status === 'success') {
-        setProfileImage(response.data.url);
-
-        if (updateUserProfile) {
+        if (updateUserProfile && typeof updateUserProfile === 'function') {
           const updateResult = await updateUserProfile({
             photoURL: response.data.url
           });
 
-          if (!updateResult.success) {
-            console.warn('Failed to update profile in user context:', updateResult.message);
+          if (!updateResult?.success) {
+            console.warn('Failed to update profile in user context:', updateResult?.message);
           }
         }
 
-        Alert.alert(t('common.success'), t('common.profilePicUpdated')); // Translate "สำเร็จ", "อัพเดทรูปโปรไฟล์เรียบร้อยแล้ว"
+        Alert.alert(t('common.success'), t('common.profilePicUpdated'));
       } else {
-        throw new Error(response.message || t('common.uploadFailed')); // Translate "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ"
+        throw new Error(response.message || t('common.uploadFailed'));
       }
     } catch (error: any) {
       console.error('Error uploading image:', error);
       Alert.alert(
         t('common.error'),
-        error.message || t('common.uploadFailedTryAgain') // Translate "ไม่สามารถอัพโหลดรูปโปรไฟล์ได้ กรุณาลองใหม่อีกครั้ง"
+        error.message || t('common.uploadFailedTryAgain')
       );
     } finally {
       setUploading(false);
     }
-  };
+  }, [uploading, user, updateUserProfile, t]);
 
-  const showPhotoOptions = (): void => {
+  const showPhotoOptions = useCallback((): void => {
+    if (uploading || isGuest) return;
+
     Alert.alert(
-      t('profile.ChangePhoto'), // Translate "เปลี่ยนรูปโปรไฟล์"
-      t('common.choosePhotoMethod'), // Translate "เลือกวิธีการเปลี่ยนรูปโปรไฟล์"
+      t('profile.ChangePhoto'),
+      t('common.choosePhotoMethod'),
       [
         {
-          text: t('store.take_photo'), // Translate "ถ่ายรูป"
+          text: t('store.take_photo'),
           onPress: handleTakePhoto,
         },
         {
-          text: t('store.gallery'), // Translate "เลือกจากคลังรูปภาพ"
+          text: t('store.gallery'),
           onPress: handlePickImage,
         },
         {
-          text: t('common.cancel'), // Translate "ยกเลิก"
+          text: t('common.cancel'),
           style: "cancel"
         }
       ]
     );
-  };
+  }, [uploading, isGuest, t, handleTakePhoto, handlePickImage]);
 
-  const handleLogout = (): void => {
+  const handleLogout = useCallback((): void => {
     Alert.alert(
-      t('auth.logout'), // Translate "ออกจากระบบ"
-      t('common.confirmLogout'), // Translate "คุณต้องการออกจากระบบใช่หรือไม่?"
+      t('auth.logout'),
+      t('common.confirmLogout'),
       [
         {
-          text: t('common.cancel'), // Translate "ยกเลิก"
+          text: t('common.cancel'),
           style: "cancel"
         },
         {
-          text: t('auth.logout'), // Translate "ออกจากระบบ"
+          text: t('auth.logout'),
           onPress: async () => {
             try {
               setUploading(true);
-              await signOut();
-              await clearRecentlyViewed(); // <-- ใช้ await
+              
+              if (signOut && typeof signOut === 'function') {
+                await signOut();
+              }
+              
+              if (clearRecentlyViewed && typeof clearRecentlyViewed === 'function') {
+                await clearRecentlyViewed();
+              }
 
               console.log("Logged out successfully");
               router.push('/(auth)/login');
             } catch (error) {
               console.error("Logout failed:", error);
-              Alert.alert(t('auth.logoutFailed'), t('common.tryAgain')); // Translate "ออกจากระบบไม่สำเร็จ", "กรุณาลองใหม่อีกครั้ง"
+              Alert.alert(t('auth.logoutFailed'), t('common.tryAgain'));
             } finally {
               setUploading(false);
             }
@@ -304,35 +351,30 @@ const ProfileScreen: React.FC = () => {
         }
       ]
     );
-  };
+  }, [t, signOut, clearRecentlyViewed]);
 
-  // New function for deleting account
-  const handleDeleteAccount = (): void => {
+  const handleDeleteAccount = useCallback((): void => {
+    if (!deleteAccount || typeof deleteAccount !== 'function') {
+      Alert.alert(t('common.error'), t('profile.deleteAccountNotAvailable'));
+      return;
+    }
+
     Alert.alert(
-      t('profile.deleteAccountTitle'), // "Delete Account"
-      t('profile.deleteAccountMessage'), // "Are you sure you want to delete your account? This action cannot be undone."
+      t('profile.deleteAccountTitle'),
+      t('profile.deleteAccountMessage'),
       [
         {
-          text: t('common.cancel'), // "Cancel"
+          text: t('common.cancel'),
           style: "cancel"
         },
         {
-          text: t('profile.deleteAccountConfirm'), // "Delete"
+          text: t('profile.deleteAccountConfirm'),
           onPress: async () => {
-            if (!deleteAccount) {
-              Alert.alert(t('common.error'), t('profile.deleteAccountNotAvailable')); // "Delete account function not available."
-              return;
-            }
             try {
-              setUploading(true); // Reusing uploading state for general async operations
-              const result = await deleteAccount(); // Call the deleteAccount function from useAuth
-              // console.log('789289789',result);
-              // if (result.success) {
-              Alert.alert(t('common.success'), t('profile.accountDeletedSuccess')); // "Account deleted successfully."
-              router.replace('/(auth)/login'); // Redirect to login or signup after deletion
-              // } else {
-              //  Alert.alert(t('common.error'), result.message || t('profile.accountDeletedFailed')); // "Failed to delete account."
-              //}
+              setUploading(true);
+              await deleteAccount();
+              Alert.alert(t('common.success'), t('profile.accountDeletedSuccess'));
+              router.replace('/(auth)/login');
             } catch (error) {
               console.error("Delete account failed:", error);
               Alert.alert(t('common.error'), t('profile.accountDeletedFailed'));
@@ -344,50 +386,78 @@ const ProfileScreen: React.FC = () => {
         }
       ]
     );
-  };
+  }, [deleteAccount, t]);
 
+  // แสดง loading screen ในระหว่างที่ initialize
+  if (!isInitialized) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color="#4A7BF7" />
+          <Text style={styles.loadingText}>{t('common.loading', 'Loading...')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <SafeAreaView style={styles.container}>
+      <StatusBar 
+        barStyle="dark-content" 
+        backgroundColor="#fff" 
+        translucent={false}
+      />
 
-      <ScrollView style={styles.scrollContainer}>
-        {/* Header Background with Mountains */}
-
-
-        {/* Profile Image */}
-
-
+      <ScrollView 
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContentContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+        overScrollMode="never"
+        removeClippedSubviews={Platform.OS === 'android'}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+      >
         {/* Profile Info Section */}
         <View style={styles.profileInfoContainer}>
-
           <View style={styles.profileImageContainer}>
             {uploading ? (
               <View style={styles.uploadingContainer}>
                 <ActivityIndicator size="large" color="#0066cc" />
               </View>
             ) : (
-              <TouchableOpacity onPress={showPhotoOptions} activeOpacity={0.8}>
+              <TouchableOpacity 
+                onPress={showPhotoOptions} 
+                activeOpacity={0.8}
+                disabled={isGuest}
+                style={styles.profileImageTouchable}
+              >
                 <View style={styles.profileImageWrapper}>
                   <Image
                     source={{ uri: profileImage }}
                     style={styles.profileImage}
+                    resizeMode="cover"
+                    onError={(error) => console.warn('Image loading error:', error)}
                   />
                 </View>
-                <View style={styles.cameraIconContainer}>
-                  <Feather name="camera" size={12} color="#fff" />
-                </View>
+                {!isGuest && (
+                  <View style={styles.cameraIconContainer}>
+                    <Feather name="camera" size={12} color="#fff" />
+                  </View>
+                )}
               </TouchableOpacity>
             )}
           </View>
 
-          <Text style={styles.profileName}>
-            {user?.displayName || user?.username || t("profile.guestUser")} {/* Translate "Guest User" */}
-          </Text>
+          <View style={styles.profileNameContainer}>
+            <Text style={styles.profileName} numberOfLines={2} ellipsizeMode="tail">
+              {user?.displayName || user?.username || t("profile.guestUser")}
+            </Text>
+          </View>
 
           {/* Stats Section */}
           <View style={styles.statsContainer}>
-            {/* Favorites Section - แก้ไขจากเดิม */}
             <TouchableOpacity
               style={styles.statItem}
               onPress={goToFavorites}
@@ -396,31 +466,34 @@ const ProfileScreen: React.FC = () => {
             >
               <View style={styles.statIconValue}>
                 <AntDesign name="heart" size={16} color="#FF5252" />
-                {loadingFavorites ? (
-                  <ActivityIndicator
-                    size="small"
-                    color="#4A7BF7"
-                    style={{ marginLeft: 4 }}
-                  />
-                ) : (
-                  <Text style={styles.statValue}>{favoritesCount}</Text>
-                )}
+                <View style={styles.statValueContainer}>
+                  {loadingFavorites ? (
+                    <ActivityIndicator size="small" color="#4A7BF7" />
+                  ) : (
+                    <Text style={styles.statValue}>{favoritesCount}</Text>
+                  )}
+                </View>
               </View>
-              <Text style={styles.statLabel}>{t('profile.favarite')}</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>
+                {t('profile.favarite')}
+              </Text>
             </TouchableOpacity>
 
             <View style={styles.statDivider} />
 
-            {/* Recently Viewed Section */}
             <TouchableOpacity
               style={styles.statItem}
               onPress={() => router.push('/recently-viewed')}
             >
               <View style={styles.statIconValue}>
                 <AntDesign name="eye" size={16} color="#4A7BF7" />
-                <Text style={styles.statValue}>{recentlyViewed.length}</Text>
+                <View style={styles.statValueContainer}>
+                  <Text style={styles.statValue}>{(recentlyViewed || []).length}</Text>
+                </View>
               </View>
-              <Text style={styles.statLabel}>{t('profile.open_recent')}</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>
+                {t('profile.open_recent')}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -436,7 +509,9 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.menuIconContainer}>
               <Feather name="user" size={20} color="#4A7BF7" />
             </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>{t('profile.profile')}</Text>
+            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+              {t('profile.profile')}
+            </Text>
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
 
@@ -449,7 +524,9 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.menuIconContainer}>
               <Feather name="map-pin" size={20} color="#4A7BF7" />
             </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>{t('profile.address')}</Text>
+            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+              {t('profile.address')}
+            </Text>
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
 
@@ -462,8 +539,9 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.menuIconContainer}>
               <AntDesign name="heart" size={20} color="#FF5252" />
             </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>{t('profile.favarite')}</Text>
-          
+            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+              {t('profile.favarite')}
+            </Text>
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
 
@@ -476,17 +554,21 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.menuIconContainer}>
               <Feather name="message-square" size={20} color="#4A7BF7" />
             </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>{t('profile.review')}</Text>
+            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+              {t('profile.review')}
+            </Text>
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItemLa}>
+          <View style={styles.menuItemLa}>
             <View style={styles.menuIconContainer}>
               <Ionicons name="globe-outline" size={20} color="#4A7BF7" />
             </View>
             <Text style={styles.menuText}>{t('profile.language')}</Text>
-            <LanguageSelector />
-          </TouchableOpacity>
+            <View style={styles.languageSelectorWrapper}>
+              <LanguageSelector />
+            </View>
+          </View>
         </View>
 
         {/* Logout Section */}
@@ -495,28 +577,31 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.menuIconContainer}>
               <Feather name="log-out" size={20} color="#FF3B30" />
             </View>
-            <Text style={[styles.menuText, styles.logoutText]}>{t('auth.logout')}</Text>
+            <Text style={[styles.menuText, styles.logoutText]}>
+              {t('auth.logout')}
+            </Text>
             <Feather name="chevron-right" size={20} color="#999" />
           </TouchableOpacity>
         </View>
 
-        {/* Delete Account Section (New) */}
-        <View style={styles.deleteAccountSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
-            <View style={styles.menuIconContainer}>
-              <Feather name="trash-2" size={20} color="#FF3B30" />
-            </View>
-            <Text style={[styles.menuText, styles.deleteAccountText]}>{t('profile.deleteAccount')}</Text>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </TouchableOpacity>
-        </View>
+        {/* Delete Account Section */}
+        {!isGuest && (
+          <View style={styles.deleteAccountSection}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
+              <View style={styles.menuIconContainer}>
+                <Feather name="trash-2" size={20} color="#FF3B30" />
+              </View>
+              <Text style={[styles.menuText, styles.deleteAccountText]}>
+                {t('profile.deleteAccount')}
+              </Text>
+              <Feather name="chevron-right" size={20} color="#999" />
+            </TouchableOpacity>
+          </View>
+        )}
 
-        {/* Spacer */}
         <View style={styles.spacer} />
-
       </ScrollView>
-
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -525,41 +610,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  statusBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    backgroundColor: '#fff',
   },
-  statusTime: {
+  loadingText: {
+    marginTop: 10,
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-  },
-  statusIcons: {
-    flexDirection: 'row',
-  },
-  statusText: {
-    fontSize: 14,
+    color: '#666',
   },
   scrollContainer: {
     flex: 1,
   },
-  headerBackground: {
-    height: 200,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
-
   profileImageContainer: {
-
-    marginTop: 50,
-    marginBottom: 30,
     alignSelf: 'center',
-    zIndex: 1000,
+    marginTop: 20,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileImageTouchable: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileImageWrapper: {
     width: 96,
@@ -569,16 +646,22 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     overflow: 'hidden',
     backgroundColor: '#fff',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   profileImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    width: 88,
+    height: 88,
+    borderRadius: 44,
   },
   cameraIconContainer: {
     position: 'absolute',
@@ -603,42 +686,61 @@ const styles = StyleSheet.create({
   },
   profileInfoContainer: {
     backgroundColor: '#fff',
-    paddingTop: 40,
-    paddingBottom: 24,
+    paddingVertical: 24,
     alignItems: 'center',
     marginBottom: 8,
+    minHeight: 200,
+  },
+  profileNameContainer: {
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginBottom: 20,
   },
   profileName: {
     fontSize: 20,
     fontWeight: '600',
-    marginBottom: 16,
     color: '#000',
+    textAlign: 'center',
+    lineHeight: 24,
   },
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     paddingHorizontal: 40,
+    width: '100%',
+    minHeight: 60,
   },
   statItem: {
     alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
+    paddingVertical: 8,
   },
   statIconValue: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 4,
+    minHeight: 20,
+  },
+  statValueContainer: {
+    marginLeft: 4,
+    minWidth: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statValue: {
     fontSize: 18,
     fontWeight: '600',
-    marginLeft: 4,
     color: '#4A7BF7',
+    textAlign: 'center',
   },
   statLabel: {
     fontSize: 12,
     color: '#666',
     textAlign: 'center',
+    lineHeight: 14,
   },
   statDivider: {
     width: 1,
@@ -655,118 +757,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#f0f0f0',
+    minHeight: 56,
   },
   menuItemLa: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#f0f0f0',
+    minHeight: 56,
   },
   menuIconContainer: {
     width: 24,
+    height: 24,
     marginRight: 12,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   menuText: {
     flex: 1,
     fontSize: 16,
     color: '#333',
+    lineHeight: 20,
   },
-  menuTextL: {
-    flexDirection: 'row',
-    fontSize: 16,
-    color: '#333',
-    paddingTop: 10,
-    paddingBottom: 10,
-    alignItems: 'flex-end', // เพิ่มบรรทัดนี้
-    display: 'flex',        // เพิ่มบรรทัดนี้
-    paddingRight: 20,       // เพิ่มบรรทัดนี้
+  languageSelectorWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoutText: {
     color: '#FF3B30',
     fontWeight: '500',
   },
-  // เพิ่ม styles สำหรับ favorites badge
-  favoritesBadge: {
-    backgroundColor: '#FF5252',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginRight: 8,
-    minWidth: 20,
-    alignItems: 'center',
-  },
-  favoritesBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  spacer: {
-    height: 110,
-    backgroundColor: '#f5f5f5',
-  },
-  logoutSection: {
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    marginBottom: 8, // Added margin to separate from new section
-  },
-  // New style for delete account section
-  deleteAccountSection: {
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    bottom: 6,
-  },
   deleteAccountText: {
     color: '#FF3B30',
     fontWeight: '500',
   },
-  languageSelector: {
-    position: 'absolute',
-    bottom: 150,
-    right: 16,
+  spacer: {
+    height: 80,
+    backgroundColor: '#f5f5f5',
+  },
+  logoutSection: {
     backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  languageFlag: {
-    fontSize: 12,
-    marginRight: 4,
-  },
-  languageText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#333',
-  },
-  bottomNavContainer: {
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#f0f0f0',
+    marginBottom: 8,
   },
-  homeIndicator: {
-    width: 134,
-    height: 5,
-    backgroundColor: '#000',
-    borderRadius: 2.5,
+  deleteAccountSection: {
+    backgroundColor: '#fff',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#f0f0f0',
+    marginBottom: 8,
   },
-
 });
+
 
 export default ProfileScreen;

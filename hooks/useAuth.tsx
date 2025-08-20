@@ -1249,7 +1249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await axios.get(`${API_URL}/users/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('refre', response);
+     // console.log('refre', response);
       if (response.data && response.data.user) {
         // อัปเดต user ใน state และ AsyncStorage
         await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
