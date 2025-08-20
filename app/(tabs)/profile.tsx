@@ -146,17 +146,9 @@ const ProfileScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       if (!isInitialized) return;
-      
-      // ใช้ InteractionManager เพื่อหลีกเลี่ยง blocking
-      InteractionManager.runAfterInteractions(() => {
-        if (refreshUser && typeof refreshUser === 'function') {
-          refreshUser().catch(console.warn);
-        }
-        
         if (user && !isGuest) {
             fetchFavoritesCount();
         }
-      });
     }, [isInitialized, refreshUser, user, isGuest, fetchFavoritesCount])
   );
 
