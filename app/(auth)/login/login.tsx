@@ -72,7 +72,7 @@ const LoginScreen: React.FC = () => {
     // Initialize Google Auth
     const [request, response, promptAsync] = Google.useAuthRequest({
         androidClientId: '975495478878-u7uptal2jqg3rng6pvjkuk7lt4gk8g7p.apps.googleusercontent.com',
-        iosClientId: '975495478878-ufhbel65ud1876t4te1t0c5g7ls8ide5.apps.googleusercontent.com',
+        iosClientId: '975495478878-uuju01m6hop7otjdk894es8mua9bsnnd.apps.googleusercontent.com',
         expoClientId: '975495478878-bapc4hjffjrqcmdu6ccdvdvir8kbk1mo.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
         additionalParameters: {
