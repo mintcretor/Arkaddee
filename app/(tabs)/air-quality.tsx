@@ -9,6 +9,7 @@ import {
   Animated,
   Platform,
   Alert,
+  StatusBar,
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import AQIModal from '@/components/AQIModal';
@@ -661,12 +662,12 @@ const AirQualityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   map: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
-    marginTop: 40
+
   },
   skipButton: {
     position: 'absolute',

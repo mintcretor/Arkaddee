@@ -220,7 +220,7 @@ const Index: React.FC = () => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, }}>
+        <GestureHandlerRootView style={{ flex: 1,  }}>
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="dark-content" />
                 <PanGestureHandler
