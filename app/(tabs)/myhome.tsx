@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ImageBackground,
   SafeAreaView,
+  Platform,
   Image,
   FlatList,
   StatusBar,
@@ -122,7 +123,6 @@ export default function ArkadDashboard() {
 
 
       const responsePrimary = await fetchDevicePrimary();
-      console.log(responsePrimary.user)
       if (responsePrimary.user.length > 0) {
 
         const firstDevice = responsePrimary.user[0];
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 30,
+     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   scrollContent: {
     paddingBottom: 90,
