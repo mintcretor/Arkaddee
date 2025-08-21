@@ -5,7 +5,7 @@
     "version": "1.6.3",
     "orientation": "portrait",
     "icon": "./assets/images/iconapp/192x192.png",
-    "scheme": "com.appmatrixdevelopment.arkad",
+    "scheme": "com.appmatrixdevelopment.arkaddee",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
@@ -37,6 +37,15 @@
       }
     },
     "android": {
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": ["DEFAULT", "BROWSABLE"],
+          "data": {
+            "scheme": "arkaddee"
+          }
+        }
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/newicon.png",
         "backgroundColor": "#000000",
