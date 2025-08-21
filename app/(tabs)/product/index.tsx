@@ -9,6 +9,7 @@ import {
     Dimensions,
     Animated,
     StatusBar,
+    Platform,
     SafeAreaView,
     Linking,
     ImageSourcePropType,
@@ -219,7 +220,7 @@ const Index: React.FC = () => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1, marginTop: 20 }}>
+        <GestureHandlerRootView style={{ flex: 1, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, }}>
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="dark-content" />
                 <PanGestureHandler

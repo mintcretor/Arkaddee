@@ -320,7 +320,7 @@ export default function ArkadDashboard() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      <StatusBar barStyle="light-content" backgroundColor="#FFF" />
       <ImageBackground
         source={require('@/assets/images/image.png')}
         style={styles.background}
@@ -468,18 +468,7 @@ export default function ArkadDashboard() {
 }
 
 const styles = StyleSheet.create({
-  settingsButton: {
-    position: 'absolute',
-    top: 20,
-    right: 15,
-    alignContent: 'center',
-    textAlign: 'center',
-    alignSelf: 'flex-end',
-    zIndex: 10,
-    padding: 20,
-    //backgroundColor: 'rgba(0,0,0,0.2)',
-    borderRadius: 16
-  },
+
   settingsIcon: {
     fontSize: 16,
     color: 'white'
@@ -493,7 +482,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingTop: StatusBar.currentHeight || 30,
   },
   scrollContent: {

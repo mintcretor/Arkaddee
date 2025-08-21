@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 30,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   // แยก style พื้นฐานสำหรับปุ่ม FAB
   fabButtonBase: {
