@@ -30,10 +30,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedWidth = useRef(new Animated.Value(60)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
-  
+
   // เพิ่ม state สำหรับ pull to refresh
   const [refreshing, setRefreshing] = useState(false);
-  
+
   const handlePlacePress = (placeId: number) => {
     setSelectedShop(placeId);
   };
@@ -41,11 +41,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const handleBackToMain = () => {
     setSelectedShop(null);
   };
-  
+
   // ฟังก์ชันสำหรับการ pull to refresh
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    
+
     // สร้าง reference ไปยัง MainContent component เพื่อเรียกใช้ฟังก์ชันรีเฟรชภายใน
     // สมมติว่ามีฟังก์ชัน refreshData ใน MainContent
     if (mainContentRef.current) {
@@ -67,7 +67,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   // สร้าง ref สำหรับ MainContent component
   const mainContentRef = useRef(null);
-  
+
   // ฟังก์ชันเมื่อกดปุ่ม FAB
   const handleFabPress = () => {
     if (isExpanded) {
@@ -77,7 +77,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     } else {
       // ถ้าปุ่มยังไม่แสดงข้อความ ให้ขยายปุ่มออก
       setIsExpanded(true);
-      
+
       // Animation สำหรับขยายความกว้าง
       Animated.timing(animatedWidth, {
         toValue: 220, // ความกว้างเมื่อขยาย
@@ -85,7 +85,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         easing: Easing.out(Easing.ease),
         useNativeDriver: false // required for width animation
       }).start();
-      
+
       // Animation สำหรับแสดงข้อความ
       Animated.timing(textOpacity, {
         toValue: 1,
@@ -93,14 +93,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         delay: 100, // เริ่มหลังจากปุ่มขยายเล็กน้อย
         useNativeDriver: false
       }).start();
-      
+
       // ตั้งเวลาให้หดกลับหลังจาก 3 วินาที
       setTimeout(() => {
         collapseButton();
       }, 3000);
     }
   };
-  
+
   // ฟังก์ชันสำหรับหดปุ่มกลับ
   const collapseButton = () => {
     // Animation สำหรับซ่อนข้อความ
@@ -109,7 +109,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       duration: 200,
       useNativeDriver: false
     }).start();
-    
+
     // Animation สำหรับหดความกว้าง
     Animated.timing(animatedWidth, {
       toValue: 60, // กลับไปขนาดเดิม
@@ -137,9 +137,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+      <Header />
       <SafeAreaView style={styles.safeArea}>
-
-        <Header />
 
         <Animated.ScrollView
           onScroll={Animated.event(
@@ -167,27 +166,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           />
 
         </Animated.ScrollView>
-        
+
         {/* ปุ่ม FAB ที่มี animation */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.fabButtonBase,
             { width: animatedWidth }
           ]}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.fabContent}
             onPress={handleFabPress}
             activeOpacity={0.8}
           >
             <Ionicons name="add" size={24} color="#ffffff" />
-            <Animated.Text 
+            <Animated.Text
               style={[
                 styles.fabText,
                 { opacity: textOpacity }
               ]}
             >
-            {t('home.freeregister')}
+              {t('home.freeregister')}
             </Animated.Text>
           </TouchableOpacity>
         </Animated.View>
@@ -200,10 +199,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+     backgroundColor: '#FFF',
   },
   safeArea: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+ 
   },
   // แยก style พื้นฐานสำหรับปุ่ม FAB
   fabButtonBase: {

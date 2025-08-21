@@ -326,10 +326,12 @@ export default function ArkadDashboard() {
         style={styles.background}
         resizeMode="cover"
       >
+
+         <Header />
         <SafeAreaView style={styles.overlay}>
 
 
-          <Header />
+         
 
           <FlatList
             data={devices}

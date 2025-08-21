@@ -131,12 +131,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     marginBottom: 20,
-    paddingTop: 5,
+    paddingTop: 25,
+    paddingLeft: 20,
     justifyContent: 'space-between',
   },
   backgroundImage: {
     width: '150%',
-    height: 140,
+    height: 160,
     resizeMode: 'stretch',
   },
   leftContent: {

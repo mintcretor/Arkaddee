@@ -509,10 +509,8 @@ const ShopDetails = () => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+            <Header />
             <SafeAreaView style={styles.safeArea}>
-
-                <Header />
-
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => {
@@ -818,7 +816,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingLeft: 30,
-        paddingTop: 20,
         paddingBottom: 10,
     },
     backText: {
