@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "2",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
