@@ -221,7 +221,7 @@ const Index: React.FC = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1,  }}>
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <StatusBar barStyle="dark-content" />
                 <PanGestureHandler
                     ref={panRef}
@@ -316,7 +316,7 @@ const Index: React.FC = () => {
                         </PinchGestureHandler>
                     </Animated.View>
                 </PanGestureHandler>
-            </SafeAreaView>
+            </View>
         </GestureHandlerRootView>
     );
 }

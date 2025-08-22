@@ -319,7 +319,7 @@ export default function ArkadDashboard() {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#FFF" />
       <ImageBackground
         source={require('@/assets/images/image.png')}
@@ -464,7 +464,7 @@ export default function ArkadDashboard() {
           <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 
 }

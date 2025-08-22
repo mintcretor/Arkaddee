@@ -393,12 +393,14 @@ const ProfileScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar 
         barStyle="dark-content" 
         backgroundColor="#fff" 
         translucent={false}
       />
+
+
 
       <ScrollView 
         style={styles.scrollContainer}
@@ -593,7 +595,7 @@ const ProfileScreen: React.FC = () => {
 
         <View style={styles.spacer} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
