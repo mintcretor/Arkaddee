@@ -187,7 +187,7 @@ export default {
     removeError: "Error removing from favorites. Please try again.",
   },
   home: {
-    arkaddee: "Arkaddee",
+    arkaddee: "Arkad",
     skip: "Show Recommended Places",
     nearby: "Good weather near you",
     hot: "popular good weather",

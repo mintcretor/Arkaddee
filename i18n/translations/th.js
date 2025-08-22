@@ -194,7 +194,7 @@ export default {
     Unable_save: "ไม่สามารถเพิ่มที่อยู่ได้",
   },
   home: {
-    arkaddee: "อากาศดี",
+    arkaddee: "อากาศ",
     nearby: "อากาศดีใกล้คุณ",
     skip: "แสดงสถานที่แนะนำ",
     hot: "อากาศดียอดนิยม",
