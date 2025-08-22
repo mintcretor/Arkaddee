@@ -198,7 +198,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 28, // รองรับสถานะบาร์บน Android
+    paddingTop: 32, // รองรับสถานะบาร์บน Android
   },
   safeArea: {
     flex: 1,
