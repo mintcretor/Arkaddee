@@ -327,11 +327,11 @@ export default function ArkadDashboard() {
         resizeMode="cover"
       >
 
-         <Header />
+        <Header />
         <SafeAreaView style={styles.overlay}>
 
 
-         
+
 
           <FlatList
             data={devices}
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 32,
+    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 35,
   },
   background: {
     flex: 1,
