@@ -587,7 +587,6 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
     <>
       <View style={styles.bottomSection}>
         <View style={styles.logoRow}>
-          <Text style={styles.airQualityText}>{t('home.arkaddee')}</Text>
           <View style={styles.logoRows}>
             <Image
               source={require('@/assets/images/dust-boy.png')}
