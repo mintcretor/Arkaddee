@@ -93,7 +93,7 @@
         }
       },
       "package": "com.appmatrixdevelopment.arkad",
-      "versionCode": 1
+      "versionCode": 65
     },
     "plugins": [
       "expo-router",
