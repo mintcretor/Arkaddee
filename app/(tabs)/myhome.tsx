@@ -478,13 +478,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+    paddingTop: StatusBar.currentHeight || 0, 
   },
   background: {
     flex: 1,
   },
   overlay: {
     flex: 1,
-     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   scrollContent: {
     paddingBottom: 90,

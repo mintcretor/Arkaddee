@@ -130,14 +130,14 @@ const Header: React.FC<HeaderProps> = () => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    marginBottom: 20,
-    paddingTop: 25,
+    marginBottom: 30,
+    paddingTop: 5,
     paddingLeft: 20,
     justifyContent: 'space-between',
   },
   backgroundImage: {
     width: '150%',
-    height: 160,
+    height: 140,
     resizeMode: 'stretch',
   },
   leftContent: {
