@@ -626,7 +626,7 @@ const ShopDetails = () => {
                                 <Text style={styles.airQualityText}>
                                     {restaurantsData.has_air_purifier
                                         ? t('store.This_place_has_an_air_purifier')
-                                        : t('store.This_place_does_not_have_a_positive_pressure_ventilation_system')}
+                                        : t('store.This_place_does_not_have_a_air_purifier')}
                                 </Text>
                             </View>
 
@@ -638,7 +638,7 @@ const ShopDetails = () => {
                                 />
                                 <Text style={styles.airQualityText}>
                                     {restaurantsData.has_air_ventilator
-                                        ? t('store.This_place_has_an_air_purifier')
+                                        ? t('store.This_place_has_an_air_ventilation')
                                         : t('store.This_place_does_not_have_a_positive_pressure_ventilation_system')}
                                 </Text>
                             </View>

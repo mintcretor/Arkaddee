@@ -232,6 +232,8 @@ export default {
     review: "Review",
     air_quality_management_devices: "Air quality management devices",
     This_place_has_an_air_purifier: "This place has an air purifier",
+    This_place_does_not_have_a_air_purifier: "This place does not have an air purifier",
+    This_place_has_an_air_ventilation: "This place has an air ventilation",
     This_place_does_not_have_a_positive_pressure_ventilation_system: "This place does not have a positive pressure ventilation system",
     check_opening_hours: "Check opening",
     noDetailPhone: "No phone number available",
