@@ -9,7 +9,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Easing,
-  RefreshControl  // เพิ่มการนำเข้า RefreshControl
+  RefreshControl
 } from 'react-native';
 import Header from '@/components/Header';
 import MainContent from '@/components/home/MainContent';
@@ -20,14 +20,16 @@ import { useTranslation } from 'react-i18next';
 interface HomeScreenProps {
   navigation?: any; // เพิ่ม ? เพื่อให้เป็น optional
 }
-const HEADER_HEIGHT = 50;
-const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
-const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
+
+const HEADER_HEIGHT = 140;    // ความสูงของ Header ที่กำหนดใหม่
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 30;
+
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const router = useRouter();
   const [selectedShop, setSelectedShop] = useState<number | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
   const { t } = useTranslation();
+  
   // State และ animation values สำหรับปุ่ม FAB
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedWidth = useRef(new Animated.Value(60)).current;
@@ -35,6 +37,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   // เพิ่ม state สำหรับ pull to refresh
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handlePlacePress = (placeId: number) => {
     setSelectedShop(placeId);
@@ -45,30 +48,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   // ฟังก์ชันสำหรับการ pull to refresh
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setError(null);
 
-    // สร้าง reference ไปยัง MainContent component เพื่อเรียกใช้ฟังก์ชันรีเฟรชภายใน
-    // สมมติว่ามีฟังก์ชัน refreshData ใน MainContent
-    if (mainContentRef.current) {
-      // เรียกใช้ฟังก์ชัน refreshData ของ MainContent (ต้องเพิ่มเมธอดนี้ใน MainContent)
-      mainContentRef.current.refreshData().then(() => {
-        // เมื่อโหลดข้อมูลเสร็จแล้ว ปิดสถานะ refreshing
-        setRefreshing(false);
-      }).catch((error) => {
-        console.error("Error refreshing data:", error);
-        setRefreshing(false);
-      });
-    } else {
-      // กรณีไม่สามารถเข้าถึง MainContent ให้ปิดสถานะ refreshing หลังจากผ่านไป 1 วินาที
-      setTimeout(() => {
-        setRefreshing(false);
-      }, 1000);
+    try {
+      // ถ้ามี MainContent ref และมีฟังก์ชัน refreshData
+      if (mainContentRef.current?.refreshData) {
+        await mainContentRef.current.refreshData();
+      } else {
+        // ถ้าไม่มี ก็แค่รอสักพัก
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    } catch (err: any) {
+      setError('ไม่สามารถโหลดข้อมูลได้');
+      console.error('เกิดข้อผิดพลาดในการรีเฟรช:', err);
+    } finally {
+      setRefreshing(false);
     }
   }, []);
 
   // สร้าง ref สำหรับ MainContent component
-  const mainContentRef = useRef(null);
+  const mainContentRef = useRef<any>(null);
 
   // ฟังก์ชันเมื่อกดปุ่ม FAB
   const handleFabPress = () => {
@@ -78,29 +79,34 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         .catch(err => console.error('เกิดข้อผิดพลาดในการเปิด URL:', err));
     } else {
       // ถ้าปุ่มยังไม่แสดงข้อความ ให้ขยายปุ่มออก
-      setIsExpanded(true);
-
-      // Animation สำหรับขยายความกว้าง
-      Animated.timing(animatedWidth, {
-        toValue: 220, // ความกว้างเมื่อขยาย
-        duration: 300, // ระยะเวลา animation (milliseconds)
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: false // required for width animation
-      }).start();
-
-      // Animation สำหรับแสดงข้อความ
-      Animated.timing(textOpacity, {
-        toValue: 1,
-        duration: 200,
-        delay: 100, // เริ่มหลังจากปุ่มขยายเล็กน้อย
-        useNativeDriver: false
-      }).start();
-
-      // ตั้งเวลาให้หดกลับหลังจาก 3 วินาที
-      setTimeout(() => {
-        collapseButton();
-      }, 3000);
+      expandButton();
     }
+  };
+
+  // ฟังก์ชันสำหรับขยายปุ่ม
+  const expandButton = () => {
+    setIsExpanded(true);
+
+    // Animation สำหรับขยายความกว้าง
+    Animated.timing(animatedWidth, {
+      toValue: 220, // ความกว้างเมื่อขยาย
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false
+    }).start();
+
+    // Animation สำหรับแสดงข้อความ
+    Animated.timing(textOpacity, {
+      toValue: 1,
+      duration: 200,
+      delay: 100,
+      useNativeDriver: false
+    }).start();
+
+    // ตั้งเวลาให้หดกลับหลังจาก 3 วินาที
+    setTimeout(() => {
+      collapseButton();
+    }, 3000);
   };
 
   // ฟังก์ชันสำหรับหดปุ่มกลับ
@@ -114,9 +120,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     // Animation สำหรับหดความกว้าง
     Animated.timing(animatedWidth, {
-      toValue: 60, // กลับไปขนาดเดิม
+      toValue: 60,
       duration: 300,
-      delay: 50, // เริ่มหลังจากข้อความซ่อนเล็กน้อย
+      delay: 50,
       easing: Easing.in(Easing.ease),
       useNativeDriver: false
     }).start(() => {
@@ -124,22 +130,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     });
   };
 
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [0, 0],
-    extrapolate: 'clamp',
-  });
-
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 50, 100],
-    outputRange: [1, 1, 1],
-    extrapolate: 'clamp',
-  });
+  // เอา animation values ของ header ออก เพราะไม่ได้ใช้แล้ว
+  // const headerTranslateY = scrollY.interpolate({...});
+  // const headerOpacity = scrollY.interpolate({...});
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+      <StatusBar barStyle="light-content" backgroundColor="#4A6FA5" />
+      
+      {/* Fixed Header - ไม่ scroll */}
       <Header />
+      
       <SafeAreaView style={styles.safeArea}>
         <Animated.ScrollView
           onScroll={Animated.event(
@@ -147,25 +148,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             { useNativeDriver: true }
           )}
           scrollEventThrottle={16}
+          contentContainerStyle={styles.scrollContent}
           // เพิ่ม RefreshControl สำหรับ pull to refresh
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#4A6FA5']}  // สีของตัวโหลดสำหรับ Android
-              tintColor="#4A6FA5"   // สีของตัวโหลดสำหรับ iOS
-              title="กำลังโหลดข้อมูล..."  // ข้อความที่แสดงใต้ตัวโหลดสำหรับ iOS
-              titleColor="#4A6FA5"  // สีของข้อความสำหรับ iOS
+              colors={['#4A6FA5']}        // สีของตัวโหลดสำหรับ Android
+              tintColor="#4A6FA5"         // สีของตัวโหลดสำหรับ iOS
+              title={t('home.refreshing') || 'กำลังโหลดข้อมูล...'}
+              titleColor="#4A6FA5"        // สีของข้อความสำหรับ iOS
             />
           }
+          showsVerticalScrollIndicator={false}
         >
-
           <MainContent
             onPlacePress={handlePlacePress}
             navigation={navigation}
-            ref={mainContentRef}  // เพิ่ม ref เพื่อให้สามารถเข้าถึง MainContent ได้
+            ref={mainContentRef}
           />
-
         </Animated.ScrollView>
 
         {/* ปุ่ม FAB ที่มี animation */}
@@ -186,12 +187,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 styles.fabText,
                 { opacity: textOpacity }
               ]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
             >
               {t('home.freeregister')}
             </Animated.Text>
           </TouchableOpacity>
         </Animated.View>
 
+        {/* แสดง error message ถ้ามี */}
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
       </SafeAreaView>
     </View>
   );
@@ -200,11 +209,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: STATUSBAR_HEIGHT || 30,
+    backgroundColor: '#f5f5f5',
+    paddingTop: STATUSBAR_HEIGHT,
   },
   safeArea: {
     flex: 1,
-
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 100,         // เว้นพื้นที่สำหรับ FAB
   },
   // แยก style พื้นฐานสำหรับปุ่ม FAB
   fabButtonBase: {
@@ -214,8 +227,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4A6FA5',
     borderTopLeftRadius: 30,
     borderBottomLeftRadius: 30,
-    height: 40, // กำหนดความสูงคงที่
-    paddingLeft: 0, // ปรับค่า padding ใหม่เพื่อให้ animation ทำงานได้ดีขึ้น
+    height: 40,
+    paddingLeft: 0,
     paddingRight: 0,
     elevation: 8,
     shadowColor: '#000',
@@ -223,7 +236,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     zIndex: 9999,
-    overflow: 'hidden', // สำคัญสำหรับ animation ของข้อความ
+    overflow: 'hidden',
   },
   fabContent: {
     flexDirection: 'row',
@@ -238,6 +251,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 8,
     fontSize: 14,
+    flexShrink: 1,              // ป้องกันข้อความล้น
+  },
+  errorContainer: {
+    position: 'absolute',
+    top: 10,
+    left: 20,
+    right: 20,
+    backgroundColor: '#ffebee',
+    padding: 10,
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#f44336',
+    zIndex: 1000,
+  },
+  errorText: {
+    color: '#c62828',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 
