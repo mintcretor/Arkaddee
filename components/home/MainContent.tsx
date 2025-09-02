@@ -1076,6 +1076,7 @@ const styles = StyleSheet.create({
     marginLeft: RESPONSIVE_SIZES.spacing.tiny,
     fontWeight: 'bold',
     fontSize: RESPONSIVE_SIZES.font.normal,
+    color: '#333',
   },
   cuisines: {
     marginLeft: RESPONSIVE_SIZES.spacing.tiny,
