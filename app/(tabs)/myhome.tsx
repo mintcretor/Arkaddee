@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text, // Ensure Text is imported
+  Text,
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
@@ -33,7 +33,7 @@ interface Device {
   status: 'online' | 'offline';
   icon: string;
   is_primary: boolean,
-  productId: string; // Add productId here for navigation
+  productId: string;
   data: {
     temperature?: number;
     humidity?: number;
@@ -42,23 +42,42 @@ interface Device {
   };
 }
 
+// Interface for primary device data
+interface PrimaryDeviceData {
+  room_name?: string;
+  pm25: number;
+  temperature: number;
+  humidity: number;
+  co2: number;
+}
+
+// Helper function to handle temperature conversion
+const convertTemperature = (temp: number) => {
+  if (temp >= 100 && temp < 1000) {
+    return temp / 10;
+  }
+  return temp;
+};
+
 export default function ArkadDashboard() {
   const [currentTime, setCurrentTime] = useState('');
-  const [currentDate, setCurrentDate] = useState('');
+  const [currentDate, setCurrentDate] = useState<string | React.ReactNode>('');
   const [devices, setDevices] = useState<Device[]>([]);
-  const [deviceOne, setName] = useState<Device[]>([]);
-  const [pm25Value, setPM25Value] = useState(0);
-  const [temperature, setTemperature] = useState(0);
-  const [humidity, setHumidity] = useState(0);
-  const [co2Level, setCO2Level] = useState(0);
+  const [primaryDeviceData, setPrimaryDeviceData] = useState<PrimaryDeviceData>({
+    pm25: 0,
+    temperature: 0,
+    humidity: 0,
+    co2: 0,
+    room_name: undefined
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { t, i18n } = useTranslation();
   const { user, refreshUser } = useAuth();
   const isGuest = user?.authType === 'guest';
+
   const updateClock = () => {
     const now = new Date();
-
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     setCurrentTime(`${hours}:${minutes}`);
@@ -70,14 +89,13 @@ export default function ArkadDashboard() {
     const monthName = months[now.getMonth()];
     const date = now.getDate();
     if (i18n.language == "th") {
-      setCurrentDate(<Text>{`${dayName}ที่ ${date} ${monthName} ${now.getFullYear() + 543}`}</Text>);
+      setCurrentDate(`${dayName}ที่ ${date} ${monthName} ${now.getFullYear() + 543}`);
     } else {
-      setCurrentDate(<Text>{`${dayName} ${date} ${monthName} ${now.getFullYear()}`}</Text>);
+      setCurrentDate(`${dayName} ${date} ${monthName} ${now.getFullYear()}`);
     }
-
   };
 
-  const getAirQualityText = (pm25) => {
+  const getAirQualityText = (pm25: number) => {
     if (pm25 <= 12) return t('myhome.Excellent');
     if (pm25 <= 35.4) return t('myhome.GOOD');
     if (pm25 <= 55.4) return t('myhome.MODERATE');
@@ -86,7 +104,7 @@ export default function ArkadDashboard() {
     return t('myhome.HAZARDOUS');
   };
 
-  const getAirQualityColor = (pm25) => {
+  const getAirQualityColor = (pm25: number) => {
     if (pm25 <= 12) return '#4ADE80';
     if (pm25 <= 35.4) return '#22C55E';
     if (pm25 <= 55.4) return '#FBBF24';
@@ -104,118 +122,64 @@ export default function ArkadDashboard() {
     if (device_type === 'Arkad_PCM') return require('@/assets/images/device/Arkad_PCM.png');
     return require('@/assets/images/device/Arkad_WM.png');
   };
-  useFocusEffect(
-    React.useCallback(() => {
-      // ถ้ามีฟังก์ชัน refreshUser ใน useAuth ให้เรียก
-      if (refreshUser) refreshUser();
-      // หรือจะ fetch user ใหม่จาก API ตรงนี้ก็ได้
-    }, [])
-  );
 
-  // Load device data
   const loadDevices = async () => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
     try {
       setIsLoading(true);
       setRefreshing(true);
 
-
-
       const responsePrimary = await fetchDevicePrimary();
       if (responsePrimary.user.length > 0) {
-
         const firstDevice = responsePrimary.user[0];
-        //console.log(firstDevice)
-
-
-        setPM25Value(firstDevice.pm25);
-        if (firstDevice.temperature >= 100 && firstDevice.temperature < 1000) {
-          firstDevice.temperature = firstDevice.temperature / 10;
-        } else {
-          firstDevice.temperature
-        }
-        setTemperature(firstDevice.temperature);
-        setName(firstDevice);
-        setHumidity(firstDevice.humidity);
-        setCO2Level(firstDevice.co2);
-
-      } else { // If no devices found, reset main display values
-        setPM25Value(0);
-        setTemperature(0);
-        setHumidity(0);
-        setCO2Level(0);
+        setPrimaryDeviceData({
+          pm25: firstDevice.pm25,
+          temperature: convertTemperature(firstDevice.temperature),
+          humidity: firstDevice.humidity,
+          co2: firstDevice.co2,
+          room_name: firstDevice.room_name
+        });
+      } else {
+        setPrimaryDeviceData({
+          pm25: 0,
+          temperature: 0,
+          humidity: 0,
+          co2: 0,
+          room_name: undefined
+        });
       }
 
       const response = await fetchDeviceAccount();
-
       if (response && response.success && response.user) {
-
         const discoveredDevices = response.user;
+        const updatedDevices: Device[] = discoveredDevices.map((device: any) => {
+          const deviceStatus = device.pwr == 0 ? 'offline' : 'online';
+          const temp = convertTemperature(device.temperature);
 
-        const updatedDevices: Device[] = []; // Ensure type consistency
-
-        if (discoveredDevices.length > 0) {
-          for (const device of discoveredDevices) {
-            try {
-              if (device.temperature >= 100 && device.temperature < 1000) {
-                device.temperature = device.temperature / 10;
-              } else {
-                device.temperature
-              }
-              if (device.pwr == 0) {
-                device.status = 'offline';
-              } else {
-                device.status = 'online';
-              }
-              console.log('Pm25', device.pm25);
-              updatedDevices.push({
-                id: device.device_id,
-                name: device.room_name,
-                productId: device.device_type, // Ensure productId is set
-                type: 'air_quality',
-                status: device.status,
-                is_primary: device.is_primary,
-                icon: imageDevice(device.device_type),
-                data: {
-                  temperature: device.temperature,
-                  humidity: device.humidity,
-                  co2: device.co2,
-                  pm25: device.pm25
-                }
-              });
-            } catch (error) {
-              updatedDevices.push({
-                id: device.device_id,
-                name: device.room_name,
-                productId: device.device_type, // Ensure productId is set
-                type: 'air_quality',
-                is_primary: device.is_primary,
-                status: 'offline',
-                icon: imageDevice(device.device_type), // Fallback or default icon
-                data: {}
-              });
+          return {
+            id: device.device_id,
+            name: device.room_name,
+            productId: device.device_type,
+            type: 'air_quality',
+            status: deviceStatus,
+            is_primary: device.is_primary,
+            icon: imageDevice(device.device_type),
+            data: {
+              temperature: temp,
+              humidity: device.humidity,
+              co2: device.co2,
+              pm25: device.pm25
             }
-          }
-
-          setDevices(updatedDevices);
-        } else if (response) {
-          setPM25Value(0);
-          setTemperature(0);
-          setHumidity(0);
-          setCO2Level(0);
-          //console.log(<Text>'No devices found or API returned unsuccessful response'</Text>);
-          setDevices([]); // Clear devices if no successful response
-        }
+          };
+        });
+        setDevices(updatedDevices);
+      } else {
+        setDevices([]);
       }
     } catch (error) {
-      clearTimeout(timeoutId);
-      // console.error(<Text>'Error loading devices:'</Text>, error);
-      setPM25Value(0);
-      setTemperature(0);
-      setHumidity(0);
-      setCO2Level(0);
-      setDevices([]); // Clear devices if no successful response
+      console.error('Error loading devices:', error);
+      Alert.alert(t('common.error'), t('myhome.failed_to_load_devices_and_connect_server'));
+      setPrimaryDeviceData({ pm25: 0, temperature: 0, humidity: 0, co2: 0 });
+      setDevices([]);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -223,100 +187,152 @@ export default function ArkadDashboard() {
   };
 
   useEffect(() => {
-    const initializeApp = async () => {
-      await loadDevices();
-      updateClock();
-    };
-
-    initializeApp();
-
+    updateClock();
     const clockInterval = setInterval(updateClock, 1000);
-    // Refresh devices more frequently if desired, or keep at 5 minutes
-    const deviceUpdateInterval = setInterval(loadDevices, 60000); // Changed to 1 minute for better responsiveness in a demo.
-
-    return () => {
-      clearInterval(clockInterval);
-      clearInterval(deviceUpdateInterval);
-    };
+    return () => clearInterval(clockInterval);
   }, []);
+
   useFocusEffect(
     useCallback(() => {
+      if (refreshUser) refreshUser();
       loadDevices();
     }, [])
   );
-  // Render Individual Device Item
+
   const renderDeviceItem = ({ item }: { item: Device }) => (
-    <TouchableOpacity>
-      <View>
-
-
-        <TouchableOpacity
-          style={[
-            styles.deviceCard,
-            item.status === 'online' ? styles.deviceCardOnline : styles.deviceCardOffline
-          ]}
-          onPress={() => router.push({
-            pathname: '/device-scan/device-control',
-            params: {
-              deviceId: item.id,
-              productId: item.productId, // Pass productId for control screen
-              deviceName: item.name,
-              is_primary: String(item.is_primary ?? false),
-            }
-          })}
-          activeOpacity={0.75}
-        >
-          <View style={styles.deviceHeader}>
-            <View style={styles.metricItem}>
-              <Image
-                source={item.icon}
-                style={{ width: 80, height: 80, resizeMode: 'contain' }}
-              />
+    <TouchableOpacity
+      style={[
+        styles.deviceCard,
+        item.status === 'online' ? styles.deviceCardOnline : styles.deviceCardOffline
+      ]}
+      onPress={() => router.push({
+        pathname: '/device-scan/device-control',
+        params: {
+          deviceId: item.id,
+          productId: item.productId,
+          deviceName: item.name,
+          is_primary: String(item.is_primary ?? false),
+        }
+      })}
+      activeOpacity={0.75}
+    >
+      <View style={styles.deviceHeader}>
+        <View style={styles.metricItem}>
+          <Image
+            source={item.icon}
+            style={{ width: 80, height: 80, resizeMode: 'contain' }}
+          />
+        </View>
+        <View style={styles.metricItem}>
+          <Text style={styles.deviceName}>{item.name}</Text>
+          <View style={styles.pmDisplayOuter1}>
+            <View style={styles.pmDisplayInner1}>
+              <Text style={styles.pmValue1}>{item.data.pm25}</Text>
+              <Text style={styles.pmUnit1}>μg/m³</Text>
             </View>
-
-            <View style={styles.metricItem}>
-              <Text style={styles.deviceName}>{item.name}</Text>
-              <View style={styles.pmDisplayOuter1}>
-                <View style={styles.pmDisplayInner1}>
-                  <Text style={styles.pmValue1}>{item.data.pm25}</Text>
-                  <Text style={styles.pmUnit1}>μg/m³</Text>
-                </View>
-                <View style={styles.pmRing1} />
-              </View>
-            </View>
-
-            <View style={styles.metricItem2}>
-              <Text style={[styles.deviceName2, item.status === 'online' ? styles.statusOnline : styles.statusOffline]}>
-                {item.status === 'online' ? t('myhome.online') : t('myhome.offline')}
-              </Text>
-            </View>
+            <View style={styles.pmRing1} />
           </View>
-
-
-
-          {item.type === 'air_quality' && (
-            <View style={styles.metricsContainer}>
-              <View style={styles.metricItem}>
-                <Text style={styles.metricValue}>{item.data.temperature}°</Text>
-                <Text style={styles.metricLabel}>TEMP</Text>
-              </View>
-              <View style={styles.metricDivider} />
-              <View style={styles.metricItem}>
-                <Text style={styles.metricValue}>{item.data.humidity}%</Text>
-                <Text style={styles.metricLabel}>HUMIDITY</Text>
-              </View>
-              <View style={styles.metricDivider} />
-              <View style={styles.metricItem}>
-                <Text style={styles.metricValue}>{item.data.co2}</Text>
-                <Text style={styles.metricLabel}>CO₂</Text>
-              </View>
-            </View>
-          )}
-        </TouchableOpacity>
+        </View>
+        <View style={styles.metricItem2}>
+          <Text style={[styles.deviceName2, item.status === 'online' ? styles.statusOnline : styles.statusOffline]}>
+            {item.status === 'online' ? t('myhome.online') : t('myhome.offline')}
+          </Text>
+        </View>
       </View>
+      {item.type === 'air_quality' && (
+        <View style={styles.metricsContainer}>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricValue}>{item.data.temperature}°</Text>
+            <Text style={styles.metricLabel}>TEMP</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={styles.metricValue}>{item.data.humidity}%</Text>
+            <Text style={styles.metricLabel}>HUMIDITY</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={styles.metricValue}>{item.data.co2}</Text>
+            <Text style={styles.metricLabel}>CO₂</Text>
+          </View>
+        </View>
+      )}
     </TouchableOpacity>
   );
 
+  const renderHeader = () => (
+    <>
+      {/* Main Air Quality Display */}
+      <View style={styles.mainDisplay}>
+        <View style={styles.pmDisplayContainer}>
+          <View style={styles.pmDisplayOuter}>
+            <View style={styles.pmDisplayInner}>
+              <Text style={styles.pmValue}>{primaryDeviceData.pm25}</Text>
+              <Text style={styles.pmUnit}>μg/m³</Text>
+            </View>
+            <View style={styles.pmRing} />
+          </View>
+          <Text style={[styles.airQualityStatus, { color: getAirQualityColor(primaryDeviceData.pm25) }]}>
+            {getAirQualityText(primaryDeviceData.pm25)}
+          </Text>
+          <Text style={[styles.airQualityRoom]}>
+            {primaryDeviceData.room_name}
+          </Text>
+        </View>
+      </View>
+
+      {/* Metrics Panel */}
+      <View style={styles.metricsPanel}>
+        <View style={styles.metricsPanelItem}>
+          <View style={styles.metricsPanelIcon}>
+            <Text style={styles.metricIconText}>🌡️</Text>
+          </View>
+          <View style={styles.metricsPanelData}>
+            <Text style={styles.metricsPanelValue}>{primaryDeviceData.temperature}°C</Text>
+            <Text style={styles.metricsPanelLabel}>{t('myhome.temperature')}</Text>
+          </View>
+        </View>
+        <View style={styles.metricsPanelItem}>
+          <View style={styles.metricsPanelIcon}>
+            <Text style={styles.metricIconText}>💧</Text>
+          </View>
+          <View style={styles.metricsPanelData}>
+            <Text style={styles.metricsPanelValue}>{primaryDeviceData.humidity}%</Text>
+            <Text style={styles.metricsPanelLabel}>{t('myhome.humidity')}</Text>
+          </View>
+        </View>
+        <View style={styles.metricsPanelItem}>
+          <View style={styles.metricsPanelIcon}>
+            <Text style={styles.metricIconText}>☁️</Text>
+          </View>
+          <View style={styles.metricsPanelData}>
+            <Text style={styles.metricsPanelValue}>{primaryDeviceData.co2}</Text>
+            <Text style={styles.metricLabel}>CO₂ (PPM)</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Time Panel */}
+      <View style={styles.timePanel}>
+        <Text style={styles.currentTime}>{currentTime}</Text>
+        <Text style={styles.currentDate}>{currentDate}</Text>
+      </View>
+
+      {/* Section Header */}
+      <View style={styles.devicesSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{t('myhome.My_devices')}</Text>
+        </View>
+        {devices.length === 0 && !isLoading && (
+          <View style={styles.emptyDevicesContainer}>
+            <Text style={styles.emptyDevicesText}>
+              {t('myhome.you_do_not_have_any_device_yet')}
+            </Text>
+          </View>
+        )}
+      </View>
+    </>
+  );
 
   return (
     <View style={styles.container}>
@@ -326,98 +342,13 @@ export default function ArkadDashboard() {
         style={styles.background}
         resizeMode="cover"
       >
-
         <Header />
         <SafeAreaView style={styles.overlay}>
-
-
-
-
           <FlatList
             data={devices}
             keyExtractor={(item) => item.id}
             renderItem={renderDeviceItem}
-            ListHeaderComponent={
-              <>
-                {/* Main Air Quality Display */}
-                <View style={styles.mainDisplay}>
-                  <View style={styles.pmDisplayContainer}>
-                    <View style={styles.pmDisplayOuter}>
-                      <View style={styles.pmDisplayInner}>
-                        <Text style={styles.pmValue}>{pm25Value}</Text>
-                        <Text style={styles.pmUnit}>μg/m³</Text>
-                      </View>
-                      <View style={styles.pmRing} />
-                    </View>
-
-                    <Text style={[styles.airQualityStatus, { color: getAirQualityColor(pm25Value) }]}>
-                      {getAirQualityText(pm25Value)}
-                    </Text>
-                    <Text style={[styles.airQualityRoom]}>
-                      {deviceOne.room_name}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Metrics Panel */}
-                <View style={styles.metricsPanel}>
-                  {/* Temperature */}
-                  <View style={styles.metricsPanelItem}>
-                    <View style={styles.metricsPanelIcon}>
-                      <Text style={styles.metricIconText}>🌡️</Text>
-                    </View>
-                    <View style={styles.metricsPanelData}>
-                      <Text style={styles.metricsPanelValue}>{temperature}°C</Text>
-                      <Text style={styles.metricsPanelLabel}>{t('myhome.temperature')}</Text>
-                    </View>
-                  </View>
-
-                  {/* Humidity */}
-                  <View style={styles.metricsPanelItem}>
-                    <View style={styles.metricsPanelIcon}>
-                      <Text style={styles.metricIconText}>💧</Text>
-                    </View>
-                    <View style={styles.metricsPanelData}>
-                      <Text style={styles.metricsPanelValue}>{humidity}%</Text>
-                      <Text style={styles.metricsPanelLabel}>{t('myhome.humidity')}</Text>
-                    </View>
-                  </View>
-
-                  {/* CO2 */}
-                  <View style={styles.metricsPanelItem}>
-                    <View style={styles.metricsPanelIcon}>
-                      <Text style={styles.metricIconText}>☁️</Text>
-                    </View>
-                    <View style={styles.metricsPanelData}>
-                      <Text style={styles.metricsPanelValue}>{co2Level}</Text>
-                      <Text style={styles.metricLabel}>CO₂ (PPM)</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Time Panel */}
-                <View style={styles.timePanel}>
-                  <Text style={styles.currentTime}>{currentTime}</Text>
-                  <Text style={styles.currentDate}>{currentDate}</Text>
-                </View>
-
-                {/* Section Header */}
-                <View style={styles.devicesSection}>
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>{t('myhome.My_devices')}</Text>
-                  </View>
-
-                  {/* Empty State */}
-                  {devices.length === 0 && !isLoading && (
-                    <View style={styles.emptyDevicesContainer}>
-                      <Text style={styles.emptyDevicesText}>
-                        {t('myhome.you_do_not_have_any_device_yet')}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </>
-            }
+            ListHeaderComponent={renderHeader()}
             ListFooterComponent={
               <TouchableOpacity
                 style={styles.addDeviceButton}
@@ -433,7 +364,7 @@ export default function ArkadDashboard() {
                     );
                     return;
                   }
-                  router.push('/device-scan/HomeWifi')
+                  router.push('/device-scan/HomeWifi');
                 }}
                 activeOpacity={0.8}
               >
@@ -457,7 +388,6 @@ export default function ArkadDashboard() {
         </SafeAreaView>
       </ImageBackground>
 
-      {/* Loading overlay */}
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#2EE3DA" />
@@ -466,11 +396,9 @@ export default function ArkadDashboard() {
       )}
     </View>
   );
-
 }
 
 const styles = StyleSheet.create({
-
   settingsIcon: {
     fontSize: 16,
     color: 'white'
@@ -744,7 +672,6 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 16,
   },
-
   deviceName2: {
     fontSize: 12,
     fontWeight: 'bold',
@@ -790,7 +717,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 12,
     borderRadius: 12,
-
   },
   addButtonIcon: {
     width: 20,

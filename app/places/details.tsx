@@ -790,10 +790,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
+        paddingTop: STATUSBAR_HEIGHT || 30,
     },
     safeArea: {
         flex: 1,
-        paddingTop: STATUSBAR_HEIGHT || 30,
+        
     },
 
     headerContainer: {

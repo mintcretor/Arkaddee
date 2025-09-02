@@ -320,7 +320,9 @@ const Index: React.FC = () => {
         </GestureHandlerRootView>
     );
 }
-
+const HEADER_HEIGHT = 50;
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight || 0;
+const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
 const { width, height } = Dimensions.get('window');
 
 const additionalStyles = StyleSheet.create({
@@ -358,7 +360,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 35,
+            paddingTop: 8 ,
     },
     scrollView: {
         flex: 1,
