@@ -58,7 +58,9 @@ const convertTemperature = (temp: number) => {
   }
   return temp;
 };
-
+const HEADER_HEIGHT = 50;
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
+const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
 export default function ArkadDashboard() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState<string | React.ReactNode>('');
@@ -406,7 +408,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 35,
+   paddingTop: STATUSBAR_HEIGHT || 30,
   },
   background: {
     flex: 1,

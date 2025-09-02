@@ -20,7 +20,9 @@ import { useTranslation } from 'react-i18next';
 interface HomeScreenProps {
   navigation?: any; // เพิ่ม ? เพื่อให้เป็น optional
 }
-
+const HEADER_HEIGHT = 50;
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
+const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const router = useRouter();
   const [selectedShop, setSelectedShop] = useState<number | null>(null);
@@ -198,7 +200,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 35,
+    paddingTop: STATUSBAR_HEIGHT || 30,
   },
   safeArea: {
     flex: 1,
