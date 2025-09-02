@@ -9,9 +9,6 @@ import {
     Dimensions,
     Animated,
     StatusBar,
-    Platform,
-    SafeAreaView,
-    Linking,
     ImageSourcePropType,
 } from 'react-native';
 import { GestureHandlerRootView, PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
@@ -220,7 +217,7 @@ const Index: React.FC = () => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1,  }}>
+        <GestureHandlerRootView style={{ flex: 1, }}>
             <View style={styles.container}>
                 <StatusBar barStyle="dark-content" />
                 <PanGestureHandler
@@ -320,10 +317,6 @@ const Index: React.FC = () => {
         </GestureHandlerRootView>
     );
 }
-const HEADER_HEIGHT = 50;
-const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight || 0;
-const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
-const { width, height } = Dimensions.get('window');
 
 const additionalStyles = StyleSheet.create({
     linkIndicator: {
@@ -360,13 +353,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-            paddingTop: 8 ,
+        padding: 10,
     },
     scrollView: {
         flex: 1,
     },
     productSection: {
-        padding: 20,
+        padding: 10,
         marginBottom: 20,
     },
     sectionTitle: {
@@ -435,7 +428,7 @@ const styles = StyleSheet.create({
 
     topCategoriesContainer: {
         flexDirection: 'row',
-        height:180,
+        height: 180,
         justifyContent: 'space-around',
         paddingHorizontal: 10,
         paddingVertical: 20,

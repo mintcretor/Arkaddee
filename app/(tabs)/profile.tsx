@@ -61,9 +61,6 @@ interface UploadResponse {
     url: string;
   };
 }
-const HEADER_HEIGHT = 50;
-const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
-const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
 const ProfileScreen: React.FC = () => {
   // ใช้ destructuring ที่ปลอดภัยขึ้น
   const authContext = useAuth();
@@ -605,7 +602,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    paddingTop: STATUSBAR_HEIGHT || 30,
+    paddingTop: 40,
   },
   centerContent: {
     flex: 1,

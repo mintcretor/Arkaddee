@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePM25Data } from '@/hooks/usePM25Data';
 import { useTranslation } from 'react-i18next';
 
+
 // กำหนด Props (ถ้ามี)
 interface HeaderProps {
   // ใส่ props ที่ต้องการเพิ่มเติมตรงนี้
@@ -14,7 +15,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = () => {
   const { address, loading: locationLoading, error: locationError } = useLocation();
   const { signOut, user } = useAuth();
-  const { t } = useTranslation();
+    const { t } = useTranslation();
   
   // ใช้ usePM25Data hook ที่อัปเดตแล้ว พร้อมกำหนดเวลารีเฟรชเป็นทุก 30 วินาที
   const { 
@@ -65,161 +66,128 @@ const Header: React.FC<HeaderProps> = () => {
   const displayAddress = locationError || (locationLoading ? t('common.loading') : address);
 
   return (
-    <View style={styles.wrapper}>
-      <ImageBackground
-        source={require('@/assets/images/bg_header1.png')}
-        style={styles.container}
-        imageStyle={styles.backgroundImage}
-      >
-        {/* Logo และข้อมูลด้านซ้าย */}
-        <View style={styles.leftContent}>
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('@/assets/images/logo2.png')}
-              style={styles.logo} 
-            />
-          </View>
-          
-          <View style={styles.textContent}>
-            <Text 
-              style={styles.greeting}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {user?.displayName || user?.username || "ผู้ใช้งาน"}
-            </Text>
-            
-            <View style={styles.locationContainer}>
-              <Ionicons name="location-outline" size={16} color="white" style={styles.locationIcon} />
-              <Text 
-                style={styles.locationText}
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
-                {displayAddress}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* PM2.5 ด้านขวา */}
-        <TouchableOpacity 
-          style={styles.pmContainer}
-          onPress={refresh} // เพิ่มการรีเฟรชข้อมูลเมื่อกดที่กล่อง PM2.5
-          activeOpacity={0.7}
+    <ImageBackground
+      source={require('@/assets/images/bg_header1.png')}
+      style={styles.container}
+      imageStyle={styles.backgroundImage}
+    >
+      {/* Logo และข้อมูลด้านซ้าย */}
+      <View style={[styles.leftContent, { width: screenWidth - 90 }]}>
+        <Image 
+          source={require('@/assets/images/logo2.png')}
+          style={styles.logos} 
+        />
+        <Text 
+          style={styles.greeting}
+          numberOfLines={1}
+          ellipsizeMode="tail"
         >
-          <Text style={styles.pmLabel}>PM2.5</Text>
-          <View style={[styles.pmValueBox, { borderColor: color }]}>
-            {pm25Loading ? (
-              <ActivityIndicator size="small" color={color} />
-            ) : pm25Error ? (
-              <Text style={[styles.pmValue, { fontSize: 16, color: '#9E9E9E' }]}>--</Text>
-            ) : (
-              <>
-                <Text style={[styles.pmValue, { color }]}>{value}</Text>
-                <Text style={[styles.pmUnit, { color }]}>µg/m³</Text>
-              </>
-            )}
-          </View>
+          { user?.displayName || user?.username || "ผู้ใช้งาน"}
+        </Text>
+        <View style={styles.locationContainer}>
+          <Ionicons name="location-outline" size={16} color="white" style={styles.locationIcon} />
           <Text 
-            style={[styles.qualityText, { color }]}
-            numberOfLines={1}
+            style={[styles.locationText, { width: screenWidth - 150 }]}
+            numberOfLines={2}
             ellipsizeMode="tail"
           >
-            {quality || t('common.Not_specified')}
+            {displayAddress}
           </Text>
-          
-          {/* แสดงเวลาอัปเดตล่าสุด */}
-          {timeText && !pm25Loading && (
-            <Text style={styles.lastUpdatedText}>
-              {timeText}
-            </Text>
+        </View>
+      </View>
+
+      {/* PM2.5 ด้านขวา */}
+      <TouchableOpacity 
+        style={styles.pmContainer}
+        onPress={refresh} // เพิ่มการรีเฟรชข้อมูลเมื่อกดที่กล่อง PM2.5
+        activeOpacity={0.7}
+      >
+        <Text style={styles.pmLabel}>PM2.5</Text>
+        <View style={[styles.pmValueBox, { borderColor: color }]}>
+          {pm25Loading ? (
+            <ActivityIndicator size="small" color={color} />
+          ) : pm25Error ? (
+            <Text style={[styles.pmValue, { fontSize: 16, color: '#9E9E9E' }]}>--</Text>
+          ) : (
+            <>
+              <Text style={[styles.pmValue, { color }]}>{value}</Text>
+              <Text style={[styles.pmUnit, { color }]}>µg/m³</Text>
+            </>
           )}
-        </TouchableOpacity>
-      </ImageBackground>
-    </View>
+        </View>
+        <Text 
+          style={[styles.qualityText, { color }]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {quality || t('common.Not_specified')}
+        </Text>
+      </TouchableOpacity>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: '#4A6FA5', // สีพื้นหลังสำรอง
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
   container: {
     flexDirection: 'row',
-    height: 140,              // กำหนดความสูงคงที่
-    paddingTop: 10,
+    marginBottom: 30,
+    paddingTop: 5,
     paddingLeft: 20,
-    paddingRight: 15,
-    paddingBottom: 15,
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    overflow: 'hidden',
   },
   backgroundImage: {
-    width: '100%',            // เปลี่ยนจาก 150% เป็น 100%
-    height: '100%',           // เปลี่ยนเป็น 100%
-    resizeMode: 'cover',      // เปลี่ยนจาก stretch เป็น cover
+    width: '150%',
+    height: 140,
+    resizeMode: 'stretch',
   },
   leftContent: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingRight: 10,
-    height: '100%',
   },
-  logoContainer: {
-    width: 80,                // กำหนดพื้นที่สำหรับ logo
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logo: {
+  
+    paddingLeft: 20,
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
   },
-  logo: {                     // เปลี่ยนชื่อจาก logos เป็น logo
-    width: 75,                // ลดขนาดลง
-    height: 75,               // ลดขนาดลง
+  logos: {
+    width: 150,
+    height: 120,
+    top: -45,
+    zIndex: 1,
+    position: 'absolute',
     resizeMode: 'contain',
-    // ลบ position absolute ออก
-  },
-  textContent: {
-    flex: 1,
-    marginLeft: 10,
-    justifyContent: 'center',
-    height: '100%',
   },
   greeting: {
+    paddingTop: 35,
+    paddingLeft: 40,
     fontSize: 16,
     color: 'white',
     fontWeight: '500',
-    marginBottom: 8,
-    paddingTop: 10,
+ 
   },
   locationContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    maxWidth: '100%',
-    paddingRight: 5,
+    alignItems: 'flex-start', // เปลี่ยนเป็น flex-start เพื่อให้ icon อยู่ชิดบน
+    marginLeft: 25,
+    marginRight: 5,
   },
   locationIcon: {
-    marginTop: 2,
+    marginTop: 3, // เพิ่ม margin top เพื่อให้ icon อยู่ในตำแหน่งที่เหมาะสม
     marginRight: 4,
-    flexShrink: 0,            // ป้องกัน icon ถูกบีบ
   },
   locationText: {
     color: 'white',
     fontSize: 11,
     lineHeight: 15,
-    flex: 1,
+    marginRight: 5,
   },
   pmContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 70,
-    minHeight: 100,           // กำหนดความสูงขั้นต่ำ
+    marginRight: 10,
+    width: 70, // กำหนดความกว้างคงที่
   },
   pmLabel: {
     color: 'white',
@@ -231,11 +199,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     width: 60,
     height: 60,
-    borderRadius: 30,         // เปลี่ยนจาก 50 เป็น 30 เพื่อให้เป็นวงกลมที่สมบูรณ์
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,           // ลดจาก 5 เป็น 3
-    borderColor: '#4CAF50',   // สีเริ่มต้น จะถูกแทนที่
+    borderWidth: 5,
+    borderColor: '#4CAF50', // สีเริ่มต้น จะถูกแทนที่
   },
   pmValue: {
     fontSize: 16,
@@ -243,12 +211,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   pmUnit: {
-    fontSize: 8,              // ลดขนาดตัวอักษร
-    textAlign: 'center',
+    fontSize: 10,
   },
   qualityText: {
     fontSize: 10,
-    marginTop: 4,
+    marginTop: 2,
     color: 'white',
     width: 70,
     textAlign: 'center',
@@ -256,9 +223,8 @@ const styles = StyleSheet.create({
   lastUpdatedText: {
     fontSize: 8,
     color: 'white',
-    marginTop: 2,
+    marginTop: 1,
     opacity: 0.8,
-    textAlign: 'center',
   }
 });
 

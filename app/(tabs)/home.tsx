@@ -21,8 +21,8 @@ interface HomeScreenProps {
   navigation?: any; // เพิ่ม ? เพื่อให้เป็น optional
 }
 
-const HEADER_HEIGHT = 140;    // ความสูงของ Header ที่กำหนดใหม่
-const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 30;
+const HEADER_HEIGHT = 150;    // ความสูงของ Header รวมส่วนโค้ง
+const STATUSBAR_HEIGHT = 40;
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const router = useRouter();
@@ -217,7 +217,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 100,         // เว้นพื้นที่สำหรับ FAB
+    paddingTop: 10,           // เพิ่ม padding top เล็กน้อยเพื่อให้เว้นระยะจากส่วนโค้ง
+    paddingBottom: 100,       // เว้นพื้นที่สำหรับ FAB
   },
   // แยก style พื้นฐานสำหรับปุ่ม FAB
   fabButtonBase: {

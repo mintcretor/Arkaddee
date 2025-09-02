@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-   paddingTop: STATUSBAR_HEIGHT || 30,
+   paddingTop: 40,
   },
   background: {
     flex: 1,
