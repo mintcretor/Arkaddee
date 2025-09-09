@@ -662,7 +662,6 @@ const AirQualityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 40,
   },
   map: {
     width: Dimensions.get('window').width,
