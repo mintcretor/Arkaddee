@@ -14,7 +14,7 @@ import {
     FlatList,
     Alert,
     ActivityIndicator,
-    StyleSheet // เพิ่ม StyleSheet เพราะคุณใช้ในส่วน styles.fullScreenImageLoading
+    StyleSheet
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '@/components/Header';
@@ -27,7 +27,7 @@ import { BackHandler } from 'react-native';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from 'expo-router';
-import ImageItem from '@/components/ImageItem'; // สมมติว่าไฟล์ ImageItem.tsx อยู่ใน components
+import ImageItem from '@/components/ImageItem';
 
 // Import the review components
 import { ReviewsSection, WriteReviewModal, StarRating } from '@/components/ReviewComponents';
@@ -35,7 +35,7 @@ import { ReviewsSection, WriteReviewModal, StarRating } from '@/components/Revie
 import OpeningHours from '@/components/store_hours';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// *** เพิ่มการ import ImageGalleryModal.tsx เข้ามาที่นี่ ***
+// Import ImageGalleryModal
 import ImageGalleryModal from '@/components/ImageGalleryModal';
 
 const HEADER_HEIGHT = 50;
@@ -100,13 +100,6 @@ const removeFavorite = async (restaurantId: any) => {
     }
 };
 
-
-// ========================================================================
-// ******** ลบ FullScreenImageModal และ ReviewImageModal ออกจากที่นี่ ********
-// ********** เพราะเราจะใช้ ImageGalleryModal.tsx แทนแล้ว **********
-// ========================================================================
-
-
 const ShopDetails = () => {
     const { id } = useLocalSearchParams();
     const { user, signOut } = useAuth();
@@ -131,13 +124,12 @@ const ShopDetails = () => {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const flatListRef = useRef(null);
     const [lastUpdateTime, setLastUpdateTime] = useState(null);
-    // const [imageLoading, setImageLoading] = useState(true); // ย้ายไปอยู่ใน ImageItem แล้ว
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
     const [reviewImageModalVisible, setReviewImageModalVisible] = useState(false);
     const [selectedReviewImageIndex, setSelectedReviewImageIndex] = useState(0);
-    const [reviewImages, setReviewImages] = useState<string[]>([]); // กำหนด type ให้ชัดเจน
+    const [reviewImages, setReviewImages] = useState<string[]>([]);
 
     const loadInitialData = async () => {
         try {
@@ -167,11 +159,13 @@ const ShopDetails = () => {
             setLoading(false);
         }
     };
+    
     useFocusEffect(
         React.useCallback(() => {
             loadInitialData();
         }, [])
     );
+    
     useEffect(() => {
         const backAction = () => {
             if (router.canGoBack()) {
@@ -197,7 +191,6 @@ const ShopDetails = () => {
                 t('common.guestReviewOrFav'),
                 [
                     { text: t('common.cancel'), style: 'cancel' },
-
                     {
                         text: t('common.signup'), onPress: async () => {
                             router.push('/(auth)/register/register');
@@ -375,7 +368,6 @@ const ShopDetails = () => {
         setReviewImageModalVisible(true);
     };
 
-    // renderImageItem ยังคงอยู่ใน ShopDetails เพราะมันถูกเรียกโดย FlatList ใน ShopDetails
     const renderImageItem = ({ item, index }) => {
         return (
             <TouchableOpacity
@@ -390,11 +382,9 @@ const ShopDetails = () => {
                     source={{ uri: `${BASEAPI_CONFIG.UrlImg}${item}` }}
                     style={styles.image}
                     resizeMode="contain"
-                    onLoadStart={() => { /* no longer needed here if ImageItem handles its own loading */ }}
-                    onLoadEnd={() => { /* no longer needed here if ImageItem handles its own loading */ }}
+                    onLoadStart={() => { }}
+                    onLoadEnd={() => { }}
                 />
-                {/* imageLoading component from the original code might be removed if using ImageItem */}
-                {/* You can re-add loading indicator here if not using ImageItem component to handle loading */}
             </TouchableOpacity>
         );
     };
@@ -508,7 +498,7 @@ const ShopDetails = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+            <StatusBar barStyle="dark-content" backgroundColor="#FFF" translucent={false} />
             <Header />
             <SafeAreaView style={styles.safeArea}>
                 <TouchableOpacity
@@ -751,22 +741,22 @@ const ShopDetails = () => {
                     </TouchableOpacity>
                 </Animated.View>
 
-                {/* *** ใช้ ImageGalleryModal แทน FullScreenImageModal *** */}
+                {/* Image Gallery Modal for main restaurant images */}
                 <ImageGalleryModal
                     visible={modalVisible}
                     images={restaurantsData.images || []}
                     initialIndex={selectedImageIndex}
                     onClose={() => setModalVisible(false)}
-                    isReviewImage={false} // สำหรับรูปภาพหลักของร้าน
+                    isReviewImage={false}
                 />
 
-                {/* *** ใช้ ImageGalleryModal แทน ReviewImageModal *** */}
+                {/* Image Gallery Modal for review images */}
                 <ImageGalleryModal
                     visible={reviewImageModalVisible}
                     images={reviewImages}
                     initialIndex={selectedReviewImageIndex}
                     onClose={() => setReviewImageModalVisible(false)}
-                    isReviewImage={true} // สำหรับรูปภาพรีวิว
+                    isReviewImage={true}
                 />
 
                 {/* Write Review Modal */}
@@ -785,16 +775,15 @@ const ShopDetails = () => {
     );
 };
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
-        paddingTop: STATUSBAR_HEIGHT || 30,
+        // ลบ paddingTop ออกเพื่อแก้ปัญหาช่องว่าง header
     },
     safeArea: {
         flex: 1,
-        
+        backgroundColor: '#ffffff',
     },
 
     headerContainer: {
@@ -1165,9 +1154,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    // คุณสามารถลบ styles ที่เกี่ยวข้องกับ FullScreenImageModal และ ReviewImageModal ที่ไม่จำเป็นออกได้
-    // แต่เพื่อให้โค้ดนี้ทำงานได้ทันทีโดยไม่ต้องแก้ไข styles.fullScreenImageLoading ในส่วน renderFullImage
-    // ผมจะยังคง styles เหล่านี้ไว้ แต่คุณสามารถพิจารณาลบออกได้หาก ImageGalleryModal.tsx มี styles ของตัวเองที่สมบูรณ์แล้ว
     fullScreenImageLoading: {
         position: 'absolute',
         ...StyleSheet.absoluteFillObject,
