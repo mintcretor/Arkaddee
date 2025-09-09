@@ -10,6 +10,7 @@ import {
     Animated,
     StatusBar,
     ImageSourcePropType,
+    SafeAreaView,
 } from 'react-native';
 import { GestureHandlerRootView, PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +41,6 @@ interface ProductDetailData {
     subtext?: string;
     path: string;
 }
-
 
 const Index: React.FC = () => {
     const { t } = useTranslation();
@@ -75,7 +75,6 @@ const Index: React.FC = () => {
             image: require('@/assets/images/device/Arkad_WM.png'),
         },
     ];
-
 
     // All Products Data (รวมสินค้าทั้งหมดที่มี Category ID)
     // ***** เพิ่ม id: categoryId ให้กับแต่ละ Product เพื่อใช้ในการกรอง *****
@@ -127,7 +126,6 @@ const Index: React.FC = () => {
         return allProducts.filter(product => product.category === selectedCategory);
     };
 
-
     const scrollY = useRef<Animated.Value>(new Animated.Value(0)).current;
     const fadeAnim = useRef<Animated.Value>(new Animated.Value(0)).current;
 
@@ -152,13 +150,10 @@ const Index: React.FC = () => {
 
     // ฟังก์ชันนำทางไปยังหน้า Detail (ยังคงเหมือนเดิม)
     const navigateToProductDetail = (data: ProductDetailData) => {
-
-
         router.push({
             pathname: data.path,
             params: { product: JSON.stringify(data) },
         });
-
     };
 
     // Pinch/Pan Gesture Handlers (คงเดิม)
@@ -217,8 +212,8 @@ const Index: React.FC = () => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1, }}>
-            <View style={styles.container}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="dark-content" />
                 <PanGestureHandler
                     ref={panRef}
@@ -306,14 +301,12 @@ const Index: React.FC = () => {
                                             </View>
                                         </View>
                                     ))}
-
-
                                 </ScrollView>
                             </Animated.View>
                         </PinchGestureHandler>
                     </Animated.View>
                 </PanGestureHandler>
-            </View>
+            </SafeAreaView>
         </GestureHandlerRootView>
     );
 }
@@ -353,7 +346,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-        marginTop: StatusBar.currentHeight || 40,
     },
     scrollView: {
         flex: 1,
@@ -432,7 +424,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         paddingHorizontal: 10,
         paddingVertical: 20,
-        marginTop: 30,
+        marginTop: 0, // เปลี่ยนจาก 30 เป็น 0 เพื่อไม่ให้มีช่องว่างด้านบน
         backgroundColor: '#FFFFFF',
         marginBottom: 20,
         borderBottomLeftRadius: 16,
@@ -448,7 +440,6 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width / 4 - 20,
         paddingVertical: 8, // เพิ่ม padding เพื่อให้มีพื้นที่สำหรับ border
         paddingHorizontal: 4,
-
         borderRadius: 16, // ควรมีค่าเท่ากับ selectedCategoryItem
     },
     categoryImageWrapper: {

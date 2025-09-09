@@ -61,6 +61,7 @@ interface UploadResponse {
     url: string;
   };
 }
+
 const ProfileScreen: React.FC = () => {
   // ใช้ destructuring ที่ปลอดภัยขึ้น
   const authContext = useAuth();
@@ -102,7 +103,6 @@ const ProfileScreen: React.FC = () => {
       return;
     }
 
-
     try {
       setLoadingFavorites(true);
       
@@ -120,7 +120,6 @@ const ProfileScreen: React.FC = () => {
         setFavoritesCount(0);
       }
     } catch (error) {
-
       console.warn('Error fetching favorites count:', error);
       setFavoritesCount(0);
     } finally {
@@ -392,14 +391,12 @@ const ProfileScreen: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar 
         barStyle="dark-content" 
         backgroundColor="#fff" 
         translucent={false}
       />
-
-
 
       <ScrollView 
         style={styles.scrollContainer}
@@ -594,7 +591,7 @@ const ProfileScreen: React.FC = () => {
 
         <View style={styles.spacer} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -602,7 +599,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
- marginTop: StatusBar.currentHeight || 40,
+    // ลบ marginTop ออกแล้ว ใช้ SafeAreaView จัดการแทน
   },
   centerContent: {
     flex: 1,
@@ -806,6 +803,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
-
 
 export default ProfileScreen;
