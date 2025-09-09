@@ -602,6 +602,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+ marginTop: StatusBar.currentHeight || 40,
   },
   centerContent: {
     flex: 1,

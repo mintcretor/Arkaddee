@@ -662,6 +662,7 @@ const AirQualityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+     marginTop: StatusBar.currentHeight || 40,
   },
   map: {
     width: Dimensions.get('window').width,
