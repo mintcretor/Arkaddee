@@ -159,13 +159,13 @@ const ShopDetails = () => {
             setLoading(false);
         }
     };
-    
+
     useFocusEffect(
         React.useCallback(() => {
             loadInitialData();
         }, [])
     );
-    
+
     useEffect(() => {
         const backAction = () => {
             if (router.canGoBack()) {
@@ -498,11 +498,11 @@ const ShopDetails = () => {
 
     return (
         <View style={styles.container}>
-             <StatusBar 
-                   barStyle="dark-content" 
-                   backgroundColor="#fff" 
-                   translucent={false}
-                 />
+            <StatusBar
+                barStyle="dark-content"
+                backgroundColor="#fff"
+                translucent={false}
+            />
             <Header />
             <SafeAreaView style={styles.safeArea}>
                 <TouchableOpacity
