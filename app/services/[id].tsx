@@ -568,9 +568,8 @@ export default function ServiceListingScreen() {
 }
 
 const styles = StyleSheet.create({
-    // ... styles remain the same
+    // แก้ไข: ลบ marginTop ออกจาก container
     container: {
-        marginTop: 35,
         flex: 1,
         backgroundColor: '#FFF',
     },
