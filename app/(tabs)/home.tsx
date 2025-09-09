@@ -9,7 +9,8 @@ import {
   StatusBar,
   TouchableOpacity,
   Easing,
-  RefreshControl
+  RefreshControl,
+  Text
 } from 'react-native';
 import Header from '@/components/Header';
 import MainContent from '@/components/home/MainContent';
@@ -22,7 +23,7 @@ interface HomeScreenProps {
 }
 
 const HEADER_HEIGHT = 150;    // ความสูงของ Header รวมส่วนโค้ง
-const STATUSBAR_HEIGHT = 40;
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const router = useRouter();
@@ -130,13 +131,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     });
   };
 
-  // เอา animation values ของ header ออก เพราะไม่ได้ใช้แล้ว
-  // const headerTranslateY = scrollY.interpolate({...});
-  // const headerOpacity = scrollY.interpolate({...});
-
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A6FA5" />
+      <StatusBar barStyle="light-content" backgroundColor="#4A6FA5" translucent={false} />
       
       {/* Fixed Header - ไม่ scroll */}
       <Header />
@@ -210,9 +207,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    // ลบการใช้ paddingTop หรือ margin ที่อาจสร้างช่องว่าง
   },
   safeArea: {
     flex: 1,
+    backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
   },
   scrollContent: {
     flexGrow: 1,
