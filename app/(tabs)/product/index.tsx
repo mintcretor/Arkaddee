@@ -214,7 +214,11 @@ const Index: React.FC = () => {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={styles.container}>
-                <StatusBar barStyle="dark-content" />
+                  <StatusBar 
+                        barStyle="dark-content" 
+                        backgroundColor="#fff" 
+                        translucent={false}
+                      />
                 <PanGestureHandler
                     ref={panRef}
                     onGestureEvent={onPanEvent}

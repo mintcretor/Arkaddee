@@ -338,7 +338,11 @@ export default function ArkadDashboard() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#FFF" />
+       <StatusBar 
+             barStyle="dark-content" 
+             backgroundColor="#fff" 
+             translucent={false}
+           />
       <ImageBackground
         source={require('@/assets/images/image.png')}
         style={styles.background}

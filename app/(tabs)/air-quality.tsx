@@ -597,6 +597,11 @@ const AirQualityScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
+      />
       <MapView
         ref={mapRef}
         style={styles.map}

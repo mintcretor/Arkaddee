@@ -498,7 +498,11 @@ const ShopDetails = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFF" translucent={false} />
+             <StatusBar 
+                   barStyle="dark-content" 
+                   backgroundColor="#fff" 
+                   translucent={false}
+                 />
             <Header />
             <SafeAreaView style={styles.safeArea}>
                 <TouchableOpacity

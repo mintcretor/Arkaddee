@@ -133,7 +133,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A6FA5" translucent={false} />
+        <StatusBar 
+              barStyle="dark-content" 
+              backgroundColor="#fff" 
+              translucent={false}
+            />
       
       {/* Fixed Header - ไม่ scroll */}
       <Header />

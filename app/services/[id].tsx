@@ -11,6 +11,7 @@ import {
     TextInput,
     Dimensions,
     Alert,
+    StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -288,6 +289,11 @@ export default function ServiceListingScreen() {
     // ... ส่วนที่เหลือของ component UI ยังคงเหมือนเดิม
     return (
         <SafeAreaView style={styles.container}>
+              <StatusBar 
+                    barStyle="dark-content" 
+                    backgroundColor="#fff" 
+                    translucent={false}
+                  />
             {/* ส่วนหัวของหน้า */}
             <View style={styles.header}>
                 <TouchableOpacity
