@@ -412,6 +412,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
+marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
   },
   background: {
     flex: 1,

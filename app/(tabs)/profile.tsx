@@ -65,12 +65,12 @@ interface UploadResponse {
 const ProfileScreen: React.FC = () => {
   // ใช้ destructuring ที่ปลอดภัยขึ้น
   const authContext = useAuth();
-  const { 
-    signOut, 
-    user, 
-    updateUserProfile, 
-    deleteAccount, 
-    refreshUser 
+  const {
+    signOut,
+    user,
+    updateUserProfile,
+    deleteAccount,
+    refreshUser
   } = authContext || {};
 
   const [uploading, setUploading] = useState<boolean>(false);
@@ -88,12 +88,12 @@ const ProfileScreen: React.FC = () => {
   }, [user?.authType]);
 
   const { t } = useTranslation();
-  
+
   // ใช้ optional chaining และ default values
   const recentlyViewedContext = useRecentlyViewed();
-  const { 
-    recentlyViewed = [], 
-    clearRecentlyViewed 
+  const {
+    recentlyViewed = [],
+    clearRecentlyViewed
   } = recentlyViewedContext || {};
 
   // ใช้ useCallback เพื่อหลีกเลี่ยง re-render ที่ไม่จำเป็น
@@ -105,7 +105,7 @@ const ProfileScreen: React.FC = () => {
 
     try {
       setLoadingFavorites(true);
-      
+
       // ตรวจสอบว่า API function มีอยู่จริง
       if (typeof getUserFavorites !== 'function') {
         console.warn('getUserFavorites function is not available');
@@ -133,7 +133,7 @@ const ProfileScreen: React.FC = () => {
       setIsInitialized(true);
       if (user && !isGuest) {
         // Delay การเรียก API เล็กน้อยเพื่อให้ UI render เสร็จก่อน
-          fetchFavoritesCount();
+        fetchFavoritesCount();
       }
     });
 
@@ -144,9 +144,9 @@ const ProfileScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       if (!isInitialized) return;
-        if (user && !isGuest) {
-            fetchFavoritesCount();
-        }
+      if (user && !isGuest) {
+        fetchFavoritesCount();
+      }
     }, [isInitialized, refreshUser, user, isGuest, fetchFavoritesCount])
   );
 
@@ -185,7 +185,7 @@ const ProfileScreen: React.FC = () => {
 
   const handlePickImage = useCallback(async (): Promise<void> => {
     if (uploading) return;
-    
+
     const hasPermission = await requestPermission();
     if (!hasPermission) return;
 
@@ -238,7 +238,7 @@ const ProfileScreen: React.FC = () => {
 
   const handleUploadImage = useCallback(async (uri: string): Promise<void> => {
     if (uploading) return;
-    
+
     setUploading(true);
     try {
       const fileInfo = await FileSystem.getInfoAsync(uri);
@@ -319,11 +319,11 @@ const ProfileScreen: React.FC = () => {
           onPress: async () => {
             try {
               setUploading(true);
-              
+
               if (signOut && typeof signOut === 'function') {
                 await signOut();
               }
-              
+
               if (clearRecentlyViewed && typeof clearRecentlyViewed === 'function') {
                 await clearRecentlyViewed();
               }
@@ -392,13 +392,13 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar 
-        barStyle="dark-content" 
-        backgroundColor="#fff" 
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
         translucent={false}
       />
 
-      <ScrollView 
+      <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContentContainer}
         showsVerticalScrollIndicator={false}
@@ -417,8 +417,8 @@ const ProfileScreen: React.FC = () => {
                 <ActivityIndicator size="large" color="#0066cc" />
               </View>
             ) : (
-              <TouchableOpacity 
-                onPress={showPhotoOptions} 
+              <TouchableOpacity
+                onPress={showPhotoOptions}
                 activeOpacity={0.8}
                 disabled={isGuest}
                 style={styles.profileImageTouchable}
@@ -599,6 +599,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+
     // ลบ marginTop ออกแล้ว ใช้ SafeAreaView จัดการแทน
   },
   centerContent: {

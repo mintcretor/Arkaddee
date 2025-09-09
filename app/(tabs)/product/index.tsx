@@ -11,6 +11,7 @@ import {
     StatusBar,
     ImageSourcePropType,
     SafeAreaView,
+    Platform,
 } from 'react-native';
 import { GestureHandlerRootView, PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
@@ -350,6 +351,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+        marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
     },
     scrollView: {
         flex: 1,

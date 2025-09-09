@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     // ลบการใช้ paddingTop หรือ margin ที่อาจสร้างช่องว่าง
+   marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
   },
   safeArea: {
     flex: 1,
