@@ -521,6 +521,7 @@ export default {
     Fan: "พัดลม",
     Set: "กำหนด",
     GOOD: "ดี",
+        VERYGOOD: "ดีมาก",
     Excellent: "ยอดเยี่ยม",
     MODERATE: "ปานกลาง",
     POOR: "แย่",

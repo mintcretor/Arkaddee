@@ -472,7 +472,11 @@ const AddAddressScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
+      />
 
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -524,8 +528,8 @@ const AddAddressScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingTop: 20
+    marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+
   },
   header: {
     flexDirection: 'row',
@@ -546,7 +550,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color:'#000'
+    color: '#000'
   },
   rightPlaceholder: {
     width: 40,
@@ -561,7 +565,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingTop: 10,
-    color:'#000',
+    color: '#000',
     paddingBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -595,7 +599,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color:'#000'
+    color: '#000'
   },
   inputError: {
     borderColor: '#FF3B30',

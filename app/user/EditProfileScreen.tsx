@@ -409,7 +409,11 @@ const EditProfileScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar
+                barStyle="dark-content"
+                backgroundColor="#fff"
+                translucent={false}
+            />
 
             {/* Header */}
             <View style={styles.header}>
@@ -564,7 +568,7 @@ const EditProfileScreen = () => {
                                         </TouchableOpacity>
                                     </View>
                                     <View style={styles.iosDatePickerDivider} />
-                         
+
                                     <DateTimePicker
                                         value={selectedDate || new Date()}
                                         mode="date"
@@ -585,7 +589,7 @@ const EditProfileScreen = () => {
                             </View>
                         </Modal>
                     ) : (
-                       
+
                         <DateTimePicker
                             value={selectedDate && !isNaN(selectedDate.getTime()) ? selectedDate : new Date()}
                             mode="date"
@@ -628,7 +632,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f8f9fa',
-        paddingTop: 30
+        marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
     },
     iosDatePickerSheet: {
         backgroundColor: '#fff',

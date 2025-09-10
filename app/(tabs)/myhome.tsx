@@ -338,15 +338,16 @@ export default function ArkadDashboard() {
 
   return (
     <View style={styles.container}>
-       <StatusBar 
-             barStyle="dark-content" 
-             backgroundColor="#fff" 
-             translucent={false}
-           />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
+      />
       <ImageBackground
         source={require('@/assets/images/image.png')}
         style={styles.background}
         resizeMode="cover"
+        imageStyle={{ opacity: 0.5 }}
       >
         <Header />
         <SafeAreaView style={styles.overlay}>
@@ -412,10 +413,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
   },
   background: {
     flex: 1,
+
   },
   overlay: {
     flex: 1,

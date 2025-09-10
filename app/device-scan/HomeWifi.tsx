@@ -170,7 +170,11 @@ export default function HomeProduct() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidView}
@@ -237,7 +241,7 @@ export default function HomeProduct() {
             <Text style={styles.modalTitle}>{t('myhome.Devicepassword')}</Text>
             <Text style={styles.modalDesc}>{t('myhome.note_password')}</Text>
             <TextInput
-              style={[styles.input, deviceCodeError && { borderColor: '#FF3B30',color:'#000' }]}
+              style={[styles.input, deviceCodeError && { borderColor: '#FF3B30', color: '#000' }]}
               placeholder={t('myhome.Devicepassword')}
               placeholderTextColor="#999"
               value={deviceCode}
@@ -277,8 +281,7 @@ export default function HomeProduct() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
     backgroundColor: '#fff'
   },
   keyboardAvoidView: {
@@ -435,7 +438,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderWidth: 1,
     borderColor: '#ddd',
-    color:'#000',
+    color: '#000',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,

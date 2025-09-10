@@ -13,6 +13,7 @@ import {
     ScrollView,
     Modal,
     Dimensions,
+    Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -229,7 +230,11 @@ const ReviewsFeedScreen = () => {
                 onRequestClose={closeImageModal}
             >
                 <View style={styles.modalContainer}>
-                    <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.9)" />
+                     <StatusBar 
+                                  barStyle="dark-content" 
+                                  backgroundColor="#fff" 
+                                  translucent={false}
+                                />
                     <View style={styles.modalHeader}>
                         <TouchableOpacity
                             style={styles.closeButton}
@@ -353,7 +358,11 @@ const ReviewsFeedScreen = () => {
     if (loading) {
         return (
             <View style={styles.container}>
-                <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+                <StatusBar 
+                             barStyle="dark-content" 
+                             backgroundColor="#fff" 
+                             translucent={false}
+                           />
                 <SafeAreaView style={styles.safeArea}>
                     <Header />
                     <View style={styles.centerContainer}>
@@ -366,7 +375,11 @@ const ReviewsFeedScreen = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+            <StatusBar
+                barStyle="dark-content"
+                backgroundColor="#fff"
+                translucent={false}
+            />
             <SafeAreaView style={styles.safeArea}>
                 <Header />
 
@@ -425,10 +438,11 @@ const ReviewsFeedScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
     },
     safeArea: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight || 30,
+        backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
     },
     headerContainer: {
         paddingHorizontal: 16,
@@ -436,8 +450,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
-        marginLeft:20,
-        marginRight:20
+        marginLeft: 20,
+        marginRight: 20
     },
     backButton: {
         flexDirection: 'row',
@@ -460,7 +474,7 @@ const styles = StyleSheet.create({
         padding: 16,
         elevation: 2,
         shadowColor: '#000',
-        color:'#000',
+        color: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -567,7 +581,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        color:'#000'
+        color: '#000'
     },
     emptyContainer: {
         flex: 1,

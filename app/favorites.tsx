@@ -12,7 +12,8 @@ import {
   Alert,
   SafeAreaView,
   StatusBar,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -239,8 +240,11 @@ const FavoritesScreen = () => {
   if (loading && favorites.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
+ <StatusBar 
+              barStyle="dark-content" 
+              backgroundColor="#fff" 
+              translucent={false}
+            />
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
@@ -357,8 +361,8 @@ const FavoritesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
-    marginTop: StatusBar.currentHeight || 0,
+
+   marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
   },
   header: {
     flexDirection: 'row',

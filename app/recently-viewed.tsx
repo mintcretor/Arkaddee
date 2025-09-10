@@ -155,7 +155,11 @@ const RecentlyViewedScreen = () => {
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+             <StatusBar
+                       barStyle="dark-content"
+                       backgroundColor="#fff"
+                       translucent={false}
+                     />
                 <SafeAreaView style={styles.safeArea}>
                     <Header />
                     <View style={styles.centerContainer}>
@@ -230,10 +234,10 @@ const RecentlyViewedScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+         marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
     },
     safeArea: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight || 30,
     },
     headerContainer: {
         paddingHorizontal: 16,
