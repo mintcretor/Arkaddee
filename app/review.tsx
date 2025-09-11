@@ -20,10 +20,11 @@ import { router } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { BASEAPI_CONFIG } from '@/config';
 import Header from '@/components/Header';
-import { fetchUserReviews, deleteReview } from '@/api/reviewService'; // Mock API function
+import { fetchUserReviews, deleteReview } from '@/api/reviewService';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from 'expo-router';
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-import { useFocusEffect } from 'expo-router'; // หรือจาก @react-navigation/native
 
 const ReviewsFeedScreen = () => {
     const { user } = useAuth();
@@ -40,25 +41,39 @@ const ReviewsFeedScreen = () => {
     useEffect(() => {
         loadReviews();
     }, []);
+
     useFocusEffect(
         React.useCallback(() => {
             loadReviews();
         }, [])
     );
+
     const loadReviews = async () => {
         try {
             setLoading(true);
-            // ในแอปจริงจะเรียก API ดึงรีวิวของผู้ใช้
-            const response = await fetchUserReviews(user.id);
-            //console.log('Fetched reviews:', response.data.reviews);
-
-            // ใช้ mock data ก่อน
-            setTimeout(() => {
-                setReviews(response.data.reviews);
+            
+            // ตรวจสอบว่า user มีค่าหรือไม่
+            if (!user || !user.id) {
+                console.log('User not found or user.id is undefined');
+                setReviews([]);
                 setLoading(false);
-            }, 1000);
+                return;
+            }
+
+            const response = await fetchUserReviews(user.id);
+            
+            // ตรวจสอบ response structure
+            if (response && response.data && Array.isArray(response.data.reviews)) {
+                setReviews(response.data.reviews);
+            } else {
+                console.log('Invalid response structure:', response);
+                setReviews([]);
+            }
+            
+            setLoading(false);
         } catch (error) {
             console.error('Error loading reviews:', error);
+            setReviews([]);
             setLoading(false);
         }
     };
@@ -69,24 +84,38 @@ const ReviewsFeedScreen = () => {
     }, []);
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+        try {
+            if (!dateString) return t('reviews.justPosted') || 'เพิ่งโพสต์';
+            
+            const date = new Date(dateString);
+            
+            // ตรวจสอบว่า date ถูกต้องหรือไม่
+            if (isNaN(date.getTime())) {
+                return t('reviews.justPosted') || 'เพิ่งโพสต์';
+            }
+            
+            const now = new Date();
+            const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
 
-        if (diffInHours < 24) {
-            return diffInHours === 0
-                ? t('reviews.justPosted') // ตัวอย่าง key: "เพิ่งโพสต์"
-                : t('reviews.hoursAgo', { count: diffInHours }); // ตัวอย่าง key: "{{count}} ชั่วโมงที่แล้ว"
-        } else {
-            const diffInDays = Math.floor(diffInHours / 24);
-            return t('reviews.daysAgo', { count: diffInDays }); // ตัวอย่าง key: "{{count}} วันที่แล้ว"
+            if (diffInHours < 24) {
+                return diffInHours === 0
+                    ? t('reviews.justPosted') || 'เพิ่งโพสต์'
+                    : t('reviews.hoursAgo', { count: diffInHours }) || `${diffInHours} ชั่วโมงที่แล้ว`;
+            } else {
+                const diffInDays = Math.floor(diffInHours / 24);
+                return t('reviews.daysAgo', { count: diffInDays }) || `${diffInDays} วันที่แล้ว`;
+            }
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return t('reviews.justPosted') || 'เพิ่งโพสต์';
         }
     };
 
     const renderStars = (rating) => {
         const stars = [];
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 !== 0;
+        const safeRating = rating || 0;
+        const fullStars = Math.floor(safeRating);
+        const hasHalfStar = safeRating % 1 !== 0;
 
         for (let i = 0; i < fullStars; i++) {
             stars.push(
@@ -100,7 +129,7 @@ const ReviewsFeedScreen = () => {
             );
         }
 
-        const emptyStars = 5 - Math.ceil(rating);
+        const emptyStars = 5 - Math.ceil(safeRating);
         for (let i = 0; i < emptyStars; i++) {
             stars.push(
                 <Ionicons key={`empty-${i}`} name="star-outline" size={16} color="#DDD" />
@@ -112,20 +141,20 @@ const ReviewsFeedScreen = () => {
 
     const showReviewOptions = (reviewId) => {
         Alert.alert(
-            t('reviews.optionsTitle'),
-            t('reviews.optionsMessage'),
+            t('reviews.optionsTitle') || 'ตัวเลือก',
+            t('reviews.optionsMessage') || 'เลือกการดำเนินการ',
             [
                 {
-                    text: t('reviews.edit'),
+                    text: t('reviews.edit') || 'แก้ไข',
                     onPress: () => handleEditReview(reviewId)
                 },
                 {
-                    text: t('reviews.delete'),
+                    text: t('reviews.delete') || 'ลบ',
                     style: 'destructive',
                     onPress: () => handleDeleteReview(reviewId)
                 },
                 {
-                    text: t('common.cancel'),
+                    text: t('common.cancel') || 'ยกเลิก',
                     style: 'cancel'
                 }
             ]
@@ -133,28 +162,38 @@ const ReviewsFeedScreen = () => {
     };
 
     const handleEditReview = (reviewId) => {
-        console.log(reviewId)
-        // นำทางไปหน้าแก้ไขรีวิว
-        router.push(`/reviews/edit/${reviewId}`);
+        try {
+            console.log('Edit review:', reviewId);
+            router.push(`/reviews/edit/${reviewId}`);
+        } catch (error) {
+            console.error('Error navigating to edit review:', error);
+        }
     };
 
     const handleDeleteReview = async (reviewId) => {
         Alert.alert(
-            t('reviews.deleteTitle'),
-            t('reviews.deleteMessage'),
+            t('reviews.deleteTitle') || 'ลบรีวิว',
+            t('reviews.deleteMessage') || 'คุณต้องการลบรีวิวนี้หรือไม่?',
             [
-                { text: t('common.cancel'), style: 'cancel' },
+                { text: t('common.cancel') || 'ยกเลิก', style: 'cancel' },
                 {
-                    text: t('reviews.delete'),
+                    text: t('reviews.delete') || 'ลบ',
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            await deleteReview(reviewId); // เรียก API ลบ
-                            setReviews(prev => prev.filter(review => review.id !== reviewId));
+                            await deleteReview(reviewId);
+                            setReviews(prev => prev.filter(review => review.review_id !== reviewId));
                             loadReviews();
-                            Alert.alert(t('reviews.deleteSuccess'), t('reviews.deleteSuccessMessage'));
+                            Alert.alert(
+                                t('reviews.deleteSuccess') || 'ลบสำเร็จ',
+                                t('reviews.deleteSuccessMessage') || 'ลบรีวิวเรียบร้อยแล้ว'
+                            );
                         } catch (error) {
-                            Alert.alert(t('myhome.Error'), t('myhome.Errorno'));
+                            console.error('Error deleting review:', error);
+                            Alert.alert(
+                                t('myhome.Error') || 'เกิดข้อผิดพลาด',
+                                t('myhome.Errorno') || 'ไม่สามารถลบรีวิวได้'
+                            );
                         }
                     }
                 }
@@ -164,6 +203,9 @@ const ReviewsFeedScreen = () => {
 
     // Image Modal Functions
     const openImageModal = (images, startIndex = 0) => {
+        if (!images || !Array.isArray(images) || images.length === 0) {
+            return;
+        }
         setSelectedImages(images);
         setCurrentImageIndex(startIndex);
         setIsImageModalVisible(true);
@@ -188,6 +230,10 @@ const ReviewsFeedScreen = () => {
     };
 
     const renderImageGallery = (images) => {
+        if (!images || !Array.isArray(images) || images.length === 0) {
+            return null;
+        }
+
         return (
             <ScrollView
                 horizontal
@@ -206,11 +252,14 @@ const ReviewsFeedScreen = () => {
                     >
                         <Image
                             source={{
-                                uri: `${image}`
+                                uri: image || 'https://via.placeholder.com/80x80?text=No+Image'
                             }}
                             style={styles.reviewImage}
                             defaultSource={{
                                 uri: 'https://via.placeholder.com/80x80?text=No+Image'
+                            }}
+                            onError={(e) => {
+                                console.log('Image load error:', e.nativeEvent.error);
                             }}
                         />
                     </TouchableOpacity>
@@ -231,9 +280,9 @@ const ReviewsFeedScreen = () => {
             >
                 <View style={styles.modalContainer}>
                     <StatusBar
-                        barStyle="dark-content"
-                        backgroundColor="#fff"
-                        translucent={false}
+                        barStyle="light-content"
+                        backgroundColor="rgba(0, 0, 0, 0.9)"
+                        translucent={true}
                     />
                     <View style={styles.modalHeader}>
                         <TouchableOpacity
@@ -250,9 +299,14 @@ const ReviewsFeedScreen = () => {
 
                     <View style={styles.imageContainer}>
                         <Image
-                            source={{ uri: selectedImages[currentImageIndex] }}
+                            source={{ 
+                                uri: selectedImages[currentImageIndex] || 'https://via.placeholder.com/300x300?text=No+Image' 
+                            }}
                             style={styles.fullScreenImage}
                             resizeMode="contain"
+                            onError={(e) => {
+                                console.log('Modal image load error:', e.nativeEvent.error);
+                            }}
                         />
                     </View>
 
@@ -299,61 +353,74 @@ const ReviewsFeedScreen = () => {
         );
     };
 
-    const renderReviewItem = ({ item }) => (
-        <View style={styles.reviewCard}>
-            {/* Header */}
-            <View style={styles.reviewHeader}>
-                <View style={styles.userInfo}>
-                    <Image
-                        source={{
-                            uri: user?.photoURL || 'https://via.placeholder.com/40x40?text=U'
-                        }}
-                        style={styles.userAvatar}
-                    />
-                    <View style={styles.userDetails}>
-                        <Text style={styles.userName}>
-                            {user?.displayName || user?.username || 'Test'}
-                        </Text>
-                        <Text style={styles.reviewDate}>
-                            {formatDate(item.created_at)}
-                        </Text>
+    const renderReviewItem = ({ item }) => {
+        if (!item) return null;
+
+        return (
+            <View style={styles.reviewCard}>
+                {/* Header */}
+                <View style={styles.reviewHeader}>
+                    <View style={styles.userInfo}>
+                        <Image
+                            source={{
+                                uri: user?.photoURL || 'https://via.placeholder.com/40x40?text=U'
+                            }}
+                            style={styles.userAvatar}
+                            onError={(e) => {
+                                console.log('Avatar load error:', e.nativeEvent.error);
+                            }}
+                        />
+                        <View style={styles.userDetails}>
+                            <Text style={styles.userName}>
+                                {user?.displayName || user?.username || 'Test'}
+                            </Text>
+                            <Text style={styles.reviewDate}>
+                                {formatDate(item.created_at)}
+                            </Text>
+                        </View>
                     </View>
+
+                    <TouchableOpacity
+                        style={styles.menuButton}
+                        onPress={() => showReviewOptions(item.review_id)}
+                    >
+                        <Ionicons name="ellipsis-vertical" size={20} color="#666" />
+                    </TouchableOpacity>
                 </View>
 
-
+                {/* Restaurant Info */}
                 <TouchableOpacity
-                    style={styles.menuButton}
-                    onPress={() => showReviewOptions(item.review_id)}
+                    style={styles.restaurantInfo}
+                    onPress={() => {
+                        try {
+                            router.push({
+                                pathname: `/places/details`,
+                                params: { id: item.store_id }
+                            });
+                        } catch (error) {
+                            console.error('Navigation error:', error);
+                        }
+                    }}
                 >
-                    <Ionicons name="ellipsis-vertical" size={20} color="#666" />
-                </TouchableOpacity>
-            </View>
-
-            {/* Restaurant Info */}
-            <TouchableOpacity
-                style={styles.restaurantInfo}
-                onPress={() => router.push({
-                    pathname: `/places/details`,
-                    params: { id: item.store_id }
-                })}
-            >
-                <Text style={styles.restaurantName}>{item.store_name}</Text>
-                <View style={styles.ratingContainer}>
-                    <View style={styles.starsContainer}>
-                        {renderStars(item.rating)}
+                    <Text style={styles.restaurantName}>{item.store_name || 'ร้านอาหาร'}</Text>
+                    <View style={styles.ratingContainer}>
+                        <View style={styles.starsContainer}>
+                            {renderStars(item.rating)}
+                        </View>
+                        <Text style={styles.ratingText}>{item.rating || 0}</Text>
                     </View>
-                    <Text style={styles.ratingText}>{item.rating}</Text>
-                </View>
-            </TouchableOpacity>
-            {/* Images */}
-            {item.images && item.images.length > 0 && (
-                renderImageGallery(item.images)
-            )}
+                </TouchableOpacity>
 
-            {/* Review Text */}
-            <Text style={styles.reviewComment}>{item.review_text}</Text>
-        </View>
-    );
+                {/* Images */}
+                {item.images && item.images.length > 0 && (
+                    renderImageGallery(item.images)
+                )}
+
+                {/* Review Text */}
+                <Text style={styles.reviewComment}>{item.review_text || ''}</Text>
+            </View>
+        );
+    };
 
     if (loading) {
         return (
@@ -364,7 +431,6 @@ const ReviewsFeedScreen = () => {
                     translucent={false}
                 />
                 <SafeAreaView style={styles.safeArea}>
-
                     <View style={styles.header}>
                         <TouchableOpacity
                             style={styles.backButtons}
@@ -372,12 +438,14 @@ const ReviewsFeedScreen = () => {
                         >
                             <Ionicons name="arrow-back" size={24} color="#333" />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>{t('reviews.review')}</Text>
-                        <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
+                        <Text style={styles.headerTitle}>
+                            {t('reviews.review') || 'รีวิวของฉัน'}
+                        </Text>
+                        <View style={{ width: 24 }} />
                     </View>
 
                     <View style={styles.centerContainer}>
-                        <Text>{t('reviews.loading')}</Text>
+                        <Text>{t('reviews.loading') || 'กำลังโหลด...'}</Text>
                     </View>
                 </SafeAreaView>
             </View>
@@ -392,7 +460,6 @@ const ReviewsFeedScreen = () => {
                 translucent={false}
             />
             <SafeAreaView style={styles.safeArea}>
-
                 <View style={styles.header}>
                     <TouchableOpacity
                         style={styles.backButtons}
@@ -400,24 +467,34 @@ const ReviewsFeedScreen = () => {
                     >
                         <Ionicons name="arrow-back" size={24} color="#333" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>{t('reviews.review')}</Text>
-                    <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
+                    <Text style={styles.headerTitle}>
+                        {t('reviews.review') || 'รีวิวของฉัน'}
+                    </Text>
+                    <View style={{ width: 24 }} />
                 </View>
 
                 {reviews.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <Ionicons name="chatbubbles-outline" size={80} color="#E0E0E0" />
-                        <Text style={styles.emptyText}>{t('reviews.noReviews')}</Text>
+                        <Text style={styles.emptyText}>
+                            {t('reviews.noReviews') || 'ยังไม่มีรีวิว'}
+                        </Text>
                         <Text style={styles.emptySubtext}>
-                            {t('reviews.noReviewsSubtext')}
+                            {t('reviews.noReviewsSubtext') || 'เริ่มเขียนรีวิวร้านอาหารที่คุณชอบ'}
                         </Text>
                         <TouchableOpacity
                             style={styles.exploreButton}
-                            onPress={() => router.push('/(tabs)/home')}
+                            onPress={() => {
+                                try {
+                                    router.push('/(tabs)/home');
+                                } catch (error) {
+                                    console.error('Navigation error:', error);
+                                }
+                            }}
                         >
                             <Ionicons name="search" size={20} color="#fff" />
                             <Text style={styles.exploreButtonText}>
-                                {t('favorite.SearchRestaurants')}
+                                {t('favorite.SearchRestaurants') || 'ค้นหาร้านอาหาร'}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -425,7 +502,7 @@ const ReviewsFeedScreen = () => {
                     <FlatList
                         data={reviews}
                         renderItem={renderReviewItem}
-                        keyExtractor={(item) => item.review_id.toString()}
+                        keyExtractor={(item, index) => item?.review_id?.toString() || index.toString()}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.listContainer}
                         refreshControl={
@@ -448,11 +525,12 @@ const ReviewsFeedScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+        backgroundColor: '#f8f9fa',
+        marginTop: Platform.OS === 'ios' ? 40 : 0,
     },
     safeArea: {
         flex: 1,
-        backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
+        backgroundColor: 'transparent',
     },
     header: {
         flexDirection: 'row',
@@ -479,25 +557,6 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'center',
     },
-    headerContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-        marginLeft: 20,
-        marginRight: 20
-    },
-    backButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    backText: {
-        marginLeft: 8,
-        fontSize: 18,
-        color: '#000',
-        fontWeight: '600',
-    },
     listContainer: {
         paddingBottom: 20,
     },
@@ -509,7 +568,6 @@ const styles = StyleSheet.create({
         padding: 16,
         elevation: 2,
         shadowColor: '#000',
-        color: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -592,31 +650,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#333',
         lineHeight: 20,
-        marginBottom: 16,
-    },
-    reviewActions: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-        paddingTop: 12,
-    },
-    actionButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 4,
-        paddingHorizontal: 8,
-    },
-    actionText: {
-        marginLeft: 4,
-        fontSize: 14,
-        color: '#666',
+        marginBottom: 8,
     },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        color: '#000'
     },
     emptyContainer: {
         flex: 1,
@@ -662,7 +701,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: 50,
+        paddingTop: Platform.OS === 'ios' ? 50 : 30,
         paddingBottom: 20,
     },
     closeButton: {

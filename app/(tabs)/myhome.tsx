@@ -396,7 +396,7 @@ export default function ArkadDashboard() {
 
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2EE3DA" />
+          <ActivityIndicator size="large" />
           <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
         </View>
       )}
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    //backgroundColor: '#FFF',
     marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
   },
   background: {
