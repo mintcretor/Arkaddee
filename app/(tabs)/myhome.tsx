@@ -347,7 +347,6 @@ export default function ArkadDashboard() {
         source={require('@/assets/images/image.png')}
         style={styles.background}
         resizeMode="cover"
-        imageStyle={{ opacity: 0.5 }}
       >
         <Header />
         <SafeAreaView style={styles.overlay}>
@@ -421,6 +420,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   scrollContent: {
     paddingBottom: 90,
