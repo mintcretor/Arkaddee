@@ -230,11 +230,11 @@ const ReviewsFeedScreen = () => {
                 onRequestClose={closeImageModal}
             >
                 <View style={styles.modalContainer}>
-                     <StatusBar 
-                                  barStyle="dark-content" 
-                                  backgroundColor="#fff" 
-                                  translucent={false}
-                                />
+                    <StatusBar
+                        barStyle="dark-content"
+                        backgroundColor="#fff"
+                        translucent={false}
+                    />
                     <View style={styles.modalHeader}>
                         <TouchableOpacity
                             style={styles.closeButton}
@@ -358,13 +358,24 @@ const ReviewsFeedScreen = () => {
     if (loading) {
         return (
             <View style={styles.container}>
-                <StatusBar 
-                             barStyle="dark-content" 
-                             backgroundColor="#fff" 
-                             translucent={false}
-                           />
+                <StatusBar
+                    barStyle="dark-content"
+                    backgroundColor="#fff"
+                    translucent={false}
+                />
                 <SafeAreaView style={styles.safeArea}>
-                    <Header />
+
+                    <View style={styles.header}>
+                        <TouchableOpacity
+                            style={styles.backButtons}
+                            onPress={() => router.back()}
+                        >
+                            <Ionicons name="arrow-back" size={24} color="#333" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>{t('reviews.review')}</Text>
+                        <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
+                    </View>
+
                     <View style={styles.centerContainer}>
                         <Text>{t('reviews.loading')}</Text>
                     </View>
@@ -381,17 +392,16 @@ const ReviewsFeedScreen = () => {
                 translucent={false}
             />
             <SafeAreaView style={styles.safeArea}>
-                <Header />
 
-                {/* Back Button */}
-                <View style={styles.headerContainer}>
+                <View style={styles.header}>
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={styles.backButtons}
                         onPress={() => router.back()}
                     >
-                        <Ionicons name="arrow-back" size={24} color="#000" />
-                        <Text style={styles.backText}>{t('common.back')}</Text>
+                        <Ionicons name="arrow-back" size={24} color="#333" />
                     </TouchableOpacity>
+                    <Text style={styles.headerTitle}>{t('reviews.review')}</Text>
+                    <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
                 </View>
 
                 {reviews.length === 0 ? (
@@ -443,6 +453,31 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e9ecef',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    backButtons: {
+        padding: 8,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333',
+        flex: 1,
+        textAlign: 'center',
     },
     headerContainer: {
         paddingHorizontal: 16,

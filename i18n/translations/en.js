@@ -561,6 +561,9 @@ export default {
     save: "Save",
   },
   reviews: {
+    reviews: "Reviews",
+    review: "Review",
+    rating: "Rating",
     justPosted: "Just posted",
     hoursAgo: "{{count}} hours ago",
     daysAgo: "{{count}} days ago",

@@ -548,6 +548,9 @@ export default {
     save: "บันทึก",
   },
   reviews: {
+    reviews: "รีวิว",
+    review: "รีวิว",
+    rating: "คะแนน",
     justPosted: "เพิ่งโพสต์",
     hoursAgo: "{{count}} ชั่วโมงที่แล้ว",
     daysAgo: "{{count}} วันที่แล้ว",

@@ -155,13 +155,22 @@ const RecentlyViewedScreen = () => {
     if (isLoading) {
         return (
             <View style={styles.container}>
-             <StatusBar
-                       barStyle="dark-content"
-                       backgroundColor="#fff"
-                       translucent={false}
-                     />
+                <StatusBar
+                    barStyle="dark-content"
+                    backgroundColor="#fff"
+                    translucent={false}
+                />
                 <SafeAreaView style={styles.safeArea}>
-                    <Header />
+                    <View style={styles.headerContainer}>
+                        <TouchableOpacity
+                            style={styles.backButton}
+                            onPress={() => router.back()}>
+                            <Ionicons name="arrow-back" size={24} color="#000" />
+                            <Text style={styles.backText}>
+                                {t('common.back')}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                     <View style={styles.centerContainer}>
                         <Text>{t('common.loading')}</Text>
                     </View>
@@ -234,7 +243,7 @@ const RecentlyViewedScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-         marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+        marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
     },
     safeArea: {
         flex: 1,
