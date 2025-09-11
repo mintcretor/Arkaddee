@@ -348,8 +348,9 @@ export default function ArkadDashboard() {
         style={styles.background}
         resizeMode="cover"
       >
-        <Header />
         <SafeAreaView style={styles.overlay}>
+        <Header />
+        
           <FlatList
             data={devices}
             keyExtractor={(item) => item.id}
@@ -396,7 +397,7 @@ export default function ArkadDashboard() {
 
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color="#2EE3DA" />
           <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
         </View>
       )}
@@ -411,7 +412,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    //backgroundColor: '#FFF',
+    backgroundColor: '#FFF',
     marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
   },
   background: {
