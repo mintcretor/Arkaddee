@@ -343,14 +343,13 @@ export default function ArkadDashboard() {
         backgroundColor="#fff"
         translucent={false}
       />
-      <ImageBackground
-        source={require('@/assets/images/image.png')}
-        style={styles.background}
-        resizeMode="cover"
-      >
-        <SafeAreaView style={styles.overlay}>
-        <Header />
-        
+      <SafeAreaView style={styles.overlay}>
+        <ImageBackground
+          source={require('@/assets/images/image.png')}
+          style={styles.background}
+          resizeMode="cover"
+        >
+          <Header />
           <FlatList
             data={devices}
             keyExtractor={(item) => item.id}
@@ -392,9 +391,8 @@ export default function ArkadDashboard() {
               />
             }
           />
-        </SafeAreaView>
-      </ImageBackground>
-
+        </ImageBackground>
+      </SafeAreaView>
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#2EE3DA" />
