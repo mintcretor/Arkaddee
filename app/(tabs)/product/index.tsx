@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-        marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+        marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
     },
     scrollView: {
         flex: 1,

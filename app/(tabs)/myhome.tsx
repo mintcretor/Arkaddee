@@ -413,11 +413,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
   },
   background: {
     flex: 1,
-
   },
   overlay: {
     flex: 1,
@@ -425,12 +424,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 90,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
   },
   logo: {
     width: 100,
