@@ -339,16 +339,16 @@ export default function ArkadDashboard() {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-        translucent={false}
+        barStyle="light-content"  // เปลี่ยนเป็น light-content
+        backgroundColor="transparent"  // เปลี่ยนเป็น transparent
+        translucent={true}  // เปลี่ยนเป็น true
       />
-      <SafeAreaView style={styles.overlay}>
-        <ImageBackground
-          source={require('@/assets/images/image.png')}
-          style={styles.background}
-          resizeMode="cover"
-        >
+      <ImageBackground
+        source={require('@/assets/images/image.png')}
+        style={styles.backgroundImage}  // เปลี่ยน style
+        resizeMode="cover"
+      >
+        <SafeAreaView style={styles.overlay}>
           <Header />
           <FlatList
             data={devices}
@@ -391,8 +391,8 @@ export default function ArkadDashboard() {
               />
             }
           />
-        </ImageBackground>
-      </SafeAreaView>
+        </SafeAreaView>
+      </ImageBackground>
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#2EE3DA" />
@@ -401,6 +401,7 @@ export default function ArkadDashboard() {
       )}
     </View>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -410,8 +411,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
-    marginTop: Platform.OS === 'ios' ? 40 : 0, // ปรับถ้าจำเป็น
+    backgroundColor: '#000',
+  },
+  backgroundImage: {  // เพิ่ม style ใหม่
+    flex: 1,
+    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight, // เพิ่ม padding top
   },
   background: {
     flex: 1,
