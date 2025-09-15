@@ -337,70 +337,70 @@ export default function ArkadDashboard() {
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar
-        barStyle="light-content"  // เปลี่ยนเป็น light-content
-        backgroundColor="transparent"  // เปลี่ยนเป็น transparent
-        translucent={true}  // เปลี่ยนเป็น true
-      />
-      <ImageBackground
-        source={require('@/assets/images/image.png')}
-        style={styles.backgroundImage}  // เปลี่ยน style
-        resizeMode="cover"
-      >
-        <SafeAreaView style={styles.overlay}>
-          <Header />
-          <FlatList
-            data={devices}
-            keyExtractor={(item) => item.id}
-            renderItem={renderDeviceItem}
-            ListHeaderComponent={renderHeader()}
-            ListFooterComponent={
-              <TouchableOpacity
-                style={styles.addDeviceButton}
-                onPress={() => {
-                  if (!user || user.authType === 'guest') {
-                    Alert.alert(
-                      t('common.guestTitle'),
-                      t('common.guestMyhome'),
-                      [
-                        { text: t('common.cancel'), style: 'cancel' },
-                        { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
-                      ]
-                    );
-                    return;
-                  }
-                  router.push('/device-scan/HomeWifi');
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.addButtonIcon}>
-                  <Text style={styles.addButtonPlus}>+</Text>
-                </View>
-                <Text style={styles.addButtonText}>{t('myhome.Add_new_device')}</Text>
-              </TouchableOpacity>
-            }
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={loadDevices}
-                colors={['#2EE3DA']}
-                tintColor="#2EE3DA"
-              />
-            }
-          />
-        </SafeAreaView>
-      </ImageBackground>
-      {isLoading && !refreshing && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2EE3DA" />
-          <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
-        </View>
-      )}
-    </View>
-  );
+  <View style={styles.container}>
+    <StatusBar
+      barStyle="light-content"  // เปลี่ยนเป็น light-content
+      backgroundColor="transparent"  // เปลี่ยนเป็น transparent
+      translucent={true}  // เปลี่ยนเป็น true
+    />
+    <ImageBackground
+      source={require('@/assets/images/image.png')}
+      style={styles.backgroundImage}  // เปลี่ยน style
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.overlay}>
+        <Header />
+        <FlatList
+          data={devices}
+          keyExtractor={(item) => item.id}
+          renderItem={renderDeviceItem}
+          ListHeaderComponent={renderHeader()}
+          ListFooterComponent={
+            <TouchableOpacity
+              style={styles.addDeviceButton}
+              onPress={() => {
+                if (!user || user.authType === 'guest') {
+                  Alert.alert(
+                    t('common.guestTitle'),
+                    t('common.guestMyhome'),
+                    [
+                      { text: t('common.cancel'), style: 'cancel' },
+                      { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
+                    ]
+                  );
+                  return;
+                }
+                router.push('/device-scan/HomeWifi');
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={styles.addButtonIcon}>
+                <Text style={styles.addButtonPlus}>+</Text>
+              </View>
+              <Text style={styles.addButtonText}>{t('myhome.Add_new_device')}</Text>
+            </TouchableOpacity>
+          }
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={loadDevices}
+              colors={['#2EE3DA']}
+              tintColor="#2EE3DA"
+            />
+          }
+        />
+      </SafeAreaView>
+    </ImageBackground>
+    {isLoading && !refreshing && (
+      <View style={styles.loadingOverlay}>
+        <ActivityIndicator size="large" color="#2EE3DA" />
+        <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
+      </View>
+    )}
+  </View>
+);
 
 }
 
@@ -411,11 +411,11 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#000',
+   backgroundColor: '#000',
   },
   backgroundImage: {  // เพิ่ม style ใหม่
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight, // เพิ่ม padding top
+    paddingTop: Platform.OS === 'ios' ? 40 : 0, // เพิ่ม padding top
   },
   background: {
     flex: 1,

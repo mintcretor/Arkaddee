@@ -702,10 +702,11 @@ const ShopDetails = () => {
                                     <Text style={styles.infoText}> {restaurantsData.price_range} </Text>
                                 </View>
                             </View>
-
-                            <View style={styles.infoItem}>
-                                <Ionicons name="restaurant-outline" size={20} color="#666" />
-                                <Text style={styles.infoText}>{restaurantsData.types.map(c => c.name)}</Text>
+                            <View style={styles.infoRow}>
+                                <View style={styles.infoItem}>
+                                    <Ionicons name="grid-outline" size={20} color="#666" />
+                                    <Text style={styles.infoText}>{restaurantsData.types.map(c => c.name)}</Text>
+                                </View>
                             </View>
                             <View style={styles.cuisinesContainer}>
                                 <Ionicons name="cafe-outline" size={20} color="#666" />
@@ -1095,7 +1096,7 @@ const styles = StyleSheet.create({
     addressContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 12,
+        marginBottom: 5,
         paddingHorizontal: 5,
     },
     addressText: {
@@ -1114,6 +1115,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
+         marginTop: 2,
     },
     infoText: {
         fontSize: 14,
