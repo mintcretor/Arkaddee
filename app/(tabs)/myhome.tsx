@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {  // เพิ่ม style ใหม่
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 40 : 0, // เพิ่ม padding top
+    paddingTop: Platform.OS === 'ios' ? 30 : 0, // เพิ่ม padding top
   },
   background: {
     flex: 1,
