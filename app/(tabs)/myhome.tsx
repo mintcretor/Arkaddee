@@ -349,9 +349,9 @@ export default function ArkadDashboard() {
       />
 
 
-
+      <Header />
       <SafeAreaView style={styles.overlay}>
-        <Header />
+
         <FlatList
           data={devices}
           keyExtractor={(item) => item.id}
