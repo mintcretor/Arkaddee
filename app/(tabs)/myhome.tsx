@@ -184,7 +184,7 @@ export default function ArkadDashboard() {
     } catch (error) {
       console.error('Error loading devices:', error);
       Alert.alert(t('common.error'), t('myhome.failed_to_load_devices_and_connect_server'));
-      setPrimaryDeviceData({ pm25: 0, temperature: 0, humidity: 0, co2: 0,status: 'offline' });
+      setPrimaryDeviceData({ pm25: 0, temperature: 0, humidity: 0, co2: 0, status: 'offline' });
       setDevices([]);
     } finally {
       setIsLoading(false);
@@ -233,7 +233,7 @@ export default function ArkadDashboard() {
           <Text style={styles.deviceName}>{item.name}</Text>
           <View style={styles.pmDisplayOuter1}>
             <View style={styles.pmDisplayInner1}>
-              <Text style={styles.pmValue1} >{ item.status === 'online' ? item.data.pm25 : '-' }</Text>
+              <Text style={styles.pmValue1} >{item.status === 'online' ? item.data.pm25 : '-'}</Text>
               <Text style={styles.pmUnit1}>μg/m³</Text>
             </View>
             <View style={styles.pmRing1} />
@@ -348,58 +348,53 @@ export default function ArkadDashboard() {
         translucent={true}  // เปลี่ยนเป็น true
       />
 
+
+
       <SafeAreaView style={styles.overlay}>
-        <ImageBackground
-          source={require('@/assets/images/image.png')}
-          style={styles.backgroundImage}  // เปลี่ยน style
-          resizeMode="cover"
-        >
-          <View style={styles.overlay}>
-            <Header />
-            <FlatList
-              data={devices}
-              keyExtractor={(item) => item.id}
-              renderItem={renderDeviceItem}
-              ListHeaderComponent={renderHeader()}
-              ListFooterComponent={
-                <TouchableOpacity
-                  style={styles.addDeviceButton}
-                  onPress={() => {
-                    if (!user || user.authType === 'guest') {
-                      Alert.alert(
-                        t('common.guestTitle'),
-                        t('common.guestMyhome'),
-                        [
-                          { text: t('common.cancel'), style: 'cancel' },
-                          { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
-                        ]
-                      );
-                      return;
-                    }
-                    router.push('/device-scan/HomeWifi');
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.addButtonIcon}>
-                    <Text style={styles.addButtonPlus}>+</Text>
-                  </View>
-                  <Text style={styles.addButtonText}>{t('myhome.Add_new_device')}</Text>
-                </TouchableOpacity>
-              }
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={loadDevices}
-                  colors={['#2EE3DA']}
-                  tintColor="#2EE3DA"
-                />
-              }
+        <Header />
+        <FlatList
+          data={devices}
+          keyExtractor={(item) => item.id}
+          renderItem={renderDeviceItem}
+          ListHeaderComponent={renderHeader()}
+          ListFooterComponent={
+            <TouchableOpacity
+              style={styles.addDeviceButton}
+              onPress={() => {
+                if (!user || user.authType === 'guest') {
+                  Alert.alert(
+                    t('common.guestTitle'),
+                    t('common.guestMyhome'),
+                    [
+                      { text: t('common.cancel'), style: 'cancel' },
+                      { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
+                    ]
+                  );
+                  return;
+                }
+                router.push('/device-scan/HomeWifi');
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={styles.addButtonIcon}>
+                <Text style={styles.addButtonPlus}>+</Text>
+              </View>
+              <Text style={styles.addButtonText}>{t('myhome.Add_new_device')}</Text>
+            </TouchableOpacity>
+          }
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={loadDevices}
+              colors={['#2EE3DA']}
+              tintColor="#2EE3DA"
             />
-          </View>
-        </ImageBackground>
+          }
+        />
       </SafeAreaView>
+
 
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
@@ -419,18 +414,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#000',
-  },
-  backgroundImage: {  // เพิ่ม style ใหม่
-    flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 50 : 0, // เพิ่ม padding top
+    backgroundColor: '#000000',
+    paddingTop: Platform.OS === 'ios' ? 50 : 0, // เพิ่ม padding top  
   },
   background: {
     flex: 1,
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+
+    //experimental_backgroundImage:require('@/assets/images/image.png'),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // สีพื้นหลังทึบ
   },
   scrollContent: {
     paddingBottom: 90,
