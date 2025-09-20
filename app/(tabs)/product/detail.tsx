@@ -182,10 +182,15 @@ const ProductDetailPage: React.FC = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Stack.Screen options={{ title: t('Product.Aerator') }} />
-            <StatusBar barStyle="dark-content" />
-            <ScrollView showsVerticalScrollIndicator={false}>
+
+        <View style={styles.container}>
+            <StatusBar
+                barStyle="dark-content"
+                backgroundColor="#fff"
+                translucent={false}
+            />
+            <SafeAreaView style={styles.safeArea}>
+                <Stack.Screen options={{ title: t('Product.Aerator') }} />
                 <View style={styles.header}>
                     <TouchableOpacity
                         style={styles.backButton}
@@ -196,165 +201,169 @@ const ProductDetailPage: React.FC = () => {
                     <Text style={styles.headerTitle}>{product.title}</Text>
                     <View style={styles.placeholder} />
                 </View>
-                <View style={styles.productHeader}>
-                    <View style={[{ alignItems: 'center' }]}>
-                        <Image source={require('@/assets/images/product/PPV.png')} style={styles.mainProductImage} resizeMode="contain" />
-                    </View>
-                    <Text style={styles.productName}>{product.title}</Text>
-                    {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
-                    {descriptionParts.map((part, index) => (
-                        <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
+                <ScrollView showsVerticalScrollIndicator={false}>
 
-                    ))}
-                </View>
-
-
-                <View style={styles.sectionContainer}>
-                    <View style={styles.priceTable}>
-                        <View style={styles.priceTableHeader}>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Aerator_model')} </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.price')} </Text>
+                    <View style={styles.productHeader}>
+                        <View style={[{ alignItems: 'center' }]}>
+                            <Image source={require('@/assets/images/product/PPV.png')} style={styles.mainProductImage} resizeMode="contain" />
                         </View>
-                        {pricingData.map((item) => (
-                            <View key={item.id} style={styles.priceTableRow}>
-                                <Text style={styles.priceTableCell}>{item.model}</Text>
-                                <Text style={styles.priceTableCell}>{item.price}</Text>
-                            </View>
+                        <Text style={styles.productName}>{product.title}</Text>
+                        {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
+                        {descriptionParts.map((part, index) => (
+                            <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
+
                         ))}
-                        <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')} *</Text>
-                        </View>
                     </View>
-                    <TouchableOpacity
-                        style={styles.contactButton}
-                        onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
-                    >
-                        <Text style={styles.contactButtonText}> {t('Product.Additional_information_order')}</Text>
-                    </TouchableOpacity>
-                </View>
 
 
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>{t('Product.system_filter')}</Text>
-                    {filtrationSteps.map((step) => (
-                        <View key={step.id} style={styles.filtrationStep}>
-                            <Image source={step.image} style={styles.filtrationImage} resizeMode="contain" />
-                            <View style={styles.filtrationTextContent}>
-                                <Text style={styles.filtrationTitle}>{t(step.titleKey)}</Text>
-                                <Text style={styles.filtrationDescription}> • {t(step.descriptionKey)}</Text>
-                                {step.description2Key ? <Text style={styles.filtrationDescription}> • {t(step.description2Key)}</Text> : null}
-                                {step.description3Key ? <Text style={styles.filtrationDescription}> • {t(step.description3Key)}</Text> : null}
-                                {step.description4Key ? <Text style={styles.filtrationDescription}> • {t(step.description4Key)}</Text> : null}
-                                {step.description5Key ? <Text style={styles.filtrationDescription}> • {t(step.description5Key)}</Text> : null}
+                    <View style={styles.sectionContainer}>
+                        <View style={styles.priceTable}>
+                            <View style={styles.priceTableHeader}>
+                                <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Aerator_model')} </Text>
+                                <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.price')} </Text>
+                            </View>
+                            {pricingData.map((item) => (
+                                <View key={item.id} style={styles.priceTableRow}>
+                                    <Text style={styles.priceTableCell}>{item.model}</Text>
+                                    <Text style={styles.priceTableCell}>{item.price}</Text>
+                                </View>
+                            ))}
+                            <View style={styles.priceTableRow}>
+                                <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')} *</Text>
                             </View>
                         </View>
-                    ))}
-                </View>
-
-
-                <View style={styles.sectionContainer}>
-                    <View style={styles.priceTable}>
-                        <View style={styles.priceTableHeader}>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Aerator_model')}</Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.HEPA_H13')} </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Activated_Carbon')} </Text>
-                            <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.UVc_Lamp')} </Text>
-                        </View>
-                        {pricingfilter.map((item) => (
-                            <View key={item.id} style={styles.priceTableRow}>
-                                <Text style={styles.priceTableCell}>{item.model}</Text>
-                                <Text style={styles.priceTableCell}>{item.price}</Text>
-                                <Text style={styles.priceTableCell}>{item.price2}</Text>
-                                <Text style={styles.priceTableCell}>{item.price3}</Text>
-                            </View>
-                        ))}
-                        <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')} *</Text>
-                        </View>
+                        <TouchableOpacity
+                            style={styles.contactButton}
+                            onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
+                        >
+                            <Text style={styles.contactButtonText}> {t('Product.Additional_information_order')}</Text>
+                        </TouchableOpacity>
                     </View>
-                </View>
 
 
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> {t('Product.specifications_title')}</Text>
-                    <View style={styles.specTable}>
-                        <View style={styles.specTableHeader}>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 160</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 250</Text>
-                        </View>
-                        {specifications.map((spec, index) => (
-                            <View key={index.toString()} style={styles.specTableRow}>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>
-                                    {t(spec.labelKey)}
-                                </Text>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>
-                                    {spec.ppv160t_value} {spec.ppv160t_unit_key ? t(spec.ppv160t_unit_key) : ''}
-                                </Text>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>
-                                    {spec.ppv250_value} {spec.ppv250_unit_key ? t(spec.ppv250_unit_key) : ''}
-                                </Text>
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>{t('Product.system_filter')}</Text>
+                        {filtrationSteps.map((step) => (
+                            <View key={step.id} style={styles.filtrationStep}>
+                                <Image source={step.image} style={styles.filtrationImage} resizeMode="contain" />
+                                <View style={styles.filtrationTextContent}>
+                                    <Text style={styles.filtrationTitle}>{t(step.titleKey)}</Text>
+                                    <Text style={styles.filtrationDescription}> • {t(step.descriptionKey)}</Text>
+                                    {step.description2Key ? <Text style={styles.filtrationDescription}> • {t(step.description2Key)}</Text> : null}
+                                    {step.description3Key ? <Text style={styles.filtrationDescription}> • {t(step.description3Key)}</Text> : null}
+                                    {step.description4Key ? <Text style={styles.filtrationDescription}> • {t(step.description4Key)}</Text> : null}
+                                    {step.description5Key ? <Text style={styles.filtrationDescription}> • {t(step.description5Key)}</Text> : null}
+                                </View>
                             </View>
                         ))}
                     </View>
 
-                    <View style={styles.specTable2}>
-                        <View style={styles.specTableHeader}>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 350</Text>
-                            <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 440</Text>
+
+                    <View style={styles.sectionContainer}>
+                        <View style={styles.priceTable}>
+                            <View style={styles.priceTableHeader}>
+                                <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Aerator_model')}</Text>
+                                <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.HEPA_H13')} </Text>
+                                <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.Activated_Carbon')} </Text>
+                                <Text style={[styles.priceTableCell, styles.headerText]}> {t('Product.UVc_Lamp')} </Text>
+                            </View>
+                            {pricingfilter.map((item) => (
+                                <View key={item.id} style={styles.priceTableRow}>
+                                    <Text style={styles.priceTableCell}>{item.model}</Text>
+                                    <Text style={styles.priceTableCell}>{item.price}</Text>
+                                    <Text style={styles.priceTableCell}>{item.price2}</Text>
+                                    <Text style={styles.priceTableCell}>{item.price3}</Text>
+                                </View>
+                            ))}
+                            <View style={styles.priceTableRow}>
+                                <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat')} *</Text>
+                            </View>
                         </View>
-                        {specifications2.map((spec, index) => (
-                            <View key={index.toString()} style={styles.specTableRow}>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>
-                                    {t(spec.labelKey)}
-                                </Text>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>
-                                    {spec.ppv160t_value} {spec.ppv160t_unit_key ? t(spec.ppv160t_unit_key) : ''}
-                                </Text>
-                                <Text style={[styles.specTableCell, { flex: 2 }]}>
-                                    {spec.ppv250_value} {spec.ppv250_unit_key ? t(spec.ppv250_unit_key) : ''}
-                                </Text>
+                    </View>
+
+
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}> {t('Product.specifications_title')}</Text>
+                        <View style={styles.specTable}>
+                            <View style={styles.specTableHeader}>
+                                <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text>
+                                <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 160</Text>
+                                <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 250</Text>
                             </View>
-                        ))}
-                    </View>
-                </View>
+                            {specifications.map((spec, index) => (
+                                <View key={index.toString()} style={styles.specTableRow}>
+                                    <Text style={[styles.specTableCell, { flex: 2 }]}>
+                                        {t(spec.labelKey)}
+                                    </Text>
+                                    <Text style={[styles.specTableCell, { flex: 2 }]}>
+                                        {spec.ppv160t_value} {spec.ppv160t_unit_key ? t(spec.ppv160t_unit_key) : ''}
+                                    </Text>
+                                    <Text style={[styles.specTableCell, { flex: 2 }]}>
+                                        {spec.ppv250_value} {spec.ppv250_unit_key ? t(spec.ppv250_unit_key) : ''}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
 
-
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> {t('Product.touch_panel_title')}</Text>
-                    <Image source={getTouchPanelImage()} style={styles.touchPanelImage} resizeMode="contain" />
-                    <View style={styles.bulletPointsContainer}>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_auto_on_off')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_hepa_alert')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_wifi_app')}</Text>
-                        <Text style={styles.bulletPoint}> • {t('Product.touch_panel_fan_speed')}</Text>
-                    </View>
-                </View>
-
-                {/* Warranty Section */}
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}> {t('Product.warranty_title')}</Text>
-                    <View style={styles.warrantyIconsContainer}>
-                        {warrantyIcons.map((item) => (
-                            <View key={item.id} style={styles.warrantyIconItem}>
-                                <Image source={item.icon} style={styles.warrantyIcon} resizeMode="contain" />
-                                <Text style={styles.warrantyIconLabel}>{t(item.labelKey)}</Text>
+                        <View style={styles.specTable2}>
+                            <View style={styles.specTableHeader}>
+                                <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>{t('Product.model_label')}</Text>
+                                <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 350</Text>
+                                <Text style={[styles.specTableCell, styles.headerText, { flex: 2 }]}>PPV 440</Text>
                             </View>
-                        ))}
+                            {specifications2.map((spec, index) => (
+                                <View key={index.toString()} style={styles.specTableRow}>
+                                    <Text style={[styles.specTableCell, { flex: 2 }]}>
+                                        {t(spec.labelKey)}
+                                    </Text>
+                                    <Text style={[styles.specTableCell, { flex: 2 }]}>
+                                        {spec.ppv160t_value} {spec.ppv160t_unit_key ? t(spec.ppv160t_unit_key) : ''}
+                                    </Text>
+                                    <Text style={[styles.specTableCell, { flex: 2 }]}>
+                                        {spec.ppv250_value} {spec.ppv250_unit_key ? t(spec.ppv250_unit_key) : ''}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
 
-                    <TouchableOpacity
-                        style={styles.contactButton}
-                        onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
-                    >
-                        <Text style={styles.contactButtonText}> {t('Product.order_inquire_line')}</Text>
-                    </TouchableOpacity>
-                </View>
 
-                <View style={{ height: 20 }} />
-            </ScrollView>
-        </SafeAreaView >
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}> {t('Product.touch_panel_title')}</Text>
+                        <Image source={getTouchPanelImage()} style={styles.touchPanelImage} resizeMode="contain" />
+                        <View style={styles.bulletPointsContainer}>
+                            <Text style={styles.bulletPoint}> • {t('Product.touch_panel_auto_on_off')}</Text>
+                            <Text style={styles.bulletPoint}> • {t('Product.touch_panel_hepa_alert')}</Text>
+                            <Text style={styles.bulletPoint}> • {t('Product.touch_panel_wifi_app')}</Text>
+                            <Text style={styles.bulletPoint}> • {t('Product.touch_panel_fan_speed')}</Text>
+                        </View>
+                    </View>
+
+                    {/* Warranty Section */}
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}> {t('Product.warranty_title')}</Text>
+                        <View style={styles.warrantyIconsContainer}>
+                            {warrantyIcons.map((item) => (
+                                <View key={item.id} style={styles.warrantyIconItem}>
+                                    <Image source={item.icon} style={styles.warrantyIcon} resizeMode="contain" />
+                                    <Text style={styles.warrantyIconLabel}>{t(item.labelKey)}</Text>
+                                </View>
+                            ))}
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.contactButton}
+                            onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
+                        >
+                            <Text style={styles.contactButtonText}> {t('Product.order_inquire_line')}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ height: 20 }} />
+                </ScrollView>
+            </SafeAreaView>
+        </View>
+
     );
 };
 
@@ -362,6 +371,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
+    },
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#ffffff',
     },
     header: {
         flexDirection: 'row',

@@ -277,10 +277,6 @@ const Index: React.FC = () => {
                                                     styles.categoryTitle,
                                                     selectedCategory === category.id && styles.selectedCategoryText
                                                 ]}>{category.title}</Text>
-                                                <Text style={[
-                                                    styles.categorySubtitle,
-                                                    selectedCategory === category.id && styles.selectedCategoryText
-                                                ]}>{category.subtitle}</Text>
                                             </TouchableOpacity>
                                         ))}
                                     </View>
@@ -335,7 +331,11 @@ const additionalStyles = StyleSheet.create({
     selectedCategoryItem: {
         // borderColor: '#2563EB', // สีขอบเมื่อถูกเลือก
         borderWidth: 2,
-        borderRadius: 16, // ต้องปรับตาม borderRadius ของ categoryItem
+        borderRadius: 10, // ต้องปรับตาม borderRadius ของ categoryItem
+        height: '100%',
+        width: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     selectedCategoryImageWrapper: {
 
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
 
     topCategoriesContainer: {
         flexDirection: 'row',
-        height: 180,
+        height: 150,
         justifyContent: 'space-around',
         paddingHorizontal: 10,
         paddingVertical: 20,

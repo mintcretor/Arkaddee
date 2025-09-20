@@ -159,10 +159,11 @@ const ProductDetail3Page: React.FC = () => {
     console.log('123456',product);
 
     return (
+         <View style={styles.container}>
+                    <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
+            
+             <View style={styles.header}>
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => router.back()}
@@ -173,6 +174,8 @@ const ProductDetail3Page: React.FC = () => {
                     <View style={styles.placeholder} />
                 </View>
 
+            <ScrollView showsVerticalScrollIndicator={false}>
+               
                 <View style={styles.productHeader}>
                     <View style={[{ alignItems: 'center' }]}>
                         <Image source={product.image || require('@/assets/images/device/Arkad_PBM.png')} style={styles.mainProductImage} resizeMode="contain" />
@@ -278,6 +281,7 @@ const ProductDetail3Page: React.FC = () => {
                 <View style={{ height: 20 }} />
             </ScrollView>
         </SafeAreaView >
+        </View>
     );
 };
 
@@ -285,7 +289,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-        marginTop: 30
     },
     header: {
         flexDirection: 'row',

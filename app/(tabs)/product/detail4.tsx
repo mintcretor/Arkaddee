@@ -146,10 +146,9 @@ const ProductDetail4Page: React.FC = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-
+        <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <SafeAreaView style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity
                         style={styles.backButton}
@@ -160,112 +159,115 @@ const ProductDetail4Page: React.FC = () => {
                     <Text style={styles.headerTitle}>{product.title}</Text>
                     <View style={styles.placeholder} />
                 </View>
-                <View style={styles.productHeader}>
-                    <View style={[{ alignItems: 'center' }]}>
-                        <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
-                    </View>
-                    <Text style={styles.productName}>{product.title}</Text>
-                    {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
-                    {descriptionParts.map((part, index) => (
-                        <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
-                    ))}
-                </View>
+                <ScrollView showsVerticalScrollIndicator={false}>
 
-                {/* Price Table Section */}
-                <View style={styles.sectionContainer}>
-                    <View style={styles.priceTable}>
-                        <View style={styles.priceTableHeader}>
-
-                            <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductDetail.Price')}</Text>
-
+                    <View style={styles.productHeader}>
+                        <View style={[{ alignItems: 'center' }]}>
+                            <Image source={product.image || require('@/assets/images/product/SNG.png')} style={styles.mainProductImage} resizeMode="contain" />
                         </View>
-                        {pricingData.map((item) => (
-                            <View key={item.id} style={styles.priceTableRow}>
-
-                                <Text style={styles.priceTableCell}>{item.price}</Text>
-
-                            </View>
-                        ))}
-
-                        <View style={styles.priceTableRow}>
-                            <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat2')} *</Text>
-
-                        </View>
-
-                    </View>
-                    <TouchableOpacity
-                        style={styles.contactButton}
-                        onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
-                    >
-                        <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')} </Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* New Section: Air Quality Parameters - UPDATED FOR TRANSLATIONS */}
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>{t('ProductDetail.AirQualityParametersTitle')}</Text>
-                    {airQualityParameters.map((param) => (
-                        <View key={param.id} style={styles.parameterItem}>
-                            <Text style={styles.parameterName}>{param.id}. [{t(param.nameKey)}]</Text>
-                            <Text style={styles.parameterDescription}>{t(param.descriptionKey)}</Text>
-                        </View>
-                    ))}
-                </View>
-
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>{t('ProductDetail.SpecificDataTitle')}</Text>
-                    <View style={styles.specDataTable}>
-                        <View style={styles.specDataHeader}>
-                            <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.Parameter')}</Text>
-                            <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.MeasurementRange')}</Text>
-                            <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.Accuracy')}</Text>
-                            <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.Resolution')}</Text>
-                        </View>
-                        {specificData.map((item, index) => (
-                            <View key={index} style={styles.specDataRow}>
-                                <Text style={styles.specDataCell}>{t(item.parameterKey)}</Text>
-                                <Text style={styles.specDataCell}>{item.range}</Text>
-                                <Text style={styles.specDataCell}>{item.accuracy}</Text>
-                                <Text style={styles.specDataCell}>{item.resolution}</Text>
-                            </View>
+                        <Text style={styles.productName}>{product.title}</Text>
+                        {product.tagline ? <Text style={styles.productTagline}>{product.tagline}</Text> : null}
+                        {descriptionParts.map((part, index) => (
+                            <Text key={index} style={styles.productDescription}>• {t(part.trim())}</Text>
                         ))}
                     </View>
-                </View>
 
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>{t('ProductDetail.ProductDetailsTitle')}</Text>
-                    <View style={styles.productDetailsTable}>
-                        {productDetails.map((item, index) => (
-                            <View key={index} style={styles.productDetailsRow}>
-                                <Text style={styles.productDetailsLabel}>{t(item.labelKey)}</Text>
-                                <Text style={styles.productDetailsValue}>{item.value}</Text>
+                    {/* Price Table Section */}
+                    <View style={styles.sectionContainer}>
+                        <View style={styles.priceTable}>
+                            <View style={styles.priceTableHeader}>
+
+                                <Text style={[styles.priceTableCell, styles.headerText]}>{t('ProductDetail.Price')}</Text>
+
                             </View>
-                        ))}
-                    </View>
-                </View>
+                            {pricingData.map((item) => (
+                                <View key={item.id} style={styles.priceTableRow}>
 
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>{t('ProductDetail.WarrantyTitle')}</Text>
-                    <View style={styles.warrantyIconsContainer}>
-                        {warrantyIcons.map((item) => (
-                            <View key={item.id} style={styles.warrantyIconItem}>
-                                <Image source={item.icon} style={styles.warrantyIcon} />
-                                <Text style={styles.warrantyIconLabel}>{item.label}</Text>
+                                    <Text style={styles.priceTableCell}>{item.price}</Text>
+
+                                </View>
+                            ))}
+
+                            <View style={styles.priceTableRow}>
+                                <Text style={[styles.priceTableCell2, { flex: 2 }]}> * {t('Product.note_vat2')} *</Text>
+
+                            </View>
+
+                        </View>
+                        <TouchableOpacity
+                            style={styles.contactButton}
+                            onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
+                        >
+                            <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')} </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* New Section: Air Quality Parameters - UPDATED FOR TRANSLATIONS */}
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>{t('ProductDetail.AirQualityParametersTitle')}</Text>
+                        {airQualityParameters.map((param) => (
+                            <View key={param.id} style={styles.parameterItem}>
+                                <Text style={styles.parameterName}>{param.id}. [{t(param.nameKey)}]</Text>
+                                <Text style={styles.parameterDescription}>{t(param.descriptionKey)}</Text>
                             </View>
                         ))}
                     </View>
 
-                    <TouchableOpacity
-                        style={styles.contactButton}
-                        onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
-                    >
-                        <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')}</Text>
-                    </TouchableOpacity>
-                </View>
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>{t('ProductDetail.SpecificDataTitle')}</Text>
+                        <View style={styles.specDataTable}>
+                            <View style={styles.specDataHeader}>
+                                <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.Parameter')}</Text>
+                                <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.MeasurementRange')}</Text>
+                                <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.Accuracy')}</Text>
+                                <Text style={[styles.specDataCell, styles.headerText]}>{t('ProductDetail.Resolution')}</Text>
+                            </View>
+                            {specificData.map((item, index) => (
+                                <View key={index} style={styles.specDataRow}>
+                                    <Text style={styles.specDataCell}>{t(item.parameterKey)}</Text>
+                                    <Text style={styles.specDataCell}>{item.range}</Text>
+                                    <Text style={styles.specDataCell}>{item.accuracy}</Text>
+                                    <Text style={styles.specDataCell}>{item.resolution}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
 
-                <View style={{ height: 20 }} />
-            </ScrollView>
-        </SafeAreaView >
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>{t('ProductDetail.ProductDetailsTitle')}</Text>
+                        <View style={styles.productDetailsTable}>
+                            {productDetails.map((item, index) => (
+                                <View key={index} style={styles.productDetailsRow}>
+                                    <Text style={styles.productDetailsLabel}>{t(item.labelKey)}</Text>
+                                    <Text style={styles.productDetailsValue}>{item.value}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+
+                    <View style={styles.sectionContainer}>
+                        <Text style={styles.sectionTitle}>{t('ProductDetail.WarrantyTitle')}</Text>
+                        <View style={styles.warrantyIconsContainer}>
+                            {warrantyIcons.map((item) => (
+                                <View key={item.id} style={styles.warrantyIconItem}>
+                                    <Image source={item.icon} style={styles.warrantyIcon} />
+                                    <Text style={styles.warrantyIconLabel}>{item.label}</Text>
+                                </View>
+                            ))}
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.contactButton}
+                            onPress={() => handleContactPress('https://line.me/R/ti/p/@975ruzwr')}
+                        >
+                            <Text style={styles.contactButtonText}> {t('ProductERV.order_inquire_line')}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ height: 20 }} />
+                </ScrollView>
+            </SafeAreaView >
+        </View>
     );
 };
 
@@ -273,7 +275,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-        marginTop: 30
     },
     header: {
         flexDirection: 'row',

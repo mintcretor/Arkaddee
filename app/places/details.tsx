@@ -696,23 +696,25 @@ const ShopDetails = () => {
                                 )}
                             </View>
 
-                            <View style={styles.infoRow}>
+                            <View style={styles.addressContainer}>
                                 <View style={styles.infoItem}>
                                     <Ionicons name="pricetag-outline" size={20} color="#666" />
                                     <Text style={styles.infoText}> {restaurantsData.price_range} </Text>
                                 </View>
                             </View>
-                            <View style={styles.infoRow}>
+                            <View style={styles.addressContainer}>
                                 <View style={styles.infoItem}>
                                     <Ionicons name="grid-outline" size={20} color="#666" />
                                     <Text style={styles.infoText}>{restaurantsData.types.map(c => c.name)}</Text>
                                 </View>
                             </View>
-                            <View style={styles.cuisinesContainer}>
-                                <Ionicons name="cafe-outline" size={20} color="#666" />
-                                <Text style={styles.cuisinesText}>
-                                    {restaurantsData.cuisines.join(" / ") || 'อาหารไทย, อาหารฟิวชั่น, กาแฟ, เบเกอรี่'}
-                                </Text>
+                            <View style={styles.addressContainer}>
+                                <View style={styles.infoItem}>
+                                    <Ionicons name="storefront-outline" size={20} color="#666" />
+                                    <Text style={styles.cuisinesText}>
+                                        {restaurantsData.cuisines.join(" / ") || 'อาหารไทย, อาหารฟิวชั่น, กาแฟ, เบเกอรี่'}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
 
@@ -812,7 +814,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingLeft: 30,
-        paddingBottom: 10,
+        paddingTop: 15,
+        paddingBottom: 15,
+        //paddingBottom: 10,
     },
     backText: {
         marginLeft: 8,
@@ -824,7 +828,6 @@ const styles = StyleSheet.create({
         height: 230,
         position: 'relative',
         marginHorizontal: 30,
-        marginTop: 20,
         backgroundColor: '#f8f8f8',
         borderRadius: 12,
         overflow: 'hidden',
@@ -1115,7 +1118,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
-         marginTop: 2,
+        marginTop: 2,
     },
     infoText: {
         fontSize: 14,
