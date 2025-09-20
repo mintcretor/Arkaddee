@@ -343,15 +343,14 @@ export default function ArkadDashboard() {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="light-content"  // เปลี่ยนเป็น light-content
-        backgroundColor="transparent"  // เปลี่ยนเป็น transparent
-        translucent={true}  // เปลี่ยนเป็น true
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
       />
 
-
+      {/* Fixed Header - ไม่ scroll */}
       <Header />
       <SafeAreaView style={styles.overlay}>
-
         <FlatList
           data={devices}
           keyExtractor={(item) => item.id}
@@ -393,15 +392,17 @@ export default function ArkadDashboard() {
             />
           }
         />
+
+        {isLoading && !refreshing && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#2EE3DA" />
+            <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
+          </View>
+        )}
       </SafeAreaView>
 
 
-      {isLoading && !refreshing && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2EE3DA" />
-          <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
-        </View>
-      )}
+
     </View>
   );
 
@@ -422,9 +423,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-
-    //experimental_backgroundImage:require('@/assets/images/image.png'),
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // สีพื้นหลังทึบ
+    backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
   },
   scrollContent: {
     paddingBottom: 90,
