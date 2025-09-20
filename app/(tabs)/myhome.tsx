@@ -348,7 +348,7 @@ export default function ArkadDashboard() {
         translucent={true}  // เปลี่ยนเป็น true
       />
 
-      <SafeAreaView style={styles.overlay}>
+      
         <ImageBackground
           source={require('@/assets/images/image.png')}
           style={styles.backgroundImage}  // เปลี่ยน style
@@ -356,6 +356,7 @@ export default function ArkadDashboard() {
         >
           <View style={styles.overlay}>
             <Header />
+            <SafeAreaView style={styles.overlay}>
             <FlatList
               data={devices}
               keyExtractor={(item) => item.id}
@@ -397,9 +398,10 @@ export default function ArkadDashboard() {
                 />
               }
             />
+            </SafeAreaView>
           </View>
         </ImageBackground>
-      </SafeAreaView>
+
 
       {isLoading && !refreshing && (
         <View style={styles.loadingOverlay}>
