@@ -494,7 +494,7 @@ const ReviewsFeedScreen = () => {
                         >
                             <Ionicons name="search" size={20} color="#fff" />
                             <Text style={styles.exploreButtonText}>
-                                {t('favorite.SearchRestaurants') || 'ค้นหาร้านอาหาร'}
+                                {t('favorite.SearchRestaurants') || 'ค้นหาร้านค้า'}
                             </Text>
                         </TouchableOpacity>
                     </View>

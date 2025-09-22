@@ -169,6 +169,7 @@ export default {
     submit: "Save Addresss",
     loading_address_data: "Loading Address Data",
     addsuccess: "Address added successfully",
+    fetch_data_failed: "Failed to fetch address data",
     editsuccess: "Address edit successfully"
   },
   favorite: {
