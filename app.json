@@ -2,7 +2,7 @@
   "expo": {
     "name": "Arkad",
     "slug": "arkad",
-    "version": "1.6.7",
+    "version": "1.6.8",
     "orientation": "portrait",
     "icon": "./assets/images/iconapp/192x192.png",
     "scheme": "com.appmatrixdevelopment.arkad",

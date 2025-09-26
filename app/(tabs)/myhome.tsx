@@ -59,9 +59,11 @@ const convertTemperature = (temp: number) => {
   }
   return temp;
 };
+
 const HEADER_HEIGHT = 50;
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
 const TOP_SPACING = Platform.OS === 'ios' ? 0 : 0;
+
 export default function ArkadDashboard() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState<string | React.ReactNode>('');
@@ -80,6 +82,7 @@ export default function ArkadDashboard() {
   const { user, refreshUser } = useAuth();
   const isGuest = user?.authType === 'guest';
 
+  // ฟังก์ชันต่างๆ ยังเหมือนเดิม...
   const updateClock = () => {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -168,7 +171,7 @@ export default function ArkadDashboard() {
             type: 'air_quality',
             status: deviceStatus,
             is_primary: device.is_primary,
-            icon: imageDevice(device.device_type),
+            icon: imageDevice(device.device_type) as import('react-native').ImageSourcePropType,
             data: {
               temperature: temp,
               humidity: device.humidity,
@@ -348,9 +351,9 @@ export default function ArkadDashboard() {
         translucent={false}
       />
 
-      {/* Fixed Header - ไม่ scroll */}
       <Header />
-      <SafeAreaView style={styles.overlay}>
+
+      <SafeAreaView style={styles.safeArea}>
         <FlatList
           data={devices}
           keyExtractor={(item) => item.id}
@@ -400,12 +403,9 @@ export default function ArkadDashboard() {
           </View>
         )}
       </SafeAreaView>
-
-
-
     </View>
-  );
 
+  );
 }
 
 const styles = StyleSheet.create({
@@ -415,15 +415,21 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#000000',
-    paddingTop: Platform.OS === 'ios' ? 50 : 0, // เพิ่ม padding top  
   },
-  background: {
-    flex: 1,
+  headerContainer: {
+    paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight || 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // overlay สำหรับให้ข้อความอ่านง่ายขึ้น
+  },
+  safeArea: {
+    flex: 1,
+  },
+  background: {
+    flex: 1,
   },
   scrollContent: {
     paddingBottom: 90,

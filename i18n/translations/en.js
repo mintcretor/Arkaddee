@@ -176,7 +176,7 @@ export default {
     Navigation: "Navigation...",
     Nofavorite: "No favorite places yet",
     NoFavoriteText: "When you add a store to favorites, it will appear here:",
-    SearchRestaurants: "Search Restaurants",
+    SearchRestaurants: "Search Stores",
     Favorite: "Favorite",
     loginRequired: "Please log in to view your favorite places.",
     loadingmore: "Loading more favorite places...",

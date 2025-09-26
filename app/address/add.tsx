@@ -62,7 +62,7 @@ interface UserAddress {
   message?: string;
 }
 
-const API_ADDRESS_URL = 'https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province_with_amphure_tambon.json';
+const API_ADDRESS_URL = 'https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province_with_district_and_sub_district.json';
 
 const AddAddressScreen = () => {
   const { t, i18n } = useTranslation();
