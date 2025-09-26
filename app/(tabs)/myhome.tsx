@@ -344,67 +344,76 @@ export default function ArkadDashboard() {
   );
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require('@/assets/images/image.png')} // เปลี่ยนเป็นไฟล์ภาพของคุณ
+      style={styles.container}
+      resizeMode="cover"
+    >
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-        translucent={false}
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
       />
 
-      <Header />
+      {/* Overlay for better readability */}
+      <View style={styles.overlay}>
+        {/* Fixed Header with proper spacing */}
+        <View style={styles.headerContainer}>
+          <Header />
+        </View>
+        
+        <SafeAreaView style={styles.safeArea}>
+          <FlatList
+            data={devices}
+            keyExtractor={(item) => item.id}
+            renderItem={renderDeviceItem}
+            ListHeaderComponent={renderHeader()}
+            ListFooterComponent={
+              <TouchableOpacity
+                style={styles.addDeviceButton}
+                onPress={() => {
+                  if (!user || user.authType === 'guest') {
+                    Alert.alert(
+                      t('common.guestTitle'),
+                      t('common.guestMyhome'),
+                      [
+                        { text: t('common.cancel'), style: 'cancel' },
+                        { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
+                      ]
+                    );
+                    return;
+                  }
+                  router.push('/device-scan/HomeWifi');
+                }}
+                activeOpacity={0.8}
+              >
+                <View style={styles.addButtonIcon}>
+                  <Text style={styles.addButtonPlus}>+</Text>
+                </View>
+                <Text style={styles.addButtonText}>{t('myhome.Add_new_device')}</Text>
+              </TouchableOpacity>
+            }
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={loadDevices}
+                colors={['#2EE3DA']}
+                tintColor="#2EE3DA"
+              />
+            }
+          />
 
-      <SafeAreaView style={styles.safeArea}>
-        <FlatList
-          data={devices}
-          keyExtractor={(item) => item.id}
-          renderItem={renderDeviceItem}
-          ListHeaderComponent={renderHeader()}
-          ListFooterComponent={
-            <TouchableOpacity
-              style={styles.addDeviceButton}
-              onPress={() => {
-                if (!user || user.authType === 'guest') {
-                  Alert.alert(
-                    t('common.guestTitle'),
-                    t('common.guestMyhome'),
-                    [
-                      { text: t('common.cancel'), style: 'cancel' },
-                      { text: t('common.signup'), onPress: () => router.push('/(auth)/register') }
-                    ]
-                  );
-                  return;
-                }
-                router.push('/device-scan/HomeWifi');
-              }}
-              activeOpacity={0.8}
-            >
-              <View style={styles.addButtonIcon}>
-                <Text style={styles.addButtonPlus}>+</Text>
-              </View>
-              <Text style={styles.addButtonText}>{t('myhome.Add_new_device')}</Text>
-            </TouchableOpacity>
-          }
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={loadDevices}
-              colors={['#2EE3DA']}
-              tintColor="#2EE3DA"
-            />
-          }
-        />
-
-        {isLoading && !refreshing && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#2EE3DA" />
-            <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
-          </View>
-        )}
-      </SafeAreaView>
-    </View>
-
+          {isLoading && !refreshing && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#2EE3DA" />
+              <Text style={styles.loadingText}>{t('myhome.Loading_device')}</Text>
+            </View>
+          )}
+        </SafeAreaView>
+      </View>
+    </ImageBackground>
   );
 }
 
