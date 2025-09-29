@@ -391,207 +391,208 @@ const ProfileScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor="#fff"
         translucent={false}
       />
-
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContentContainer}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-        overScrollMode="never"
-        removeClippedSubviews={Platform.OS === 'android'}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-      >
-        {/* Profile Info Section */}
-        <View style={styles.profileInfoContainer}>
-          <View style={styles.profileImageContainer}>
-            {uploading ? (
-              <View style={styles.uploadingContainer}>
-                <ActivityIndicator size="large" color="#0066cc" />
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={showPhotoOptions}
-                activeOpacity={0.8}
-                disabled={isGuest}
-                style={styles.profileImageTouchable}
-              >
-                <View style={styles.profileImageWrapper}>
-                  <Image
-                    source={{ uri: profileImage }}
-                    style={styles.profileImage}
-                    resizeMode="cover"
-                    onError={(error) => console.warn('Image loading error:', error)}
-                  />
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+          overScrollMode="never"
+          removeClippedSubviews={Platform.OS === 'android'}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+        >
+          {/* Profile Info Section */}
+          <View style={styles.profileInfoContainer}>
+            <View style={styles.profileImageContainer}>
+              {uploading ? (
+                <View style={styles.uploadingContainer}>
+                  <ActivityIndicator size="large" color="#0066cc" />
                 </View>
-                {!isGuest && (
-                  <View style={styles.cameraIconContainer}>
-                    <Feather name="camera" size={12} color="#fff" />
+              ) : (
+                <TouchableOpacity
+                  onPress={showPhotoOptions}
+                  activeOpacity={0.8}
+                  disabled={isGuest}
+                  style={styles.profileImageTouchable}
+                >
+                  <View style={styles.profileImageWrapper}>
+                    <Image
+                      source={{ uri: profileImage }}
+                      style={styles.profileImage}
+                      resizeMode="cover"
+                      onError={(error) => console.warn('Image loading error:', error)}
+                    />
                   </View>
-                )}
+                  {!isGuest && (
+                    <View style={styles.cameraIconContainer}>
+                      <Feather name="camera" size={12} color="#fff" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <View style={styles.profileNameContainer}>
+              <Text style={styles.profileName} numberOfLines={2} ellipsizeMode="tail">
+                {user?.displayName || user?.username || t("profile.guestUser")}
+              </Text>
+            </View>
+
+            {/* Stats Section */}
+            <View style={styles.statsContainer}>
+              <TouchableOpacity
+                style={styles.statItem}
+                onPress={goToFavorites}
+                disabled={isGuest}
+                activeOpacity={isGuest ? 1 : 0.7}
+              >
+                <View style={styles.statIconValue}>
+                  <AntDesign name="heart" size={16} color="#FF5252" />
+                  <View style={styles.statValueContainer}>
+                    {loadingFavorites ? (
+                      <ActivityIndicator size="small" color="#4A7BF7" />
+                    ) : (
+                      <Text style={styles.statValue}>{favoritesCount}</Text>
+                    )}
+                  </View>
+                </View>
+                <Text style={styles.statLabel} numberOfLines={1}>
+                  {t('profile.favarite')}
+                </Text>
               </TouchableOpacity>
-            )}
+
+              <View style={styles.statDivider} />
+
+              <TouchableOpacity
+                style={styles.statItem}
+                onPress={() => router.push('/recently-viewed')}
+              >
+                <View style={styles.statIconValue}>
+                  <AntDesign name="eye" size={16} color="#4A7BF7" />
+                  <View style={styles.statValueContainer}>
+                    <Text style={styles.statValue}>{(recentlyViewed || []).length}</Text>
+                  </View>
+                </View>
+                <Text style={styles.statLabel} numberOfLines={1}>
+                  {t('profile.open_recent')}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <View style={styles.profileNameContainer}>
-            <Text style={styles.profileName} numberOfLines={2} ellipsizeMode="tail">
-              {user?.displayName || user?.username || t("profile.guestUser")}
-            </Text>
-          </View>
-
-          {/* Stats Section */}
-          <View style={styles.statsContainer}>
+          {/* Menu Items */}
+          <View style={styles.menuSection}>
             <TouchableOpacity
-              style={styles.statItem}
+              style={styles.menuItem}
+              onPress={() => router.push('/user/EditProfileScreen')}
+              disabled={isGuest}
+              activeOpacity={isGuest ? 1 : 0.7}
+            >
+              <View style={styles.menuIconContainer}>
+                <Feather name="user" size={20} color="#4A7BF7" />
+              </View>
+              <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+                {t('profile.profile')}
+              </Text>
+              <Feather name="chevron-right" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => router.push('/address/add')}
+              disabled={isGuest}
+              activeOpacity={isGuest ? 1 : 0.7}
+            >
+              <View style={styles.menuIconContainer}>
+                <Feather name="map-pin" size={20} color="#4A7BF7" />
+              </View>
+              <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+                {t('profile.address')}
+              </Text>
+              <Feather name="chevron-right" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
               onPress={goToFavorites}
               disabled={isGuest}
               activeOpacity={isGuest ? 1 : 0.7}
             >
-              <View style={styles.statIconValue}>
-                <AntDesign name="heart" size={16} color="#FF5252" />
-                <View style={styles.statValueContainer}>
-                  {loadingFavorites ? (
-                    <ActivityIndicator size="small" color="#4A7BF7" />
-                  ) : (
-                    <Text style={styles.statValue}>{favoritesCount}</Text>
-                  )}
-                </View>
+              <View style={styles.menuIconContainer}>
+                <AntDesign name="heart" size={20} color="#FF5252" />
               </View>
-              <Text style={styles.statLabel} numberOfLines={1}>
+              <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
                 {t('profile.favarite')}
               </Text>
+              <Feather name="chevron-right" size={20} color="#999" />
             </TouchableOpacity>
-
-            <View style={styles.statDivider} />
 
             <TouchableOpacity
-              style={styles.statItem}
-              onPress={() => router.push('/recently-viewed')}
+              style={styles.menuItem}
+              onPress={() => router.push('/review')}
+              disabled={isGuest}
+              activeOpacity={isGuest ? 1 : 0.7}
             >
-              <View style={styles.statIconValue}>
-                <AntDesign name="eye" size={16} color="#4A7BF7" />
-                <View style={styles.statValueContainer}>
-                  <Text style={styles.statValue}>{(recentlyViewed || []).length}</Text>
-                </View>
-              </View>
-              <Text style={styles.statLabel} numberOfLines={1}>
-                {t('profile.open_recent')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Menu Items */}
-        <View style={styles.menuSection}>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => router.push('/user/EditProfileScreen')}
-            disabled={isGuest}
-            activeOpacity={isGuest ? 1 : 0.7}
-          >
-            <View style={styles.menuIconContainer}>
-              <Feather name="user" size={20} color="#4A7BF7" />
-            </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
-              {t('profile.profile')}
-            </Text>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => router.push('/address/add')}
-            disabled={isGuest}
-            activeOpacity={isGuest ? 1 : 0.7}
-          >
-            <View style={styles.menuIconContainer}>
-              <Feather name="map-pin" size={20} color="#4A7BF7" />
-            </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
-              {t('profile.address')}
-            </Text>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={goToFavorites}
-            disabled={isGuest}
-            activeOpacity={isGuest ? 1 : 0.7}
-          >
-            <View style={styles.menuIconContainer}>
-              <AntDesign name="heart" size={20} color="#FF5252" />
-            </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
-              {t('profile.favarite')}
-            </Text>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => router.push('/review')}
-            disabled={isGuest}
-            activeOpacity={isGuest ? 1 : 0.7}
-          >
-            <View style={styles.menuIconContainer}>
-              <Feather name="message-square" size={20} color="#4A7BF7" />
-            </View>
-            <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
-              {t('profile.review')}
-            </Text>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </TouchableOpacity>
-
-          <View style={styles.menuItemLa}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="globe-outline" size={20} color="#4A7BF7" />
-            </View>
-            <Text style={styles.menuText}>{t('profile.language')}</Text>
-            <View style={styles.languageSelectorWrapper}>
-              <LanguageSelector />
-            </View>
-          </View>
-        </View>
-
-        {/* Logout Section */}
-        <View style={styles.logoutSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-            <View style={styles.menuIconContainer}>
-              <Feather name="log-out" size={20} color="#FF3B30" />
-            </View>
-            <Text style={[styles.menuText, styles.logoutText]}>
-              {t('auth.logout')}
-            </Text>
-            <Feather name="chevron-right" size={20} color="#999" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Delete Account Section */}
-        {!isGuest && (
-          <View style={styles.deleteAccountSection}>
-            <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
               <View style={styles.menuIconContainer}>
-                <Feather name="trash-2" size={20} color="#FF3B30" />
+                <Feather name="message-square" size={20} color="#4A7BF7" />
               </View>
-              <Text style={[styles.menuText, styles.deleteAccountText]}>
-                {t('profile.deleteAccount')}
+              <Text style={[styles.menuText, isGuest && { color: '#ccc' }]}>
+                {t('profile.review')}
+              </Text>
+              <Feather name="chevron-right" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <View style={styles.menuItemLa}>
+              <View style={styles.menuIconContainer}>
+                <Ionicons name="globe-outline" size={20} color="#4A7BF7" />
+              </View>
+              <Text style={styles.menuText}>{t('profile.language')}</Text>
+              <View style={styles.languageSelectorWrapper}>
+                <LanguageSelector />
+              </View>
+            </View>
+          </View>
+
+          {/* Logout Section */}
+          <View style={styles.logoutSection}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+              <View style={styles.menuIconContainer}>
+                <Feather name="log-out" size={20} color="#FF3B30" />
+              </View>
+              <Text style={[styles.menuText, styles.logoutText]}>
+                {t('auth.logout')}
               </Text>
               <Feather name="chevron-right" size={20} color="#999" />
             </TouchableOpacity>
           </View>
-        )}
 
-        <View style={styles.spacer} />
-      </ScrollView>
-    </SafeAreaView>
+          {/* Delete Account Section */}
+          {!isGuest && (
+            <View style={styles.deleteAccountSection}>
+              <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
+                <View style={styles.menuIconContainer}>
+                  <Feather name="trash-2" size={20} color="#FF3B30" />
+                </View>
+                <Text style={[styles.menuText, styles.deleteAccountText]}>
+                  {t('profile.deleteAccount')}
+                </Text>
+                <Feather name="chevron-right" size={20} color="#999" />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={styles.spacer} />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -602,6 +603,10 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
 
     // ลบ marginTop ออกแล้ว ใช้ SafeAreaView จัดการแทน
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'transparent', // ใช้ transparent เพื่อให้เห็นพื้นหลัง
   },
   centerContent: {
     flex: 1,

@@ -185,8 +185,6 @@ export default function ArkadDashboard() {
         setDevices([]);
       }
     } catch (error) {
-      console.error('Error loading devices:', error);
-      Alert.alert(t('common.error'), t('myhome.failed_to_load_devices_and_connect_server'));
       setPrimaryDeviceData({ pm25: 0, temperature: 0, humidity: 0, co2: 0, status: 'offline' });
       setDevices([]);
     } finally {
@@ -426,7 +424,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight || 0,
+    paddingTop: Platform.OS === 'ios' ? 50 : 0,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
