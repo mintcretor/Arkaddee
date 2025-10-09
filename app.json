@@ -2,14 +2,14 @@
   "expo": {
     "name": "Arkad",
     "slug": "arkad",
-    "version": "1.6.8",
+    "version": "1.6.9",
     "orientation": "portrait",
     "icon": "./assets/images/iconapp/192x192.png",
     "scheme": "com.appmatrixdevelopment.arkad",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
-      "buildNumber": "2",
+      "buildNumber": "1.6.9",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
@@ -131,7 +131,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "eeab0ee8-6d98-4765-b5f4-39912f0150d6"
+        "projectId": "7a9c524a-8730-4daa-8497-32eb86cf7676"
       }
     }
   }

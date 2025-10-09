@@ -12,6 +12,7 @@ import {
     Dimensions,
     Alert,
     StatusBar,
+    Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -580,6 +581,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFF',
+        marginTop: Platform.OS === 'ios' ? 35 : 35,
     },
     header: {
         flexDirection: 'row',
