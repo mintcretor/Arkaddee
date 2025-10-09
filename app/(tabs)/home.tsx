@@ -133,15 +133,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-        <StatusBar 
-              barStyle="dark-content" 
-              backgroundColor="#fff" 
-              translucent={false}
-            />
+         <StatusBar
+               barStyle="light-content"
+               backgroundColor="transparent"
+               translucent={true}
+             />
       
       {/* Fixed Header - ไม่ scroll */}
+        <View style={styles.headerContainer}>
       <Header />
-      
+      </View>
       <SafeAreaView style={styles.safeArea}>
         <Animated.ScrollView
           onScroll={Animated.event(
@@ -211,8 +212,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    // ลบการใช้ paddingTop หรือ margin ที่อาจสร้างช่องว่าง
-   marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+
+  },
+    headerContainer: {
+    paddingTop: Platform.OS === 'ios' ? 50 : 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   safeArea: {
     flex: 1,

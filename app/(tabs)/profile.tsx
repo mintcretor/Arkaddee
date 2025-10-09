@@ -393,9 +393,9 @@ const ProfileScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-        translucent={false}
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
       />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView

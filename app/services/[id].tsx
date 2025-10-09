@@ -288,12 +288,13 @@ export default function ServiceListingScreen() {
 
     // ... ส่วนที่เหลือของ component UI ยังคงเหมือนเดิม
     return (
-        <SafeAreaView style={styles.container}>
-              <StatusBar 
-                    barStyle="dark-content" 
-                    backgroundColor="#fff" 
-                    translucent={false}
-                  />
+        <View style={styles.container}>
+        <SafeAreaView >
+            <StatusBar
+                barStyle="light-content"
+                backgroundColor="transparent"
+                translucent={true}
+            />
             {/* ส่วนหัวของหน้า */}
             <View style={styles.header}>
                 <TouchableOpacity
@@ -383,11 +384,11 @@ export default function ServiceListingScreen() {
                                             ]}>
                                                 <View style={styles.markerInner}>
                                                     <Text style={pm25Value === '...' ? styles.DisAirQuality :
-                                                    Number(pm25Value) <= 15 ? styles.goodAirQuality :
-                                                        Number(pm25Value) <= 30 ? styles.moderateAirQuality :
-                                                            Number(pm25Value) <= 37.5 ? styles.badAirQuality :
-                                                                Number(pm25Value) <= 75 ? styles.verybadAirQuality :
-                                                                    styles.dangerAirQuality }>
+                                                        Number(pm25Value) <= 15 ? styles.goodAirQuality :
+                                                            Number(pm25Value) <= 30 ? styles.moderateAirQuality :
+                                                                Number(pm25Value) <= 37.5 ? styles.badAirQuality :
+                                                                    Number(pm25Value) <= 75 ? styles.verybadAirQuality :
+                                                                        styles.dangerAirQuality}>
                                                         {typeof pm25Value === 'number' ? Math.floor(pm25Value) : pm25Value}
                                                     </Text>
                                                 </View>
@@ -570,6 +571,7 @@ export default function ServiceListingScreen() {
                 )}
             </ScrollView>
         </SafeAreaView>
+        </View>
     );
 }
 
@@ -603,7 +605,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginLeft: 8,
-        color:'#000'
+        color: '#000'
     },
     searchButton: {
         padding: 8,
@@ -661,7 +663,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        color:'#000',
+        color: '#000',
         borderColor: 'white',
     },
     markerInner: {
@@ -811,7 +813,7 @@ const styles = StyleSheet.create({
         fontSize: 8,
         fontWeight: 'bold',
         marginTop: -5,
-         color:'#000',
+        color: '#000',
     },
     placeInfo: {
         padding: 12,
@@ -820,7 +822,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         marginBottom: 4,
-        color:'#000',
+        color: '#000',
     },
     ratingRow: {
         flexDirection: 'row',
@@ -835,7 +837,7 @@ const styles = StyleSheet.create({
         marginLeft: 4,
         fontSize: 12,
         fontWeight: 'bold',
-        color:'#000'
+        color: '#000'
     },
     reviews: {
         fontSize: 12,

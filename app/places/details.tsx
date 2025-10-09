@@ -499,9 +499,9 @@ const ShopDetails = () => {
     return (
         <View style={styles.container}>
             <StatusBar
-                barStyle="dark-content"
-                backgroundColor="#fff"
-                translucent={false}
+                barStyle="light-content"
+                backgroundColor="transparent"
+                translucent={true}
             />
             <Header />
             <SafeAreaView style={styles.safeArea}>

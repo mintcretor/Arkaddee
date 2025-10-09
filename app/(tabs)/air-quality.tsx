@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   StatusBar,
+  SafeAreaView,
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import AQIModal from '@/components/AQIModal';
@@ -598,68 +599,71 @@ const AirQualityScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-        translucent={false}
-      />
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={region}
-        showsUserLocation={true}
-        onRegionChangeComplete={handleRegionChange}
-        maxZoomLevel={16}
-        minZoomLevel={5}
-        rotateEnabled={false}
-        pitchEnabled={false}
-        moveOnMarkerPress={false}
-        zoomControlEnabled={false}
-        mapType="standard"
-        showsTraffic={false}
-        showsBuildings={false}
-        showsIndoors={false}
-        loadingEnabled={true}
-        loadingIndicatorColor="#2196F3"
-        loadingBackgroundColor="#FFFFFF"
-        provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
-      >
-        {visibleAqiPoints.length > 0 && visibleAqiPoints.map((point, index) => (
-          <AQIMarker
-            key={point.id || `marker-${index}`}
-            point={point}
-            onPress={handleMarkerPress}
-          />
-        ))}
-      </MapView>
-
-      <MapControls
-        isDataLoading={isDataLoading}
-        apiSource={apiSource}
-        getApiSourceName={getApiSourceName}
-        toggleApiSource={toggleApiSource}
-        goToCurrentLocation={goToCurrentLocation}
-        fetchAQIData={fetchAQIData}
-        aqiPoints={allAqiPoints}
-        onOpenRanking={handleOpenRanking}
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
       />
 
-      {selectedMarker && (
-        <AQIModal
-          visible={isModalVisible}
-          marker={selectedMarker}
-          onClose={() => {
-            setIsModalVisible(false);
-            setSelectedMarker(null);
-          }}
-          position="top"
+      <SafeAreaView style={styles.safeArea}>
+        <MapView
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={region}
+          showsUserLocation={true}
+          onRegionChangeComplete={handleRegionChange}
+          maxZoomLevel={16}
+          minZoomLevel={5}
+          rotateEnabled={false}
+          pitchEnabled={false}
+          moveOnMarkerPress={false}
+          zoomControlEnabled={false}
+          mapType="standard"
+          showsTraffic={false}
+          showsBuildings={false}
+          showsIndoors={false}
+          loadingEnabled={true}
+          loadingIndicatorColor="#2196F3"
+          loadingBackgroundColor="#FFFFFF"
+          provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
+        >
+          {visibleAqiPoints.length > 0 && visibleAqiPoints.map((point, index) => (
+            <AQIMarker
+              key={point.id || `marker-${index}`}
+              point={point}
+              onPress={handleMarkerPress}
+            />
+          ))}
+        </MapView>
+
+        <MapControls
+          isDataLoading={isDataLoading}
+          apiSource={apiSource}
+          getApiSourceName={getApiSourceName}
+          toggleApiSource={toggleApiSource}
+          goToCurrentLocation={goToCurrentLocation}
+          fetchAQIData={fetchAQIData}
+          aqiPoints={allAqiPoints}
+          onOpenRanking={handleOpenRanking}
         />
-      )}
 
-      <AQIRankingModal
-        visible={isRankingModalVisible}
-        onClose={() => setIsRankingModalVisible(false)}
-        aqiPoints={allAqiPoints}
-      />
+        {selectedMarker && (
+          <AQIModal
+            visible={isModalVisible}
+            marker={selectedMarker}
+            onClose={() => {
+              setIsModalVisible(false);
+              setSelectedMarker(null);
+            }}
+            position="top"
+          />
+        )}
+
+        <AQIRankingModal
+          visible={isRankingModalVisible}
+          onClose={() => setIsRankingModalVisible(false)}
+          aqiPoints={allAqiPoints}
+        />
+      </SafeAreaView>
     </View>
   );
 };
@@ -668,6 +672,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+  },
+  safeArea: {
+    flex: 1,
   },
   map: {
     width: Dimensions.get('window').width,

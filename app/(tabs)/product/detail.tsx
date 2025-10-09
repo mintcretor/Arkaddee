@@ -185,9 +185,9 @@ const ProductDetailPage: React.FC = () => {
 
         <View style={styles.container}>
             <StatusBar
-                barStyle="dark-content"
-                backgroundColor="#fff"
-                translucent={false}
+                barStyle="light-content"
+                backgroundColor="transparent"
+                translucent={true}
             />
             <SafeAreaView style={styles.safeArea}>
                 <Stack.Screen options={{ title: t('Product.Aerator') }} />
