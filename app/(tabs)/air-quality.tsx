@@ -599,8 +599,8 @@ const AirQualityScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
+        barStyle="dark-content"
+        backgroundColor="#ffffff"
         translucent={true}
       />
 
@@ -671,7 +671,7 @@ const AirQualityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
   },
   safeArea: {
     flex: 1,

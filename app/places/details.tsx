@@ -499,8 +499,8 @@ const ShopDetails = () => {
     return (
         <View style={styles.container}>
             <StatusBar
-                barStyle="light-content"
-                backgroundColor="transparent"
+                barStyle="dark-content"
+                backgroundColor="#ffffff"
                 translucent={true}
             />
             <Header />
@@ -786,30 +786,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
-        marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+        marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
         // ลบ paddingTop ออกเพื่อแก้ปัญหาช่องว่าง header
     },
     safeArea: {
         flex: 1,
         backgroundColor: '#ffffff',
     },
-
-    headerContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: HEADER_HEIGHT + STATUSBAR_HEIGHT + TOP_SPACING,
-        marginTop: 35,
-        zIndex: 1000,
-        elevation: 3,
-        shadowColor: '#000000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-    },
-
     backButton: {
         flexDirection: 'row',
         alignItems: 'center',

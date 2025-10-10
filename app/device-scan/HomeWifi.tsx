@@ -169,7 +169,8 @@ export default function HomeProduct() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+    <SafeAreaView style={styles.safearea}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor="#fff"
@@ -275,14 +276,18 @@ export default function HomeProduct() {
         </View>
       </Modal>
     </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 30, // ปรับถ้าจำเป็น
     backgroundColor: '#fff'
+  },
+  safearea:{
+    flex: 1,
   },
   keyboardAvoidView: {
     flex: 1

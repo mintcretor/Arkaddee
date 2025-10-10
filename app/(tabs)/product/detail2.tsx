@@ -11,6 +11,7 @@ import {
     SafeAreaView,
     Linking,
     ImageSourcePropType,
+    Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next'; // Assuming you have this set up
 import { Stack, useLocalSearchParams, router } from 'expo-router'; // For navigation and params
@@ -169,8 +170,10 @@ const ProductDetail2Page: React.FC = () => {
     };
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
-            <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="dark-content"
+               backgroundColor="#ffffff"
+               translucent={true} />
+            <SafeAreaView style={styles.safeArea}>
                 <Stack.Screen options={{ title: t('ProductERV.Aerator') }} />
 
 
@@ -333,7 +336,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F7F7F7',
-
+        marginTop: Platform.OS === 'ios' ? 35 : 25, // Adjust if necessary
+    },
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#ffffff',
     },
     header: {
         flexDirection: 'row',

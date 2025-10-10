@@ -134,8 +134,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
          <StatusBar
-               barStyle="light-content"
-               backgroundColor="transparent"
+               barStyle="dark-content"
+               backgroundColor="#ffffff"
                translucent={true}
              />
       
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
 
   },
     headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 50 : 0,
+    paddingTop: Platform.OS === 'ios' ? 35 : 25,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },

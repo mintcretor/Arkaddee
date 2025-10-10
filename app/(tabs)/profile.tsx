@@ -393,8 +393,8 @@ const ProfileScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
+        barStyle="dark-content"
+        backgroundColor="#ffffff"
         translucent={true}
       />
       <SafeAreaView style={styles.safeArea}>
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
 
     // ลบ marginTop ออกแล้ว ใช้ SafeAreaView จัดการแทน
   },

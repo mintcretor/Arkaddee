@@ -130,19 +130,29 @@ export default function ArkadDashboard() {
     return require('@/assets/images/device/Arkad_WM.png');
   };
 
+  const fetchWithTimeout = async <T,>(promise: Promise<T>, timeoutMs = 10000): Promise<T> => {
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+    );
+    return Promise.race([promise, timeout]);
+  };
+
   const loadDevices = async () => {
     try {
       setIsLoading(true);
       setRefreshing(true);
 
-      const responsePrimary = await fetchDevicePrimary();
-      if (responsePrimary.user.length > 0) {
+      // Fetch primary device with timeout
+      const responsePrimary: any = await fetchWithTimeout(fetchDevicePrimary(), 10000);
+
+      // เพิ่ม optional chaining และ default values
+      if (responsePrimary?.user && responsePrimary.user.length > 0) {
         const firstDevice = responsePrimary.user[0];
         setPrimaryDeviceData({
-          pm25: firstDevice.pm25,
-          temperature: convertTemperature(firstDevice.temperature),
-          humidity: firstDevice.humidity,
-          co2: firstDevice.co2,
+          pm25: firstDevice.pm25 || 0,
+          temperature: convertTemperature(firstDevice.temperature || 0),
+          humidity: firstDevice.humidity || 0,
+          co2: firstDevice.co2 || 0,
           status: firstDevice.pwr == 0 ? 'offline' : 'online',
           room_name: firstDevice.room_name
         });
@@ -157,26 +167,28 @@ export default function ArkadDashboard() {
         });
       }
 
-      const response = await fetchDeviceAccount();
-      if (response && response.success && response.user) {
+      // Fetch all devices with timeout - สำคัญมาก!
+      const response: any = await fetchWithTimeout(fetchDeviceAccount(), 10000);
+
+      if (response?.success && response?.user) {
         const discoveredDevices = response.user;
         const updatedDevices: Device[] = discoveredDevices.map((device: any) => {
           const deviceStatus = device.pwr == 0 ? 'offline' : 'online';
-          const temp = convertTemperature(device.temperature);
+          const temp = convertTemperature(device.temperature || 0);
 
           return {
-            id: device.device_id,
-            name: device.room_name,
-            productId: device.device_type,
+            id: device.device_id || '',
+            name: device.room_name || 'Unknown Device',
+            productId: device.device_type || '',
             type: 'air_quality',
             status: deviceStatus,
-            is_primary: device.is_primary,
-            icon: imageDevice(device.device_type) as import('react-native').ImageSourcePropType,
+            is_primary: device.is_primary || false,
+            icon: imageDevice(device.device_type),
             data: {
               temperature: temp,
-              humidity: device.humidity,
-              co2: device.co2,
-              pm25: device.pm25
+              humidity: device.humidity || 0,
+              co2: device.co2 || 0,
+              pm25: device.pm25 || 0
             }
           };
         });
@@ -184,15 +196,44 @@ export default function ArkadDashboard() {
       } else {
         setDevices([]);
       }
-    } catch (error) {
-      setPrimaryDeviceData({ pm25: 0, temperature: 0, humidity: 0, co2: 0, status: 'offline' });
+    } catch (error: any) {
+      console.error('Load devices error:', error);
+
+      // แสดง error message ที่เหมาะสม
+      const errorMessage = error.message === 'Request timeout'
+        ? 'การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง'
+        : 'ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+
+      Alert.alert(
+        t('common.error'),
+        errorMessage,
+        [
+          { text: 'ยกเลิก', style: 'cancel' },
+          {
+            text: 'ลองใหม่',
+            onPress: () => {
+              // หน่วงเวลาเล็กน้อยก่อน retry
+              setTimeout(() => loadDevices(), 500);
+            }
+          }
+        ]
+      );
+
+      // Set default values
+      setPrimaryDeviceData({
+        pm25: 0,
+        temperature: 0,
+        humidity: 0,
+        co2: 0,
+        status: 'offline',
+        room_name: undefined
+      });
       setDevices([]);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
   };
-
   useEffect(() => {
     updateClock();
     const clockInterval = setInterval(updateClock, 1000);
@@ -201,9 +242,28 @@ export default function ArkadDashboard() {
 
   useFocusEffect(
     useCallback(() => {
-      if (refreshUser) refreshUser();
-      loadDevices();
-    }, [])
+      let isMounted = true;
+
+      const loadData = async () => {
+        try {
+          if (isMounted && refreshUser) {
+            await refreshUser();
+          }
+          if (isMounted) {
+            await loadDevices();
+          }
+        } catch (error) {
+          console.error('Focus effect error:', error);
+        }
+      };
+
+      loadData();
+
+      // Cleanup function
+      return () => {
+        isMounted = false;
+      };
+    }, []) // ไม่ใส่ refreshUser ใน dependency เพื่อหลีกเลี่ยง infinite loop
   );
 
   const renderDeviceItem = ({ item }: { item: Device }) => (
@@ -348,8 +408,8 @@ export default function ArkadDashboard() {
       resizeMode="cover"
     >
       <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
+        barStyle="dark-content"
+        backgroundColor="#ffffff"
         translucent={true}
       />
 
@@ -359,7 +419,7 @@ export default function ArkadDashboard() {
         <View style={styles.headerContainer}>
           <Header />
         </View>
-        
+
         <SafeAreaView style={styles.safeArea}>
           <FlatList
             data={devices}
@@ -422,10 +482,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    paddingTop: Platform.OS === 'ios' ? 35 : 25,
   },
   headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 50 : 0,
-    borderBottomWidth: 1,
+    //borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   overlay: {

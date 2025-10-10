@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  Image
+  Image,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -24,7 +25,9 @@ export default function DeviceSuccess() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content"
+                backgroundColor="#ffffff"
+                translucent={true} />
       <View style={styles.content}>
         <View style={styles.successIconContainer}>
           <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
@@ -58,7 +61,8 @@ export default function DeviceSuccess() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
   },
   content: {
     flex: 1,

@@ -269,7 +269,9 @@ const FavoritesScreen = () => {
   if (!user) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content"
+                backgroundColor="#ffffff"
+                translucent={true} />
 
         <View style={styles.header}>
           <TouchableOpacity
@@ -362,7 +364,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
 
-   marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+   marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
   },
   header: {
     flexDirection: 'row',

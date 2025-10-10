@@ -148,9 +148,9 @@ const Index: React.FC = () => {
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={styles.container}>
                 <StatusBar
-                    barStyle="light-content"
-                    backgroundColor="transparent"
-                    translucent={true}
+                    barStyle="dark-content"
+               backgroundColor="#ffffff"
+               translucent={true}
                 />
                 <ScrollView
                     style={styles.scrollView}
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         //backgroundColor: '#F7F7F7',
-        marginTop: Platform.OS === 'ios' ? 35 : 35,
+        marginTop: Platform.OS === 'ios' ? 35 : 25,
     },
     scrollView: {
         flex: 1,

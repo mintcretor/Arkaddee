@@ -292,8 +292,8 @@ export default function ServiceListingScreen() {
         <View style={styles.container}>
         <SafeAreaView >
             <StatusBar
-                barStyle="light-content"
-                backgroundColor="transparent"
+                barStyle="dark-content"
+                backgroundColor="#ffffff"
                 translucent={true}
             />
             {/* ส่วนหัวของหน้า */}
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFF',
-        marginTop: Platform.OS === 'ios' ? 35 : 35,
+        marginTop: Platform.OS === 'ios' ? 35 : 25,
     },
     header: {
         flexDirection: 'row',

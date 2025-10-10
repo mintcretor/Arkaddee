@@ -81,7 +81,9 @@ export default function DeviceLocation() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content"
+                backgroundColor="#ffffff"
+                translucent={true} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidView}
@@ -159,8 +161,8 @@ export default function DeviceLocation() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+     marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+    //paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     backgroundColor: '#fff'
   },
   keyboardAvoidView: {
