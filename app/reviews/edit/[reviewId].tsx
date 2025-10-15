@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         backgroundColor: '#FFF',
-        paddingTop: Platform.OS === 'ios' ? 35 : 25,
+        marginTop: Platform.OS === 'ios' ? 35 : 25,
     },
     modalHeader: {
         flexDirection: 'row',
