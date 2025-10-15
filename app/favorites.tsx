@@ -38,7 +38,7 @@ const FavoritesScreen = () => {
     total_pages: 0
   });
   const [removingIds, setRemovingIds] = useState(new Set());
-  const { t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // ดึงข้อมูล favorites
   const fetchFavorites = async (page = 1, isRefresh = false) => {
@@ -240,11 +240,11 @@ const FavoritesScreen = () => {
   if (loading && favorites.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
- <StatusBar 
-              barStyle="dark-content" 
-              backgroundColor="#fff" 
-              translucent={false}
-            />
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor="#fff"
+          translucent={false}
+        />
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
@@ -270,8 +270,8 @@ const FavoritesScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content"
-                backgroundColor="#ffffff"
-                translucent={true} />
+          backgroundColor="#ffffff"
+          translucent={true} />
 
         <View style={styles.header}>
           <TouchableOpacity
@@ -363,8 +363,7 @@ const FavoritesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-   marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
   },
   header: {
     flexDirection: 'row',

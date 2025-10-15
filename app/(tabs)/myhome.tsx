@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 35 : 25,
+    marginTop: Platform.OS === 'ios' ? 35 : 25,
   },
   headerContainer: {
     //borderBottomWidth: 1,
