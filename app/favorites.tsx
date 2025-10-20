@@ -51,6 +51,8 @@ const FavoritesScreen = () => {
   });
   const [removingIds, setRemovingIds] = useState(new Set());
   const { t, i18n } = useTranslation();
+  const hasRedirectedRef = useRef(false);
+
 
   // ดึงข้อมูล favorites
   const fetchFavorites = async (page = 1, isRefresh = false) => {
@@ -96,8 +98,9 @@ const FavoritesScreen = () => {
     }
   };
 
+
   // ลบร้านออกจาก favorites
-  const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
+const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
     console.log('Removing favorite:', storeId, storeName);
     Alert.alert(
       t('favorite.removeFavorite'),
@@ -113,10 +116,8 @@ const FavoritesScreen = () => {
 
               await removeFavorite(storeId);
 
-              // อัพเดต state โดยลบร้านออก
               setFavorites(prev => prev.filter(item => item.id !== storeId));
 
-              // อัพเดต pagination
               setPagination(prev => ({
                 ...prev,
                 total: Math.max(0, prev.total - 1)
@@ -139,10 +140,32 @@ const FavoritesScreen = () => {
     );
   };
 
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/profile');
+    }
+  };
+
   // โหลดข้อมูลเมื่อหน้าแสดง
-  useFocusEffect(
+useFocusEffect(
     useCallback(() => {
-      fetchFavorites(1, true);
+      // ถ้ามี user ให้ fetch favorites
+      if (user) {
+        fetchFavorites(1, true);
+        hasRedirectedRef.current = false;
+      }
+      
+      // ถ้าไม่มี user และยังไม่ได้ redirect ให้ redirect ครั้งเดียว
+      if (!user && !hasRedirectedRef.current) {
+        hasRedirectedRef.current = true;
+        // ใช้ setTimeout เพื่อหลีกเลี่ยง state updates ขณะ render
+        const timer = setTimeout(() => {
+          router.replace('/(auth)/login');
+        }, 100);
+        return () => clearTimeout(timer);
+      }
     }, [user])
   );
 
@@ -159,7 +182,7 @@ const FavoritesScreen = () => {
   };
 
   // ไปหน้ารายละเอียดร้าน
-  const goToStoreDetail = (storeId: any) => {
+ const goToStoreDetail = (storeId: any) => {
     router.push({
       pathname: `/places/details`,
       params: { id: storeId }
@@ -261,7 +284,7 @@ const FavoritesScreen = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => goBack()}
           >
             <Ionicons name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
@@ -288,7 +311,7 @@ const FavoritesScreen = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => goBack()}
           >
             <Ionicons name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
@@ -312,17 +335,17 @@ const FavoritesScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-       <StatusBar
-              barStyle="dark-content"
-              backgroundColor="#ffffff"
-              translucent={true}
-            />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#ffffff"
+        translucent={true}
+      />
 
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => goBack()}
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
@@ -375,6 +398,7 @@ const FavoritesScreen = () => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
