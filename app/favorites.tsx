@@ -51,8 +51,6 @@ const FavoritesScreen = () => {
   });
   const [removingIds, setRemovingIds] = useState(new Set());
   const { t, i18n } = useTranslation();
-  const hasRedirectedRef = useRef(false);
-
 
   // ดึงข้อมูล favorites
   const fetchFavorites = async (page = 1, isRefresh = false) => {
@@ -98,9 +96,8 @@ const FavoritesScreen = () => {
     }
   };
 
-
   // ลบร้านออกจาก favorites
-const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
+  const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
     console.log('Removing favorite:', storeId, storeName);
     Alert.alert(
       t('favorite.removeFavorite'),
@@ -116,8 +113,10 @@ const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
 
               await removeFavorite(storeId);
 
+              // อัพเดต state โดยลบร้านออก
               setFavorites(prev => prev.filter(item => item.id !== storeId));
 
+              // อัพเดต pagination
               setPagination(prev => ({
                 ...prev,
                 total: Math.max(0, prev.total - 1)
@@ -139,33 +138,18 @@ const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
       ]
     );
   };
-
   const goBack = () => {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace('/(tabs)/profile');
+      router.replace('/(tabs)/profile'); // หรือหน้าหลักที่เหมาะสม
     }
   };
 
   // โหลดข้อมูลเมื่อหน้าแสดง
-useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
-      // ถ้ามี user ให้ fetch favorites
-      if (user) {
-        fetchFavorites(1, true);
-        hasRedirectedRef.current = false;
-      }
-      
-      // ถ้าไม่มี user และยังไม่ได้ redirect ให้ redirect ครั้งเดียว
-      if (!user && !hasRedirectedRef.current) {
-        hasRedirectedRef.current = true;
-        // ใช้ setTimeout เพื่อหลีกเลี่ยง state updates ขณะ render
-        const timer = setTimeout(() => {
-          router.replace('/(auth)/login');
-        }, 100);
-        return () => clearTimeout(timer);
-      }
+      fetchFavorites(1, true);
     }, [user])
   );
 
@@ -182,7 +166,7 @@ useFocusEffect(
   };
 
   // ไปหน้ารายละเอียดร้าน
- const goToStoreDetail = (storeId: any) => {
+  const goToStoreDetail = (storeId: any) => {
     router.push({
       pathname: `/places/details`,
       params: { id: storeId }
@@ -398,7 +382,6 @@ useFocusEffect(
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
