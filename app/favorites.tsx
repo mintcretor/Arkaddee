@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -51,9 +50,12 @@ const FavoritesScreen = () => {
   });
   const [removingIds, setRemovingIds] = useState(new Set());
   const { t, i18n } = useTranslation();
+  
+  // เพิ่ม ref เพื่อติดตาม auth state
+  const authCheckedRef = useRef(false);
 
   // ดึงข้อมูล favorites
-  const fetchFavorites = async (page = 1, isRefresh = false) => {
+  const fetchFavorites = useCallback(async (page = 1, isRefresh = false) => {
     if (!user) {
       setLoading(false);
       return;
@@ -94,7 +96,7 @@ const FavoritesScreen = () => {
       setRefreshing(false);
       setLoadingMore(false);
     }
-  };
+  }, [user, pagination.limit, t]);
 
   // ลบร้านออกจาก favorites
   const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
@@ -138,44 +140,67 @@ const FavoritesScreen = () => {
       ]
     );
   };
+
   const goBack = () => {
+    console.log('canGoBack:', router.canGoBack());
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace('/(tabs)/profile'); // หรือหน้าหลักที่เหมาะสม
+      // ถ้าไม่มี back stack ให้ไปหน้า profile
+      router.replace('/(tabs)/profile');
     }
   };
 
-  // โหลดข้อมูลเมื่อหน้าแสดง
+  // โหลดข้อมูลเมื่อหน้าแสดง - ตรวจสอบ user ก่อน
   useFocusEffect(
     useCallback(() => {
-      fetchFavorites(1, true);
-    }, [user])
+      // ถ้าไม่มี user และยังไม่ได้ check ให้ redirect ครั้งเดียว
+      if (!user && !authCheckedRef.current) {
+        authCheckedRef.current = true;
+        // ใช้ setTimeout เพื่อหลีกเลี่ยง state conflict
+        const timer = setTimeout(() => {
+          router.replace('/(auth)/login');
+        }, 50);
+        return () => clearTimeout(timer);
+      }
+
+      // ถ้ามี user ให้ fetch favorites
+      if (user) {
+        authCheckedRef.current = true;
+        fetchFavorites(1, true);
+      }
+
+      // ถ้า user เปลี่ยนจาก null เป็น value ให้ reset flag
+      return () => {
+        if (!user) {
+          authCheckedRef.current = false;
+        }
+      };
+    }, [user, fetchFavorites])
   );
 
   // รีเฟรชข้อมูล
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     fetchFavorites(1, true);
-  };
+  }, [fetchFavorites]);
 
   // โหลดข้อมูลเพิ่ม
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (!loadingMore && pagination.page < pagination.total_pages) {
       fetchFavorites(pagination.page + 1);
     }
-  };
+  }, [loadingMore, pagination.page, pagination.total_pages, fetchFavorites]);
 
   // ไปหน้ารายละเอียดร้าน
-  const goToStoreDetail = (storeId: any) => {
+  const goToStoreDetail = useCallback((storeId: any) => {
     router.push({
       pathname: `/places/details`,
       params: { id: storeId }
     });
-  };
+  }, []);
 
   // Component แสดงแต่ละร้าน
   const FavoriteListItem: React.FC<{ item: FavoriteItem }> = ({ item }) => {
-    console.log('Rendering item:', item.id, item.name);
     const isRemoving = removingIds.has(item.store_id);
 
     return (
@@ -284,7 +309,7 @@ const FavoritesScreen = () => {
     );
   }
 
-  // ไม่ได้ล็อกอิน
+  // ไม่ได้ล็อกอิน - แสดง loading state ขณะรอ redirect
   if (!user) {
     return (
       <SafeAreaView style={styles.container}>
@@ -303,15 +328,9 @@ const FavoritesScreen = () => {
           <View style={styles.placeholder} />
         </View>
 
-        <View style={styles.emptyContainer}>
-          <AntDesign name="heart" size={64} color="#ccc" />
-          <Text style={styles.emptyTitle}>{t('favorite.loginRequired')}</Text>
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.push('/(auth)/login')}
-          >
-            <Text style={styles.loginButtonText}>{t('auth.login')}</Text>
-          </TouchableOpacity>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF5252" />
+          <Text style={styles.loadingText}>{t('favorite.loadingmore')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -386,7 +405,7 @@ const FavoritesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 25,
   },
   header: {
     flexDirection: 'row',
