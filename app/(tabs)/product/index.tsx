@@ -283,12 +283,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        
     },
     categoryImage: {
         width: '80%',
@@ -302,8 +297,8 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     selectedCategoryItem: {
-        borderColor: '#2563EB',
-        backgroundColor: '#F0F7FF',
+       // borderColor: '#2563EB',
+       // backgroundColor: '#F0F7FF',
     },
     selectedCategoryImageWrapper: {
         borderColor: '#2563EB',

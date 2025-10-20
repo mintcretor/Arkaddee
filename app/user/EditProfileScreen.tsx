@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f8f9fa',
-        marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+        marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
     },
     iosDatePickerSheet: {
         backgroundColor: '#fff',
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         backgroundColor: '#fff',
         paddingHorizontal: 20,
-        paddingVertical: 15,
+        paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },

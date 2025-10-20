@@ -33,6 +33,14 @@ export default function HomeProduct() {
     loadProducts();
   }, []);
 
+  useEffect(() => {
+    if (!showModal) {
+      // เมื่อ modal ปิด ให้ reset state
+      setDeviceCode('');
+      setDeviceCodeError('');
+    }
+  }, [showModal]);
+
   const loadProducts = async () => {
     try {
       setIsLoading(true);
@@ -170,112 +178,125 @@ export default function HomeProduct() {
 
   return (
     <View style={styles.container}>
-    <SafeAreaView style={styles.safearea}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#fff"
-        translucent={false}
-      />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidView}
-      >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('myhome.select_your_product')}</Text>
-          <View style={styles.placeholder} />
-        </View>
+      <SafeAreaView style={styles.safearea}>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor="#fff"
+          translucent={false}
+        />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoidView}
+        >
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#333" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t('myhome.select_your_product')}</Text>
+            <View style={styles.placeholder} />
+          </View>
 
-        <View style={styles.content}>
-          <Text style={styles.sectionTitle}>{t('myhome.productsFound')}</Text>
+          <View style={styles.content}>
+            <Text style={styles.sectionTitle}>{t('myhome.productsFound')}</Text>
 
-          {isLoading && !refreshing ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#2196f3" />
-              <Text style={styles.loadingText}>{t('myhome.searching_device')}</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={products}
-              renderItem={renderProductItem}
-              keyExtractor={(item, index) => `${item.id}-${index}`}
-              contentContainerStyle={styles.gridList}
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              numColumns={2}
-              key={'product-grid-2'}
-              ListEmptyComponent={
-                <View style={styles.emptyListContainer}>
-                  <Ionicons name="information-circle-outline" size={60} color="#ccc" />
-                  <Text style={styles.emptyListText}>
-                    {t('myhome.no_products_found')}
-                  </Text>
-                </View>
-              }
-            />
-          )}
+            {isLoading && !refreshing ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#2196f3" />
+                <Text style={styles.loadingText}>{t('myhome.searching_device')}</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={products}
+                renderItem={renderProductItem}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                contentContainerStyle={styles.gridList}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                numColumns={2}
+                key={'product-grid-2'}
+                ListEmptyComponent={
+                  <View style={styles.emptyListContainer}>
+                    <Ionicons name="information-circle-outline" size={60} color="#ccc" />
+                    <Text style={styles.emptyListText}>
+                      {t('myhome.no_products_found')}
+                    </Text>
+                  </View>
+                }
+              />
+            )}
 
-          <TouchableOpacity
-            style={[
-              styles.continueButton,
-              !selectedProduct && styles.disabledButton
-            ]}
-            onPress={handleContinue}
-            disabled={!selectedProduct}
-          >
-            <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView >
+            <TouchableOpacity
+              style={[
+                styles.continueButton,
+                !selectedProduct && styles.disabledButton
+              ]}
+              onPress={handleContinue}
+              disabled={!selectedProduct}
+            >
+              <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView >
 
-      {/* Modal สำหรับกรอกรหัสอุปกรณ์ */}
-      <Modal
-        visible={showModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t('myhome.Devicepassword')}</Text>
-            <Text style={styles.modalDesc}>{t('myhome.note_password')}</Text>
-            <TextInput
-              style={[styles.input, deviceCodeError && { borderColor: '#FF3B30', color: '#000' }]}
-              placeholder={t('myhome.Devicepassword')}
-              placeholderTextColor="#999"
-              value={deviceCode}
-              onChangeText={text => {
-                // อนุญาตทั้งพิมพ์เล็กและพิมพ์ใหญ่
-                setDeviceCode(text.replace(/[^A-Za-z0-9]/g, ''));
-                setDeviceCodeError('');
-              }}
-              autoCapitalize="none"
-              maxLength={8}
-              textAlign="center"
-            />
-            {deviceCodeError ? (
-              <Text style={styles.errorText}>{deviceCodeError}</Text>
-            ) : null}
-            <View style={{ flexDirection: 'row', marginTop: 16 }}>
-              <TouchableOpacity
-                style={[styles.continueButton, { flex: 1, marginRight: 8 }]}
-                onPress={handleModalNext}
-              >
-                <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.continueButton, styles.disabledButton, { flex: 1 }]}
-                onPress={() => setShowModal(false)}
-              >
-                <Text style={styles.continueButtonText}>{t('common.cancel')}</Text>
-              </TouchableOpacity>
+        {/* Modal สำหรับกรอกรหัสอุปกรณ์ */}
+
+
+
+
+      </SafeAreaView>
+        <Modal
+          visible={showModal}
+          transparent
+          animationType="none"
+          onRequestClose={() => {
+            setShowModal(false);
+            setDeviceCode('');           // ลบตัวอักษร
+            setDeviceCodeError('');      // ลบข้อความ error
+          }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t('myhome.Devicepassword')}</Text>
+              <Text style={styles.modalDesc}>{t('myhome.note_password')}</Text>
+              <TextInput
+                style={[styles.input, deviceCodeError && { borderColor: '#FF3B30', color: '#000' }]}
+                placeholder={t('myhome.Devicepassword')}
+                placeholderTextColor="#999"
+                value={deviceCode}
+                onChangeText={text => {
+                  // อนุญาตทั้งพิมพ์เล็กและพิมพ์ใหญ่
+                  setDeviceCode(text.replace(/[^A-Za-z0-9]/g, ''));
+                  setDeviceCodeError('');
+                }}
+                autoCapitalize="none"
+                maxLength={8}
+                textAlign="center"
+              />
+              {deviceCodeError ? (
+                <Text style={styles.errorText}>{deviceCodeError}</Text>
+              ) : null}
+              <View style={{ flexDirection: 'row', marginTop: 16 }}>
+                <TouchableOpacity
+                  style={[styles.continueButton, { flex: 1, marginRight: 8 }]}
+                  onPress={handleModalNext}
+                >
+                  <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.continueButton, styles.disabledButton, { flex: 1 }]}
+                  onPress={() => {
+                    setShowModal(false);
+                    setDeviceCode('');           // ลบตัวอักษร
+                    setDeviceCodeError('');      // ลบข้อความ error
+                  }}
+                >
+                  <Text style={styles.continueButtonText}>{t('common.cancel')}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </Modal>
+
     </View>
   );
 }
@@ -283,10 +304,11 @@ export default function HomeProduct() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 30, // ปรับถ้าจำเป็น
+        marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+
     backgroundColor: '#fff'
   },
-  safearea:{
+  safearea: {
     flex: 1,
   },
   keyboardAvoidView: {
@@ -417,44 +439,57 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 16,
+     zIndex: 999,
+      marginTop: Platform.OS === 'ios' ? 35 : 30, // ปรับถ้าจำเป็น
   },
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 24,
-    width: '85%',
+    padding: 20,
+    width: '100%',
+    maxWidth: 320,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 12,
+    color: '#333',
   },
   modalDesc: {
     fontSize: 14,
     color: '#666',
     marginBottom: 16,
     textAlign: 'center',
+    lineHeight: 20,
   },
   input: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f5f5f5',
     borderWidth: 1,
     borderColor: '#ddd',
     color: '#000',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    width: 180,
+    width: '100%',
     textAlign: 'center',
     letterSpacing: 2,
+    marginBottom: 12,
   },
   errorText: {
     color: '#FF3B30',
-    fontSize: 14,
-    marginTop: 5,
+    fontSize: 13,
+    marginBottom: 8,
     textAlign: 'center',
-  },
+    fontWeight: '500',
+  }
 });

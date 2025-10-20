@@ -241,6 +241,8 @@ export const getUserFavorites = async (page = 1, limit = 20) => {
       }
     );
 
+    console.log("Favorites response:", response.data);
+
     // ✅ วิธีที่ 2: ใช้ GET และส่ง params ใน query string (แนะนำ)
     // const response = await api.get('/users/favorites', {
     //   params: { page, limit },

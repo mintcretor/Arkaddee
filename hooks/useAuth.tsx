@@ -178,7 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ฟังก์ชันรีเฟรช token
   const refreshAuthToken = async (): Promise<boolean> => {
-    console.log('Attempting to refresh token...');
+   // console.log('Attempting to refresh token...');
     try {
       // ตรวจสอบว่ามี refresh token หรือไม่
       if (!state.refreshToken) {
@@ -192,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await axios.post(`${API_URL}/auth/refresh-token`, {
         refreshToken: state.refreshToken
       });
-
+      console.log('Refresh token response:', response.data);
       const { token, refreshToken } = response.data;
 
       if (token) {
@@ -247,19 +247,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (config.headers?.Authorization && state.token) {
           // ตรวจสอบว่า token ใกล้หมดอายุหรือไม่
           if (isTokenExpired(state.token)) {
-            console.log('Token is about to expire, refreshing...');
+            //console.log('Token is about to expire, refreshing...');
             // ถ้าใช่ ลองรีเฟรช token ก่อน
-            const refreshed = await refreshAuthToken();
+            //const refreshed = await refreshAuthToken();
 
-            if (refreshed) {
+            //if (refreshed) {
               // ถ้ารีเฟรชสำเร็จ ใช้ token ใหม่
-              config.headers.Authorization = `Bearer ${state.token}`;
-              console.log('Using new token for request');
-            } else {
+            //  config.headers.Authorization = `Bearer ${state.token}`;
+            //  console.log('Using new token for request');
+            //} else {
               // ถ้ารีเฟรชไม่สำเร็จ ลงชื่อออก
+             // console.log('Token expired and refresh failed, signing out...');
               await signOut();
               return Promise.reject(new Error('Token expired and refresh failed'));
-            }
+            //}
           }
         }
 
@@ -1265,8 +1266,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       // ถ้ามี token ส่งคำขอล็อกเอาท์ไปยังเซิร์ฟเวอร์
-
-      if (state.token) {
+      console.log('Signing out user...');
+     /* if (state.token) {
         try {
           await axios.post(`${API_URL}/auth/logout`, {}, {
             headers: {
@@ -1278,7 +1279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           //console.error('Error sending logout request:', error);
           // ไม่ต้องทำอะไรต่อ เพราะเราจะล็อกเอาท์ในเครื่องถึงแม้ว่าการส่งคำขอจะล้มเหลว
         }
-      }
+      }*/
       await clearRecentlyViewed(); // <-- ใช้ await
 
       // ลบข้อมูล token, refresh token และ user จาก AsyncStorage

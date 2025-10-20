@@ -7,7 +7,7 @@
     "icon": "./assets/images/iconapp/192x192.png",
     "scheme": "com.appmatrixdevelopment.arkad",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "ios": {
       "buildNumber": "1.6.9",
       "usesAppleSignIn": true,

@@ -25,9 +25,21 @@ import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
+type FavoriteItem = {
+  id?: number | string;
+  favorite_id?: number | string;
+  store_id: number | string;
+  name: string;
+  images?: string[];
+  average_rating?: number | string | null;
+  review_count?: number;
+  types?: string[];
+  updated_at?: string;
+};
+
 const FavoritesScreen = () => {
   const { user } = useAuth();
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -58,7 +70,7 @@ const FavoritesScreen = () => {
 
       const response = await getUserFavorites(page, pagination.limit);
 
-      if (response.success === true) {
+      if (response.success == true) {
         const newFavorites = response.favorites || [];
 
         if (page === 1 || isRefresh) {
@@ -85,7 +97,7 @@ const FavoritesScreen = () => {
   };
 
   // ลบร้านออกจาก favorites
-  const handleRemoveFavorite = async (storeId, storeName) => {
+  const handleRemoveFavorite = async (storeId: unknown, storeName: any) => {
     console.log('Removing favorite:', storeId, storeName);
     Alert.alert(
       t('favorite.removeFavorite'),
@@ -147,7 +159,7 @@ const FavoritesScreen = () => {
   };
 
   // ไปหน้ารายละเอียดร้าน
-  const goToStoreDetail = (storeId) => {
+  const goToStoreDetail = (storeId: any) => {
     router.push({
       pathname: `/places/details`,
       params: { id: storeId }
@@ -155,7 +167,7 @@ const FavoritesScreen = () => {
   };
 
   // Component แสดงแต่ละร้าน
-  const FavoriteItem = ({ item }) => {
+  const FavoriteListItem: React.FC<{ item: FavoriteItem }> = ({ item }) => {
     console.log('Rendering item:', item.id, item.name);
     const isRemoving = removingIds.has(item.store_id);
 
@@ -300,7 +312,11 @@ const FavoritesScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+       <StatusBar
+              barStyle="dark-content"
+              backgroundColor="#ffffff"
+              translucent={true}
+            />
 
       {/* Header */}
       <View style={styles.header}>
@@ -317,7 +333,7 @@ const FavoritesScreen = () => {
       {/* Favorites List */}
       <FlatList
         data={favorites}
-        renderItem={({ item }) => <FavoriteItem item={item} />}
+        renderItem={({ item }) => <FavoriteListItem item={item} />}
         keyExtractor={(item) => item.favorite_id?.toString() || item.id?.toString()}
         contentContainerStyle={favorites.length === 0 ? styles.emptyListContainer : styles.listContainer}
         refreshControl={
@@ -363,14 +379,14 @@ const FavoritesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 0, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',

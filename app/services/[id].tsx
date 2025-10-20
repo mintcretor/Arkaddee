@@ -287,15 +287,14 @@ export default function ServiceListingScreen() {
         }
     }, [id]);
 
-    // ... ส่วนที่เหลือของ component UI ยังคงเหมือนเดิม
     return (
         <View style={styles.container}>
-        <SafeAreaView >
             <StatusBar
                 barStyle="dark-content"
                 backgroundColor="#ffffff"
                 translucent={true}
             />
+
             {/* ส่วนหัวของหน้า */}
             <View style={styles.header}>
                 <TouchableOpacity
@@ -571,7 +570,7 @@ export default function ServiceListingScreen() {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+
         </View>
     );
 }
@@ -582,12 +581,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF',
         marginTop: Platform.OS === 'ios' ? 35 : 25,
+
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 16,
+        paddingBottom: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
@@ -722,6 +723,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 16,
+        paddingBottom: Platform.OS === 'ios' ? 50 : 50,
         flexGrow: 1,
     },
     placesGrid: {
