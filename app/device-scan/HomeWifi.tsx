@@ -15,7 +15,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { fetchCheckPassword } from '@/api/baseapi';
 
@@ -28,6 +28,7 @@ export default function HomeProduct() {
   const [deviceCode, setDeviceCode] = useState('');
   const [deviceCodeError, setDeviceCodeError] = useState('');
   const { t } = useTranslation();
+  const router = useRouter();
 
   useEffect(() => {
     loadProducts();
@@ -244,58 +245,58 @@ export default function HomeProduct() {
 
 
       </SafeAreaView>
-        <Modal
-          visible={showModal}
-          transparent
-          animationType="none"
-          onRequestClose={() => {
-            setShowModal(false);
-            setDeviceCode('');           // ลบตัวอักษร
-            setDeviceCodeError('');      // ลบข้อความ error
-          }}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{t('myhome.Devicepassword')}</Text>
-              <Text style={styles.modalDesc}>{t('myhome.note_password')}</Text>
-              <TextInput
-                style={[styles.input, deviceCodeError && { borderColor: '#FF3B30', color: '#000' }]}
-                placeholder={t('myhome.Devicepassword')}
-                placeholderTextColor="#999"
-                value={deviceCode}
-                onChangeText={text => {
-                  // อนุญาตทั้งพิมพ์เล็กและพิมพ์ใหญ่
-                  setDeviceCode(text.replace(/[^A-Za-z0-9]/g, ''));
-                  setDeviceCodeError('');
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="none"
+        onRequestClose={() => {
+          setShowModal(false);
+          setDeviceCode('');           // ลบตัวอักษร
+          setDeviceCodeError('');      // ลบข้อความ error
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t('myhome.Devicepassword')}</Text>
+            <Text style={styles.modalDesc}>{t('myhome.note_password')}</Text>
+            <TextInput
+              style={[styles.input, deviceCodeError && { borderColor: '#FF3B30', color: '#000' }]}
+              placeholder={t('myhome.Devicepassword')}
+              placeholderTextColor="#999"
+              value={deviceCode}
+              onChangeText={text => {
+                // อนุญาตทั้งพิมพ์เล็กและพิมพ์ใหญ่
+                setDeviceCode(text.replace(/[^A-Za-z0-9]/g, ''));
+                setDeviceCodeError('');
+              }}
+              autoCapitalize="none"
+              maxLength={8}
+              textAlign="center"
+            />
+            {deviceCodeError ? (
+              <Text style={styles.errorText}>{deviceCodeError}</Text>
+            ) : null}
+            <View style={{ flexDirection: 'row', marginTop: 16 }}>
+              <TouchableOpacity
+                style={[styles.continueButton, { flex: 1, marginRight: 8 }]}
+                onPress={handleModalNext}
+              >
+                <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.continueButton, styles.disabledButton, { flex: 1 }]}
+                onPress={() => {
+                  setShowModal(false);
+                  setDeviceCode('');           // ลบตัวอักษร
+                  setDeviceCodeError('');      // ลบข้อความ error
                 }}
-                autoCapitalize="none"
-                maxLength={8}
-                textAlign="center"
-              />
-              {deviceCodeError ? (
-                <Text style={styles.errorText}>{deviceCodeError}</Text>
-              ) : null}
-              <View style={{ flexDirection: 'row', marginTop: 16 }}>
-                <TouchableOpacity
-                  style={[styles.continueButton, { flex: 1, marginRight: 8 }]}
-                  onPress={handleModalNext}
-                >
-                  <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.continueButton, styles.disabledButton, { flex: 1 }]}
-                  onPress={() => {
-                    setShowModal(false);
-                    setDeviceCode('');           // ลบตัวอักษร
-                    setDeviceCodeError('');      // ลบข้อความ error
-                  }}
-                >
-                  <Text style={styles.continueButtonText}>{t('common.cancel')}</Text>
-                </TouchableOpacity>
-              </View>
+              >
+                <Text style={styles.continueButtonText}>{t('common.cancel')}</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </View>
+      </Modal>
 
     </View>
   );
@@ -304,7 +305,7 @@ export default function HomeProduct() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-        marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
 
     backgroundColor: '#fff'
   },
@@ -443,8 +444,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-     zIndex: 999,
-      marginTop: Platform.OS === 'ios' ? 35 : 30, // ปรับถ้าจำเป็น
+    zIndex: 999,
+    marginTop: Platform.OS === 'ios' ? 35 : 30, // ปรับถ้าจำเป็น
   },
   modalContent: {
     backgroundColor: '#fff',

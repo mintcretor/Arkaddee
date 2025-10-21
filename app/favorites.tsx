@@ -15,7 +15,8 @@ import {
   Platform
 } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+
 import { useAuth } from '@/hooks/useAuth';
 import { getUserFavorites, removeFavorite } from '@/api/baseapi';
 import { BASEAPI_CONFIG } from '@/config';
@@ -39,6 +40,8 @@ type FavoriteItem = {
 const FavoritesScreen = () => {
   const { user } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+    const router = useRouter();
+  
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
