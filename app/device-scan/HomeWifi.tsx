@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     zIndex: 999,
-    marginTop: Platform.OS === 'ios' ? 35 : 30, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
   },
   modalContent: {
     backgroundColor: '#fff',

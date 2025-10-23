@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: Platform.OS === 'ios' ? 35 : 25,
+        marginTop: Platform.OS === 'ios' ? 35 : 25,
         paddingBottom: 20,
     },
     closeButton: {

@@ -290,8 +290,8 @@ function MainLayout() {
             } else {
               if (isLoginScreen()) {
                 // ถ้าอยู่ในหน้า login ให้ไปหน้า home แทน
-               // safeNavigate(router, () => router.replace('/(tabs)/home'));
-               return true;
+                // safeNavigate(router, () => router.replace('/(tabs)/home'));
+                return true;
               } else {
                 router.replace('/(tabs)/home');
               }
@@ -402,7 +402,10 @@ function MainLayout() {
             }}
           />
         </Stack>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'light'} />
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor="#ffffff"
+          translucent={true} />
       </ThemeProvider>
     </RecentlyViewedProvider>
   );
