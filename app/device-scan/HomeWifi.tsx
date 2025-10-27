@@ -179,12 +179,13 @@ export default function HomeProduct() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.safearea}>
+      
         <StatusBar
           barStyle="dark-content"
           backgroundColor="#fff"
           translucent={false}
         />
+        <SafeAreaView style={styles.safearea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidView}
@@ -305,8 +306,7 @@ export default function HomeProduct() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
-
+    marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
     backgroundColor: '#fff'
   },
   safearea: {
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     zIndex: 999,
-    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
   },
   modalContent: {
     backgroundColor: '#fff',

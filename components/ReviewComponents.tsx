@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
+import { getInfoAsync } from 'expo-file-system/legacy';
 import { useAuth } from '@/hooks/useAuth';
 import reviewService from '@/api/reviewService';
 import { useTranslation } from 'react-i18next';
@@ -293,20 +294,28 @@ export const WriteReviewModal: React.FC<{
                     aspect: [4, 3],
                     quality: 0.8,
                     allowsMultipleSelection: true,
-                    selectionLimit: 5 - images.length, // Limit total images to 5
+                    selectionLimit: 5 - images.length,
                 });
 
                 if (!result.canceled && result.assets) {
-                    // Check file size limit (2MB per image)
                     const newImages = [...images];
 
                     for (const asset of result.assets) {
-                        const fileInfo = await FileSystem.getInfoAsync(asset.uri);
+                        try {
+                            // Use legacy API
+                            const fileInfo = await getInfoAsync(asset.uri);
 
-                        if (fileInfo.size > 20 * 1024 * 1024) {
-                            Alert.alert(t('store.file_too_large'), t('store.image_size_limit'));
-                        } else if (newImages.length < 5) {
-                            newImages.push(asset.uri);
+                            if (fileInfo.size > 20 * 1024 * 1024) {
+                                Alert.alert(t('store.file_too_large'), t('store.image_size_limit'));
+                            } else if (newImages.length < 5) {
+                                newImages.push(asset.uri);
+                            }
+                        } catch (fileError) {
+                            console.error('Error checking file:', fileError);
+                            // If file check fails, still add the image (fallback)
+                            if (newImages.length < 5) {
+                                newImages.push(asset.uri);
+                            }
                         }
                     }
 
@@ -317,6 +326,8 @@ export const WriteReviewModal: React.FC<{
                 console.error('Image picker error:', error);
             }
         };
+
+
 
         // Function to take a photo with the camera
         const handleTakePhoto = async () => {
@@ -336,17 +347,23 @@ export const WriteReviewModal: React.FC<{
                 });
 
                 if (!result.canceled && result.assets && result.assets.length > 0) {
-                    // Check if we reached the limit of 5 images
                     if (images.length >= 5) {
-                        Alert.alert(t('common.warning'), t('store.max_5_images')); return;
+                        Alert.alert(t('common.warning'), t('store.max_5_images'));
+                        return;
                     }
 
-                    // Check file size
-                    const fileInfo = await FileSystem.getInfoAsync(result.assets[0].uri);
+                    try {
+                        // Use legacy API
+                        const fileInfo = await getInfoAsync(result.assets[0].uri);
 
-                    if (fileInfo.size > 20 * 1024 * 1024) {
-                        Alert.alert(t('store.file_too_large'), t('store.image_size_limit'));
-                    } else {
+                        if (fileInfo.size > 20 * 1024 * 1024) {
+                            Alert.alert(t('store.file_too_large'), t('store.image_size_limit'));
+                        } else {
+                            setImages([...images, result.assets[0].uri]);
+                        }
+                    } catch (fileError) {
+                        console.error('Error checking file:', fileError);
+                        // If file check fails, still add the image (fallback)
                         setImages([...images, result.assets[0].uri]);
                     }
                 }
@@ -359,7 +376,7 @@ export const WriteReviewModal: React.FC<{
         return (
             <Modal
                 visible={visible}
-                animationType="slide"
+                animationType="fade"
                 transparent={false}
                 onRequestClose={onClose}
             >
@@ -653,7 +670,7 @@ export const ReviewsSection: React.FC<{
                                         ]}
                                     />
                                 </View>
-                                <Text style={[{marginLeft:10,color:'#000'}]}>({count})</Text>
+                                <Text style={[{ marginLeft: 10, color: '#000' }]}>({count})</Text>
                             </View>
                         );
                     })}
@@ -906,7 +923,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         backgroundColor: '#FFF',
-        marginTop: Platform.OS === 'ios' ? 35 : 25,
+        marginTop: Platform.OS === 'ios' ? 35 : 34,
     },
     modalHeader: {
         flexDirection: 'row',
@@ -951,7 +968,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         textAlignVertical: 'top',
         fontSize: 16,
-        color:'#000'
+        color: '#000'
     },
     imagePickerSection: {
         padding: 16,

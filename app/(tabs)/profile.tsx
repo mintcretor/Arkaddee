@@ -28,7 +28,7 @@ import {
   SimpleLineIcons
 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { router } from 'expo-router';
 import LanguageSelector from '@/components/LanguageSelector';
 
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+    marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
 
     // ลบ marginTop ออกแล้ว ใช้ SafeAreaView จัดการแทน
   },

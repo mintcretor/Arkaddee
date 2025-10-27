@@ -12,14 +12,16 @@ import {
     KeyboardAvoidingView,
     Image,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import reviewService from '@/api/reviewService';
 import { useTranslation } from 'react-i18next';
 
 const EditReviewScreen = () => {
+    const insets = useSafeAreaInsets();
     const { reviewId } = useLocalSearchParams();
     const router = useRouter();
     const { t } = useTranslation();
@@ -48,13 +50,12 @@ const EditReviewScreen = () => {
         loadReview();
     }, [reviewId]);
 
-    // เลือกรูปจากเครื่อง
     const handlePickImages = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
             Alert.alert(
-                t('common.warning'), // "คำเตือน"
-                t('common.galleryPermissionMessage') // "ต้องการสิทธิ์การเข้าถึงคลังรูปภาพเพื่อเลือกรูปภาพ"
+                t('common.warning'),
+                t('common.galleryPermissionMessage')
             );
             return;
         }
@@ -84,20 +85,20 @@ const EditReviewScreen = () => {
             }
         } catch (error) {
             Alert.alert(
-                t('common.error'), // "เกิดข้อผิดพลาด"
-                t('common.imageSelectionFailed') // "ไม่สามารถเลือกรูปภาพได้"
+                t('common.error'),
+                t('common.imageSelectionFailed')
             );
         }
     };
 
-    // ถ่ายรูป
     const handleTakePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
             Alert.alert(
-                t('common.warning'), // "คำเตือน"
-                t('common.cameraPermissionMessage') // "ต้องการสิทธิ์การเข้าถึงกล้องเพื่อถ่ายรูป"
-            ); return;
+                t('common.warning'),
+                t('common.cameraPermissionMessage')
+            );
+            return;
         }
         try {
             const result = await ImagePicker.launchCameraAsync({
@@ -108,9 +109,10 @@ const EditReviewScreen = () => {
             if (!result.canceled && result.assets && result.assets.length > 0) {
                 if (images.length >= 5) {
                     Alert.alert(
-                        t('common.warning'), // "คำเตือน"
-                        t('reviews.maxImages') // "คุณสามารถอัปโหลดได้สูงสุด 5 รูป"
-                    ); return;
+                        t('common.warning'),
+                        t('reviews.maxImages')
+                    );
+                    return;
                 }
                 const fileInfo = await FileSystem.getInfoAsync(result.assets[0].uri);
                 if (fileInfo.size > 20 * 1024 * 1024) {
@@ -130,24 +132,17 @@ const EditReviewScreen = () => {
         }
     };
 
-    // ลบรูป
     const handleRemoveImage = (index: number) => {
         setImages(images.filter((_, i) => i !== index));
     };
 
-    // อัปเดตรีวิว
     const handleSave = async () => {
-        //if (!reviewText.trim()) {
-        //    Alert.alert(
-        //        t('common.warning'), // "แจ้งเตือน"
-        //        t('reviews.pleaseEnterReview') // "กรุณากรอกรีวิว"
-        //    ); return;
-        //}
         if (rating < 1 || rating > 5) {
             Alert.alert(
                 t('common.warning'),
-                t('reviews.pleaseRate15') // "กรุณาให้คะแนน 1-5"
-            ); return;
+                t('reviews.pleaseRate15')
+            );
+            return;
         }
         setUploading(true);
         try {
@@ -165,18 +160,18 @@ const EditReviewScreen = () => {
             await reviewService.updateReview(reviewId, {
                 text: reviewText,
                 rating,
-                images: imageUrls.length > 0 ? imageUrls : images, // ถ้าไม่ได้อัปโหลดใหม่ ให้ใช้ url เดิม
+                images: imageUrls.length > 0 ? imageUrls : images,
             });
             setUploadProgress(1);
             Alert.alert(
-                t('common.success'), // "สำเร็จ"
-                t('reviews.reviewSaved'), // "บันทึกรีวิวเรียบร้อยแล้ว"
+                t('common.success'),
+                t('reviews.reviewSaved'),
                 [{ text: t('common.ok'), onPress: () => router.back() }]
             );
         } catch (e) {
             Alert.alert(
                 t('common.error'),
-                t('reviews.saveFailed') // "ไม่สามารถบันทึกรีวิวได้"
+                t('reviews.saveFailed')
             );
         }
         setUploading(false);
@@ -195,7 +190,7 @@ const EditReviewScreen = () => {
             style={{ flex: 1, backgroundColor: '#FFF' }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-            <View style={styles.modalContainer}>
+            <View style={[styles.modalContainer, { marginTop: insets.top }]}>
                 <View style={styles.modalHeader}>
                     <TouchableOpacity onPress={() => router.back()}>
                         <Ionicons name="close" size={24} color="#000" />
@@ -329,7 +324,6 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         backgroundColor: '#FFF',
-        marginTop: Platform.OS === 'ios' ? 35 : 25,
     },
     modalHeader: {
         flexDirection: 'row',
@@ -385,25 +379,13 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 2,
     },
-    imagePreviewRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        marginTop: 16,
-        marginBottom: 8,
-        flexWrap: 'wrap',
-    },
-    imagePreviewBox: {
-        position: 'relative',
-        marginRight: 10,
-        marginBottom: 10,
-    },
     imagePreview: {
         width: 64,
         height: 64,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#eee',
+        marginRight: 8,
     },
     removeImageButton: {
         position: 'absolute',
@@ -411,18 +393,6 @@ const styles = StyleSheet.create({
         right: -8,
         backgroundColor: '#fff',
         borderRadius: 10,
-    },
-    addImageBox: {
-        width: 64,
-        height: 64,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#4B74B3',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 10,
-        marginBottom: 10,
-        backgroundColor: '#f8f9fa',
     },
     reviewInput: {
         margin: 16,
@@ -434,7 +404,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         fontSize: 16,
         backgroundColor: '#fff',
-        color:'#000'
+        color: '#000'
     },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     imagePickerSection: {
@@ -447,31 +417,13 @@ const styles = StyleSheet.create({
     },
     imagePreviewContainer: {
         flexDirection: 'row',
+        marginBottom: 10,
     },
-    addImageButton: {
-        width: 100,
-        height: 100,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        borderColor: '#ccc',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 10,
-    },
-    addImageText: {
-        fontSize: 12,
-        color: '#999',
-        marginTop: 5,
-    },
-
     previewImage: {
         width: '100%',
         height: '100%',
         borderRadius: 8,
     },
-
-    // New styles for image picker
     imagePickerButtons: {
         flexDirection: 'row',
         marginBottom: 15,
@@ -496,8 +448,6 @@ const styles = StyleSheet.create({
         marginTop: 5,
         fontStyle: 'italic',
     },
-
-    // Uploading overlay
     uploadingOverlay: {
         position: 'absolute',
         top: 0,
@@ -509,11 +459,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     progressBarContainer: {
-        flex: 1,
+        width: '100%',
         height: 8,
         backgroundColor: '#E0E0E0',
         borderRadius: 4,
         overflow: 'hidden',
+        marginVertical: 10,
     },
     progressBar: {
         height: '100%',
@@ -536,40 +487,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
         marginTop: 5,
-    },
-
-    // Loading and no reviews styles
-    loadingContainer: {
-        padding: 20,
-        alignItems: 'center',
-    },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 14,
-        color: '#666',
-    },
-    loadingMoreContainer: {
-        padding: 10,
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-    loadingMoreText: {
-        marginLeft: 10,
-        fontSize: 14,
-        color: '#666',
-    },
-    noReviewsContainer: {
-        padding: 30,
-        alignItems: 'center',
-        backgroundColor: '#F8F8F8',
-        borderRadius: 8,
-    },
-    noReviewsText: {
-        marginTop: 10,
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
     },
 });
 export default EditReviewScreen;

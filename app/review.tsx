@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f8f9fa',
-        marginTop: Platform.OS === 'ios' ? 35 : 25,
+        marginTop: Platform.OS === 'ios' ? 35 : 34,
     },
     safeArea: {
         flex: 1,
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        marginTop: Platform.OS === 'ios' ? 35 : 25,
+        marginTop: Platform.OS === 'ios' ? 35 : 34,
         paddingBottom: 20,
     },
     closeButton: {

@@ -19,7 +19,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { uploadProfileImage } from '@/api/baseapi';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f8f9fa',
-        marginTop: Platform.OS === 'ios' ? 35 : 25, // ปรับถ้าจำเป็น
+        marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
     },
     iosDatePickerSheet: {
         backgroundColor: '#fff',

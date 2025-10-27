@@ -2,14 +2,14 @@
   "expo": {
     "name": "Arkad",
     "slug": "arkad",
-    "version": "1.6.9",
+    "version": "1.7.0",
     "orientation": "portrait",
     "icon": "./assets/images/iconapp/192x192.png",
     "scheme": "com.appmatrixdevelopment.arkad",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "buildNumber": "1.6.9",
+      "buildNumber": "1.7.0",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "infoPlist": {
@@ -29,46 +29,10 @@
         ]
       }
     },
-    "build": {
-      "production": {
-        "ios": {
-          "image": "macos-sonoma-14.6-xcode-16.0"
-        }
-      }
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/newicon.png",
-        "backgroundColor": "#000000",
-        "icons": {
-          "mdpi": {
-            "foregroundImage": "./assets/images/iconapp/48x48.png",
-            "backgroundColor": "#000000"
-          },
-          "hdpi": {
-            "foregroundImage": "./assets/images/iconapp/72x72.png",
-            "backgroundColor": "#000000"
-          },
-          "xhdpi": {
-            "foregroundImage": "./assets/images/iconapp/96x96.png",
-            "backgroundColor": "#000000"
-          },
-          "xxhdpi": {
-            "foregroundImage": "./assets/images/iconapp/144x144.png",
-            "backgroundColor": "#000000"
-          },
-          "xxxhdpi": {
-            "foregroundImage": "./assets/images/iconapp/192x192.png",
-            "backgroundColor": "#000000"
-          }
-        }
-      },
-      "icons": {
-        "mdpi": "./assets/images/iconapp/48x48.png",
-        "hdpi": "./assets/images/iconapp/72x72.png",
-        "xhdpi": "./assets/images/iconapp/96x96.png",
-        "xxhdpi": "./assets/images/iconapp/144x144.png",
-        "xxxhdpi": "./assets/images/iconapp/192x192.png"
+        "backgroundColor": "#000000"
       },
       "jsEngine": "hermes",
       "config": {
@@ -85,13 +49,6 @@
         "android.permission.ACCESS_FINE_LOCATION"
       ],
       "blockedPermissions": [],
-      "manifestConfiguration": {
-        "features": {
-          "android.hardware.location": "required",
-          "android.hardware.location.gps": false,
-          "android.hardware.location.network": false
-        }
-      },
       "package": "com.appmatrixdevelopment.arkad",
       "versionCode": 90
     },
@@ -131,7 +88,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "7a9c524a-8730-4daa-8497-32eb86cf7676"
+        "projectId": "dbda0e26-6347-4c37-a164-1b7535648841"
       }
     }
   }

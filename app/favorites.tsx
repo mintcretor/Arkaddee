@@ -408,7 +408,7 @@ const FavoritesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 35 : 25,
+    marginTop: Platform.OS === 'ios' ? 35 : 34,
   },
   header: {
     flexDirection: 'row',

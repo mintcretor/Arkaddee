@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         //backgroundColor: '#F7F7F7',
-        marginTop: Platform.OS === 'ios' ? 35 : 25,
+        marginTop: Platform.OS === 'ios' ? 35 : 34,
     },
     scrollView: {
         flex: 1,

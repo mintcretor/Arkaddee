@@ -403,9 +403,9 @@ function MainLayout() {
           />
         </Stack>
         <StatusBar
-          barStyle="dark-content"
-          backgroundColor="#ffffff"
-          translucent={true} />
+          style={colorScheme === 'dark' ? 'dark' : 'dark'}
+          backgroundColor="#000000"
+          />
       </ThemeProvider>
     </RecentlyViewedProvider>
   );
