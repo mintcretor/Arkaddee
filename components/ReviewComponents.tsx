@@ -21,6 +21,8 @@ import { useAuth } from '@/hooks/useAuth';
 import reviewService from '@/api/reviewService';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 // ประเภทข้อมูลสำหรับรีวิว
 interface Review {
     id: string | number;
@@ -204,6 +206,7 @@ export const WriteReviewModal: React.FC<{
     onSubmit,
     storeId
 }) => {
+        const insets = useSafeAreaInsets();
         const { isSignedIn } = useAuth();
         const [rating, setRating] = useState(0);
         const [reviewText, setReviewText] = useState('');
@@ -380,7 +383,7 @@ export const WriteReviewModal: React.FC<{
                 transparent={false}
                 onRequestClose={onClose}
             >
-                <View style={styles.modalContainer}>
+                <View style={[styles.modalContainer, { marginTop: insets.top }]}>
                     <View style={styles.modalHeader}>
                         <TouchableOpacity onPress={onClose}>
                             <Ionicons name="close" size={24} color="#000" />
@@ -923,7 +926,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         flex: 1,
         backgroundColor: '#FFF',
-        marginTop: Platform.OS === 'ios' ? 35 : 34,
+        
     },
     modalHeader: {
         flexDirection: 'row',
