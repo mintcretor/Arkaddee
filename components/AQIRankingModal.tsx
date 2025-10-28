@@ -9,7 +9,8 @@ import {
   FlatList,
   ActivityIndicator,
   Dimensions,
-  SafeAreaView
+  SafeAreaView,
+  Platform
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -267,6 +268,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
+    
   },
   header: {
     flexDirection: 'row',
@@ -288,12 +290,14 @@ const styles = StyleSheet.create({
   },
   refreshButton: {
     padding: 8,
+    
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    
   },
   tabButton: {
     flex: 1,
@@ -323,6 +327,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     marginBottom: 8,
+    
   },
   rankingTypeButton: {
     flex: 1,
@@ -344,6 +349,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   loadingText: {
     marginTop: 16,
@@ -352,7 +358,8 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 8,
-    paddingBottom: 20,
+    paddingBottom: 80,
+    
   },
   listItem: {
     flexDirection: 'row',
@@ -367,6 +374,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    
   },
   // สไตล์เพิ่มเติมสำหรับรายการที่กดได้
   clickableItem: {

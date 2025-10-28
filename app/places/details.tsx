@@ -787,11 +787,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#ffffff',
         marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
+        
         // ลบ paddingTop ออกเพื่อแก้ปัญหาช่องว่าง header
     },
     safeArea: {
         flex: 1,
         backgroundColor: '#ffffff',
+        
     },
     backButton: {
         flexDirection: 'row',

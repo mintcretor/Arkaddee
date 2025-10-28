@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
+    
   },
   content: {
     flex: 1,

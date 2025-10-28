@@ -581,6 +581,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF',
         marginTop: Platform.OS === 'ios' ? 35 : 34,
+        
 
     },
     header: {

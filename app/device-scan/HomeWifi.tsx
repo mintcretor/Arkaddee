@@ -179,13 +179,13 @@ export default function HomeProduct() {
 
   return (
     <View style={styles.container}>
-      
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="#fff"
-          translucent={false}
-        />
-        <SafeAreaView style={styles.safearea}>
+
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
+      />
+      <SafeAreaView style={styles.safearea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidView}
@@ -207,6 +207,8 @@ export default function HomeProduct() {
                 <Text style={styles.loadingText}>{t('myhome.searching_device')}</Text>
               </View>
             ) : (
+
+
               <FlatList
                 data={products}
                 renderItem={renderProductItem}
@@ -215,6 +217,7 @@ export default function HomeProduct() {
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
                 numColumns={2}
+                showsVerticalScrollIndicator={false}  // เพิ่มบรรทัดนี้
                 key={'product-grid-2'}
                 ListEmptyComponent={
                   <View style={styles.emptyListContainer}>
@@ -224,19 +227,23 @@ export default function HomeProduct() {
                     </Text>
                   </View>
                 }
+                ListFooterComponent={
+                  <TouchableOpacity
+                    style={[
+                      styles.continueButton,
+                      !selectedProduct && styles.disabledButton
+                    ]}
+                    onPress={handleContinue}
+                    disabled={!selectedProduct}
+
+                  >
+                    <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
+                  </TouchableOpacity>
+                }
               />
             )}
 
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                !selectedProduct && styles.disabledButton
-              ]}
-              onPress={handleContinue}
-              disabled={!selectedProduct}
-            >
-              <Text style={styles.continueButtonText}>{t('myhome.next')}</Text>
-            </TouchableOpacity>
+
           </View>
         </KeyboardAvoidingView >
 
@@ -428,7 +435,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 16
+    marginTop: 16,
+    marginBottom: Platform.OS === 'ios' ? 0 : 40,
   },
   disabledButton: {
     backgroundColor: '#ccc'

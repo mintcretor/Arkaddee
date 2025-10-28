@@ -747,6 +747,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#eee',
         paddingTop: 20,
+        paddingBottom: Platform.OS === 'ios' ? 0 : 40,
     },
     sectionHeader: {
         flexDirection: 'row',

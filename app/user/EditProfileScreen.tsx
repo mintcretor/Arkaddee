@@ -542,6 +542,29 @@ const EditProfileScreen = () => {
                                 <Ionicons name="calendar-outline" size={20} color="#666" />
                             </TouchableOpacity>
                         </View>
+
+
+                    </View>
+
+                    <View style={styles.bottomContainer}>
+                        <TouchableOpacity
+                            style={styles.cancelButton}
+                            onPress={() => router.back()}
+                            disabled={loading}
+                        >
+                            <Text style={styles.cancelButtonText}>{t('profile.cancel')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.submitButton}
+                            onPress={handleSave}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                            ) : (
+                                <Text style={styles.submitButtonText}>{t('profile.save_data')}</Text>
+                            )}
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -604,26 +627,7 @@ const EditProfileScreen = () => {
                 </>
             )}
             {/* Bottom Button */}
-            <View style={styles.bottomContainer}>
-                <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => router.back()}
-                    disabled={loading}
-                >
-                    <Text style={styles.cancelButtonText}>{t('profile.cancel')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={handleSave}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                        <Text style={styles.submitButtonText}>{t('profile.save_data')}</Text>
-                    )}
-                </TouchableOpacity>
-            </View>
+
         </SafeAreaView>
     );
 };
@@ -633,6 +637,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f8f9fa',
         marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
+
     },
     iosDatePickerSheet: {
         backgroundColor: '#fff',
@@ -882,6 +887,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         borderTopWidth: 1,
         borderTopColor: '#eee',
+        marginBottom: Platform.OS === 'ios' ? 0 : 30,
     },
     cancelButton: {
         width: 100,

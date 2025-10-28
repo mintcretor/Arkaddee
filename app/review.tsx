@@ -527,6 +527,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f8f9fa',
         marginTop: Platform.OS === 'ios' ? 35 : 34,
+        
     },
     safeArea: {
         flex: 1,

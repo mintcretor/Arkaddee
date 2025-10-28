@@ -27,10 +27,7 @@ export default function TabLayout() {
         },
         tabBarInactiveTintColor: '#fff',
         tabBarActiveTintColor: '#000',
-        // tabBarLabelStyle: {
-        //   // หากต้องการปรับสไตล์ข้อความแท็บเพิ่ม
-        //   marginBottom: Platform.OS === 'android' ? 0 : 0, // ตัวอย่าง
-        // },
+
       }}
     >
       <Tabs.Screen

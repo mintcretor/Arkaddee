@@ -464,6 +464,21 @@ const AddAddressScreen = () => {
           </View>
 
           {renderField(t('address.postalCode'), 'postalCode', '10xxx', 'numeric', 5)}
+
+
+          <View style={styles.bottomContainer}>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.submitButtonText}>{isEditMode ? t('address.edit') : t('address.add')}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       );
     }
@@ -508,19 +523,7 @@ const AddAddressScreen = () => {
         </KeyboardAvoidingView>
       )}
 
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.submitButtonText}>{isEditMode ? t('address.edit') : t('address.add')}</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+
     </SafeAreaView>
   );
 };
@@ -529,6 +532,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
+
 
   },
   header: {
@@ -566,12 +570,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingTop: 10,
     color: '#000',
-    paddingBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    marginBottom: Platform.OS === 'ios' ? 15 : 40,
   },
   fieldContainer: {
     marginBottom: 15,
@@ -637,6 +641,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingTop: 15,
     maxHeight: '100%',
+    marginBottom: Platform.OS === 'ios' ? 0 : 30,
   },
   bottomContainer: {
     backgroundColor: '#fff',
@@ -644,6 +649,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderTopWidth: 1,
     borderTopColor: '#eee',
+
   },
   submitButton: {
     backgroundColor: '#0066cc',

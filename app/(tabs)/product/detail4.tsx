@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F7F7F7',
         marginTop: Platform.OS === 'ios' ? 35 : 34, // Adjust if necessary
+        
     },
     safeArea: {
         flex: 1,

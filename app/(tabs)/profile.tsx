@@ -601,6 +601,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
+    
 
     // ลบ marginTop ออกแล้ว ใช้ SafeAreaView จัดการแทน
   },
