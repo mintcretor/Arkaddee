@@ -123,7 +123,7 @@ const ShopDetails = () => {
     const [loading, setLoading] = useState(true);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const flatListRef = useRef(null);
-    const [lastUpdateTime, setLastUpdateTime] = useState(null);
+    const [lastUpdateTime, setLastUpdateTime] = useState<number | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -132,9 +132,21 @@ const ShopDetails = () => {
     const [reviewImages, setReviewImages] = useState<string[]>([]);
 
     const loadInitialData = async () => {
+
+        if (!id) {
+            console.log('❌ No ID provided');
+            return;
+        }
+
         try {
             setLoading(true);
             const details = await fetchRestaurantById(id);
+            if (!details) {
+                console.log('❌ No data returned from API');
+                setLoading(false);
+                return;
+            }
+
             const { environmentalMetrics, ...baseInfo } = details;
             setRestaurantBaseInfo(baseInfo);
             setIsFavorite(baseInfo.is_favorite || false);
@@ -155,6 +167,8 @@ const ShopDetails = () => {
 
         } catch (error) {
             console.error('Failed to load place details:', error);
+            Alert.alert('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลร้านได้ กรุณาลองใหม่อีกครั้ง');
+
         } finally {
             setLoading(false);
         }
@@ -162,8 +176,10 @@ const ShopDetails = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            loadInitialData();
-        }, [])
+            if (id) {  // เพิ่มเงื่อนไขนี้
+                loadInitialData();
+            }
+        }, [id])  // เพิ่ม id เป็น dependency
     );
 
     useEffect(() => {
@@ -483,19 +499,44 @@ const ShopDetails = () => {
         );
     }
 
-    if (!restaurantsData) {
+    if (!restaurantsData && !loading) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text>ไม่พบข้อมูลร้านอาหาร</Text>
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+                <Ionicons name="alert-circle-outline" size={64} color="#999" />
+                <Text style={{ fontSize: 18, marginTop: 16, marginBottom: 8 }}>
+                    ไม่พบข้อมูลร้านอาหาร
+                </Text>
+                <Text style={{ color: '#666', textAlign: 'center', marginBottom: 20 }}>
+                    ID: {id || 'ไม่มี'}
+                </Text>
                 <TouchableOpacity
-                    style={{ margin: 20, padding: 20, backgroundColor: '#4B74B3', borderRadius: 5 }}
-                    onPress={() => router.back()}>
-                    <Text style={{ color: 'white' }}>{t('store.back')}</Text>
+                    style={{
+                        padding: 15,
+                        backgroundColor: '#4B74B3',
+                        borderRadius: 8,
+                        marginBottom: 10,
+                        minWidth: 150,
+                        alignItems: 'center'
+                    }}
+                    onPress={loadInitialData}
+                >
+                    <Text style={{ color: 'white', fontSize: 16 }}>ลองใหม่อีกครั้ง</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={{
+                        padding: 15,
+                        backgroundColor: '#999',
+                        borderRadius: 8,
+                        minWidth: 150,
+                        alignItems: 'center'
+                    }}
+                    onPress={() => router.back()}
+                >
+                    <Text style={{ color: 'white', fontSize: 16 }}>{t('store.back')}</Text>
                 </TouchableOpacity>
             </View>
         );
     }
-
     return (
         <View style={styles.container}>
             <StatusBar
@@ -644,7 +685,7 @@ const ShopDetails = () => {
 
                         <Text style={styles.description}>
                             {restaurantsData.description ||
-                                'เป็นที่ตั้งร้านอาหารและคาเฟ่ในเชียงใหม่ที่ผสมผสานกับธรรมชาติได้อย่างลงตัว บรรยากาศร่มรื่น ตกแต่งด้วยต้นไม้ใหญ่ได้ Tropical Thai Moss Garden ตั้งอยู่ติดกับภูเขาจำลองระบบนิเวศน์ของน้ำตกเล็ก รายล้อมไปด้วยแมกไม้นานาพันธุ์'}
+                                ''}
                         </Text>
 
                         <View style={styles.mapSection}>
@@ -787,13 +828,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#ffffff',
         marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
-        
+
         // ลบ paddingTop ออกเพื่อแก้ปัญหาช่องว่าง header
     },
     safeArea: {
         flex: 1,
         backgroundColor: '#ffffff',
-        
+
     },
     backButton: {
         flexDirection: 'row',
@@ -808,7 +849,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#000000',
     },
-
     galleryWrapper: {
         height: 230,
         position: 'relative',
@@ -871,7 +911,6 @@ const styles = StyleSheet.create({
         height: 10,
         borderRadius: 5,
     },
-
     airQualityBadge: {
         position: 'absolute',
         top: 8,

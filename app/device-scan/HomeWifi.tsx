@@ -15,7 +15,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { fetchCheckPassword } from '@/api/baseapi';
 
@@ -28,7 +28,7 @@ export default function HomeProduct() {
   const [deviceCode, setDeviceCode] = useState('');
   const [deviceCodeError, setDeviceCodeError] = useState('');
   const { t } = useTranslation();
-  const router = useRouter();
+
 
   useEffect(() => {
     loadProducts();

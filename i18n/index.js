@@ -10,7 +10,7 @@ import en from './translations/en';
 import th from './translations/th';
 
 // กำหนดภาษาเริ่มต้น
-const defaultLanguage = 'en';
+const defaultLanguage = 'th';
 
 // แก้ไขฟังก์ชันนี้ให้ไม่ใช้ Localization
 const detectUserLanguage = async () => {

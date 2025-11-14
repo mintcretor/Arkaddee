@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASEAPI_CONFIG } from '@/config';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 interface Tambon {
   id: number;
@@ -70,6 +72,7 @@ const AddAddressScreen = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const [provinceOpen, setProvinceOpen] = useState(false);
   const [districtOpen, setDistrictOpen] = useState(false);
@@ -376,7 +379,10 @@ const AddAddressScreen = () => {
               modalProps={{
                 animationType: "slide"
               }}
-              modalContentContainerStyle={styles.modalContentContainer}
+              modalContentContainerStyle={{
+                ...styles.modalContentContainer,
+                paddingTop: Math.max(insets.top, 30) // ใช้ค่าที่มากกว่าระหว่าง safe area กับ 20
+              }}
               modalTitle={t('address.c_province')}
               style={[styles.dropdownMainStyle, errors.province ? styles.inputError : null]}
               dropDownContainerStyle={styles.dropdownContainer}
@@ -413,8 +419,10 @@ const AddAddressScreen = () => {
               modalProps={{
                 animationType: "slide"
               }}
-              modalContentContainerStyle={styles.modalContentContainer}
-              modalTitle={t('address.c_District')}
+              modalContentContainerStyle={{
+                ...styles.modalContentContainer,
+                paddingTop: Math.max(insets.top, 30) // ใช้ค่าที่มากกว่าระหว่าง safe area กับ 20
+              }} modalTitle={t('address.c_District')}
               style={[styles.dropdownMainStyle, errors.district ? styles.inputError : null]}
               dropDownContainerStyle={styles.dropdownContainer}
               textStyle={styles.dropdownText}
@@ -450,8 +458,10 @@ const AddAddressScreen = () => {
               modalProps={{
                 animationType: "slide"
               }}
-              modalContentContainerStyle={styles.modalContentContainer}
-              modalTitle={t('address.c_Subdistrict')}
+              modalContentContainerStyle={{
+                ...styles.modalContentContainer,
+                paddingTop: Math.max(insets.top, 30) // ใช้ค่าที่มากกว่าระหว่าง safe area กับ 20
+              }} modalTitle={t('address.c_Subdistrict')}
               style={[styles.dropdownMainStyle, errors.subDistrict ? styles.inputError : null]}
               dropDownContainerStyle={styles.dropdownContainer}
               textStyle={styles.dropdownText}
@@ -639,9 +649,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     paddingHorizontal: 15,
-    paddingTop: 15,
     maxHeight: '100%',
-    marginBottom: Platform.OS === 'ios' ? 0 : 30,
+    marginBottom: Platform.OS === 'ios' ? 30 : 50,
   },
   bottomContainer: {
     backgroundColor: '#fff',

@@ -18,40 +18,70 @@ import DataProviderFactory from '@/services/DataProviders/DataProviderFactory';
 import { useTranslation } from 'react-i18next';
 
 const AQIRankingModal = ({ visible, onClose }) => {
-  const router = useRouter(); // เพิ่ม useRouter สำหรับการนำทาง
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [indoorData, setIndoorData] = useState([]);
   const [outdoorData, setOutdoorData] = useState([]);
-  const [activeTab, setActiveTab] = useState('indoor'); // 'indoor' หรือ 'outdoor'
-  const [rankingType, setRankingType] = useState('best'); // 'best' หรือ 'worst'
+  const [activeTab, setActiveTab] = useState('indoor');
+  const [rankingType, setRankingType] = useState('best');
   const { t } = useTranslation();
+  const [refreshKey, setRefreshKey] = useState(0); // เพิ่ม key สำหรับ force refresh
 
+  // ✅ แก้ไข: Reset state และ fetch ข้อมูลใหม่ทุกครั้งที่เปิด modal
   useEffect(() => {
     if (visible) {
-      fetchData();
+      // Reset state ก่อนเสมอ
+      setLoading(true);
+      setIndoorData([]);
+      setOutdoorData([]);
+      
+      // Delay เล็กน้อยเพื่อให้ UI reset ก่อน
+      const timer = setTimeout(() => {
+        fetchData();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    } else {
+      // ✅ เพิ่ม: เมื่อปิด modal ให้ reset state
+      setIndoorData([]);
+      setOutdoorData([]);
+      setActiveTab('indoor');
+      setRankingType('best');
     }
-  }, [visible]);
+  }, [visible, refreshKey]); // เพิ่ม refreshKey เป็น dependency
 
   const fetchData = async () => {
     try {
       setLoading(true);
       
-      // ดึงข้อมูลภายในอาคาร
+      console.log('🔄 Fetching ranking data...'); // เพิ่ม log เพื่อ debug
+      
+      // ดึงข้อมูลภายในอาคาร (default provider)
       const indoorProvider = DataProviderFactory.getProvider('default');
       const indoorPoints = await indoorProvider.fetchData();
+      console.log('📥 Indoor data:', indoorPoints?.length || 0, 'points');
       
-      // ดึงข้อมูลภายนอกอาคาร
+      // ดึงข้อมูลภายนอกอาคาร (secondary provider)
       const outdoorProvider = DataProviderFactory.getProvider('secondary');
       const outdoorPoints = await outdoorProvider.fetchData();
+      console.log('📥 Outdoor data:', outdoorPoints?.length || 0, 'points');
       
       // เรียงลำดับข้อมูลตาม AQI
       setIndoorData(sortData(indoorPoints));
       setOutdoorData(sortData(outdoorPoints));
+      
+      console.log('✅ Data fetched successfully');
     } catch (error) {
-      console.error('Error fetching ranking data:', error);
+      console.error('❌ Error fetching ranking data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // ✅ แก้ไข: ปรับปรุงฟังก์ชัน refresh
+  const handleRefresh = async () => {
+    console.log('🔄 Manual refresh triggered');
+    setRefreshKey(prev => prev + 1); // เพิ่ม key เพื่อ trigger useEffect
   };
 
   // ฟังก์ชันเรียงลำดับข้อมูล
@@ -69,19 +99,15 @@ const AQIRankingModal = ({ visible, onClose }) => {
 
   // ข้อมูลที่จะแสดงบนหน้าจอ
   const getRankingData = () => {
-    // เลือกข้อมูลตามแหล่งข้อมูล
     const sourceData = activeTab === 'indoor' ? indoorData : outdoorData;
     
     if (!sourceData || sourceData.length === 0) {
       return [];
     }
     
-    // เลือก 10 อันดับตามประเภทการจัดอันดับ
     if (rankingType === 'best') {
-      // 10 อันดับที่ดีที่สุด (AQI ต่ำ = อากาศดี)
       return sourceData.slice(0, 10);
     } else {
-      // 10 อันดับที่แย่ที่สุด (AQI สูง = อากาศแย่)
       return [...sourceData].reverse().slice(0, 10);
     }
   };
@@ -106,12 +132,9 @@ const AQIRankingModal = ({ visible, onClose }) => {
 
   // ฟังก์ชันสำหรับการนำทางไปยังหน้ารายละเอียดสถานที่
   const handlePlacePress = (item) => {
-    // เราจะนำทางไปหน้ารายละเอียดเฉพาะกรณี "ภายในอาคาร" เท่านั้น
     if (activeTab === 'outdoor' && item && item.id) {
-      // ปิดโมดัลก่อนที่จะนำทาง
       onClose();
       
-      // นำทางไปยังหน้ารายละเอียดด้วย id ของสถานที่
       router.push({
         pathname: `/places/details`,
         params: {
@@ -123,13 +146,9 @@ const AQIRankingModal = ({ visible, onClose }) => {
 
   // รายการสำหรับแสดงในลิสต์
   const renderItem = ({ item, index }) => {
-    // ตรวจสอบว่าเป็นรายการภายในอาคารหรือไม่
     const isIndoorItem = activeTab === 'outdoor';
-    
-    // สร้าง component ที่แตกต่างกันตามประเภทของข้อมูล
     const ListItemComponent = isIndoorItem ? TouchableOpacity : View;
     
-    // กำหนดคุณสมบัติเพิ่มเติมสำหรับ TouchableOpacity
     const additionalProps = isIndoorItem ? {
       onPress: () => handlePlacePress(item),
       activeOpacity: 0.7
@@ -139,7 +158,6 @@ const AQIRankingModal = ({ visible, onClose }) => {
       <ListItemComponent
         style={[
           styles.listItem,
-          // เพิ่มเอฟเฟกต์เล็กน้อยสำหรับรายการที่สามารถกดได้
           isIndoorItem && styles.clickableItem
         ]}
         {...additionalProps}
@@ -155,7 +173,6 @@ const AQIRankingModal = ({ visible, onClose }) => {
             {getAQILevel(item.aqi)}
           </Text>
           
-          {/* แสดงไอคอนเพิ่มเติมสำหรับรายการที่สามารถกดได้ */}
           {isIndoorItem && (
             <Text style={styles.tapToViewText}>
               <MaterialIcons name="info-outline" size={12} color="#4A6FA5" /> {t('common.clickfordetail')}
@@ -174,7 +191,14 @@ const AQIRankingModal = ({ visible, onClose }) => {
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <MaterialIcons name="info-outline" size={48} color="#ccc" />
-      <Text style={styles.emptyText}>ไม่พบข้อมูลคุณภาพอากาศ</Text>
+      <Text style={styles.emptyText}>{t('airQuality.noDataAvailable')}</Text>
+      <TouchableOpacity 
+        style={styles.retryButton}
+        onPress={handleRefresh}
+      >
+        <MaterialIcons name="refresh" size={20} color="#2196F3" />
+        <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -194,8 +218,16 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <Text style={styles.title}>
             {t('airQuality.Air_Quality_Index')}
           </Text>
-          <TouchableOpacity onPress={fetchData} style={styles.refreshButton}>
-            <MaterialIcons name="refresh" size={24} color="#2196F3" />
+          <TouchableOpacity 
+            onPress={handleRefresh} 
+            style={styles.refreshButton}
+            disabled={loading}
+          >
+            <MaterialIcons 
+              name="refresh" 
+              size={24} 
+              color={loading ? "#ccc" : "#2196F3"} 
+            />
           </TouchableOpacity>
         </View>
 
@@ -204,6 +236,7 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'indoor' && styles.activeTab]}
             onPress={() => setActiveTab('indoor')}
+            disabled={loading}
           >
             <Text style={[styles.tabText, activeTab === 'indoor' && styles.activeTabText]}>
               {t('airQuality.outdoors')}
@@ -212,6 +245,7 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'outdoor' && styles.activeTab]}
             onPress={() => setActiveTab('outdoor')}
+            disabled={loading}
           >
             <Text style={[styles.tabText, activeTab === 'outdoor' && styles.activeTabText]}>
               {t('airQuality.indoors')}
@@ -229,6 +263,7 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <TouchableOpacity
             style={[styles.rankingTypeButton, rankingType === 'best' && styles.activeRankingType]}
             onPress={() => setRankingType('best')}
+            disabled={loading}
           >
             <Text style={[styles.rankingTypeText, rankingType === 'best' && styles.activeRankingTypeText]}>
               {t('airQuality.best')}
@@ -237,9 +272,10 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <TouchableOpacity
             style={[styles.rankingTypeButton, rankingType === 'worst' && styles.activeRankingType]}
             onPress={() => setRankingType('worst')}
+            disabled={loading}
           >
             <Text style={[styles.rankingTypeText, rankingType === 'worst' && styles.activeRankingTypeText]}>
-              { t('airQuality.worst')}
+              {t('airQuality.worst')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -254,9 +290,10 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <FlatList
             data={getRankingData()}
             renderItem={renderItem}
-            keyExtractor={(item, index) => `${item.id || ''}-${index}`}
+            keyExtractor={(item, index) => `${item.id || ''}-${index}-${refreshKey}`}
             contentContainerStyle={styles.listContainer}
             ListEmptyComponent={renderEmptyComponent}
+            extraData={refreshKey} // ✅ เพิ่ม extraData เพื่อ force re-render
           />
         )}
       </SafeAreaView>
@@ -268,7 +305,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
-    
+    marginTop: Platform.OS === 'android' ? 40 : 40,
   },
   header: {
     flexDirection: 'row',
@@ -290,14 +327,12 @@ const styles = StyleSheet.create({
   },
   refreshButton: {
     padding: 8,
-    
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
-    
   },
   tabButton: {
     flex: 1,
@@ -327,7 +362,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     marginBottom: 8,
-    
   },
   rankingTypeButton: {
     flex: 1,
@@ -349,7 +383,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    
   },
   loadingText: {
     marginTop: 16,
@@ -359,7 +392,6 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 8,
     paddingBottom: 80,
-    
   },
   listItem: {
     flexDirection: 'row',
@@ -374,11 +406,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    
   },
-  // สไตล์เพิ่มเติมสำหรับรายการที่กดได้
   clickableItem: {
-    backgroundColor: '#F5FAFF', // สีพื้นหลังที่แตกต่างเล็กน้อยเพื่อบ่งบอกว่ากดได้
+    backgroundColor: '#F5FAFF',
   },
   rankingCircle: {
     width: 36,
@@ -440,6 +470,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  // ✅ เพิ่ม style สำหรับปุ่ม retry
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 20,
+  },
+  retryButtonText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
   },
 });
 
