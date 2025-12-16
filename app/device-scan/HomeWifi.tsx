@@ -17,7 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { fetchCheckPassword } from '@/api/baseapi';
+import { fetchCheckPassword,fetchAllDevice } from '@/api/baseapi';
 
 export default function HomeProduct() {
   const [products, setProducts] = useState([]);
@@ -45,58 +45,10 @@ export default function HomeProduct() {
   const loadProducts = async () => {
     try {
       setIsLoading(true);
-      // mock data
-      const mockProducts = [
-        {
-          id: '1',
-          name: 'Arkad HM',
-          device_type: 'Arkad_HM',
-          model: 'Model Arkad-HM',
-          description: 'Home Monitor',
-          image: require('@/assets/images/device/Arkad_HM.png'),
-        },
-        {
-          id: '2',
-          name: 'Arkad M&C',
-          device_type: 'Arkad_M&C',
-          model: 'Model Arkad-MC',
-          description: 'Monitor & Control',
-          image: require('@/assets/images/device/Arkad_MC.png'),
-        },
-        {
-          id: '3',
-          name: 'Arkad OS',
-          device_type: 'Arkad_OS',
-          model: 'Model Arkad-OS',
-          description: 'Outdoor Sensor',
-          image: require('@/assets/images/device/Arkad_OS.png'),
-        },
-        {
-          id: '4',
-          name: 'Arkad PBM',
-          device_type: 'Arkad_PBM',
-          model: 'Model Arkad-PBM',
-          description: 'Portable Monitor',
-          image: require('@/assets/images/device/Arkad_PBM.png'),
-        },
-        {
-          id: '5',
-          name: 'Arkad PCM',
-          device_type: 'Arkad_PCM',
-          model: 'Model Arkad-PCM',
-          description: 'Portable Control Monitor',
-          image: require('@/assets/images/device/Arkad_PCM.png'),
-        },
-        {
-          id: '6',
-          name: 'Arkad WM',
-          device_type: 'Arkad_WM',
-          model: 'Model Arkad-WM',
-          description: 'Wall Monitor',
-          image: require('@/assets/images/device/Arkad_WM.png'),
-        },
-      ];
-      setProducts(mockProducts);
+     
+      const response = await fetchAllDevice(); // แก้ไข URL ให้ตรงกับ API ของคุณ
+      console.log(response);
+      setProducts(response.data);
     } catch (error) {
       console.error('Failed to fetch products:', error);
     } finally {
@@ -126,7 +78,7 @@ export default function HomeProduct() {
 
   const handleModalNext = async () => {
     // ตรวจสอบรหัสอุปกรณ์ (6-8 ตัวอักษร/ตัวเลข ไม่สนใจพิมพ์เล็ก-ใหญ่)
-    if (!deviceCode || deviceCode.length < 6 || deviceCode.length > 8) {
+    if (!deviceCode || deviceCode.length < 6 || deviceCode.length > 12) {
       setDeviceCodeError(t('myhome.Deviceisinvalid'));
       return;
     }
@@ -159,6 +111,7 @@ export default function HomeProduct() {
   };
 
   const renderProductItem = ({ item }) => (
+    console.log('https://api.arkaddee.com'+item.image_path),
     <TouchableOpacity
       style={[
         styles.card,
@@ -167,7 +120,7 @@ export default function HomeProduct() {
       onPress={() => handleSelectProduct(item)}
       activeOpacity={0.85}
     >
-      <Image source={item.image} style={styles.productImage} resizeMode="contain" />
+      <Image  source={{ uri: 'https://api.arkaddee.com' + item.image_path }}  style={styles.productImage} resizeMode="contain" />
       <Text style={styles.productName}>{item.name}</Text>
       <Text style={styles.productModel}>{item.model}</Text>
       <Text style={styles.productDesc}>{item.description}</Text>
@@ -278,7 +231,7 @@ export default function HomeProduct() {
                 setDeviceCodeError('');
               }}
               autoCapitalize="none"
-              maxLength={8}
+              maxLength={121}
               textAlign="center"
             />
             {deviceCodeError ? (

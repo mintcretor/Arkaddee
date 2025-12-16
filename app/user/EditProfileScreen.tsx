@@ -600,13 +600,8 @@ const EditProfileScreen = () => {
                                         maximumDate={new Date()}
                                         minimumDate={new Date(1924, 0, 1)}
                                         locale={i18n.language === 'th' ? 'th-TH' : 'en-US'}
-                                        // เพิ่มบรรทัดเหล่านี้
-                                        themeVariant={colorScheme === 'dark' ? 'dark' : 'light'}
-                                        textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
-                                        style={[
-                                            styles.iosDateTimePicker,
-                                            colorScheme === 'dark' && { backgroundColor: '#2C2C2E' }
-                                        ]}
+                                        textColor="#000000"
+                                        style={styles.iosDateTimePicker}
                                     />
                                 </View>
                             </View>

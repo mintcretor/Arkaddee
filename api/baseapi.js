@@ -47,6 +47,23 @@ export const fetchCheckPassword = async (devicetype, password) => {
     throw error;
   }
 };
+
+export const fetchAllDevice = async () => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const response = await api.get('/products', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error checking password:', error);
+    throw error;
+  }
+};
+
+
 export const fetchDevicesetup = async (deviceid,device_type,deviceCode, location) => {
   try {
     const token = await AsyncStorage.getItem('userToken');

@@ -117,6 +117,7 @@ export default function ServiceListingScreen() {
             // เพิ่มพิกัดให้กับข้อมูล
             const placesWithCoordinates = placesData.map((place: any, index: number) => {
                 // แปลงข้อมูลให้ตรงกับ interface Place
+             
                 const normalizedPlace: Place = {
                     id: place.id || index + 1,
                     name: place.name || 'ไม่ทราบชื่อ',

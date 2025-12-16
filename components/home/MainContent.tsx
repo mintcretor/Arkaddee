@@ -170,10 +170,10 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
     { id: 1, icon: 'coffee', label: t('home.coffee'), iconType: 'MaterialCommunity', type: 'cafe' },
     { id: 2, icon: 'silverware-fork-knife', label: t('home.restaurant'), iconType: 'MaterialCommunity', type: 'restaurant' },
     { id: 3, icon: 'book-open-variant', label: t('home.school'), iconType: 'MaterialCommunity', type: 'school' },
-    { id: 5, icon: 'bed', label: t('home.hotel'), iconType: 'Ionicons', type: 'hotel' },
-    { id: 6, icon: 'school', label: t('home.university'), iconType: 'MaterialCommunity', type: 'university' },
-    { id: 7, icon: 'dumbbell', label: t('home.fitness'), iconType: 'MaterialCommunity', type: 'fitness' },
-    { id: 4, icon: 'stethoscope', label: t('home.clinic'), iconType: 'MaterialCommunity', type: 'clinic' },
+    { id: 4, icon: 'bed', label: t('home.hotel'), iconType: 'Ionicons', type: 'hotel' },
+    { id: 5, icon: 'school', label: t('home.university'), iconType: 'MaterialCommunity', type: 'university' },
+    { id: 6, icon: 'dumbbell', label: t('home.fitness'), iconType: 'MaterialCommunity', type: 'fitness' },
+    { id: 7, icon: 'stethoscope', label: t('home.clinic'), iconType: 'MaterialCommunity', type: 'clinic' },
     { id: 8, icon: 'plus', label: t('home.other'), iconType: 'MaterialCommunity', type: 'other' },
   ];
 
