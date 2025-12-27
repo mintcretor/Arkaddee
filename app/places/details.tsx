@@ -8,7 +8,6 @@ import {
     Platform,
     Animated,
     StatusBar,
-    SafeAreaView,
     Dimensions,
     Linking,
     FlatList,
@@ -28,6 +27,8 @@ import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from 'expo-router';
 import ImageItem from '@/components/ImageItem';
+import { SafeAreaView } from 'react-native-safe-area-context'; // เพิ่มบรรทัดนี้
+
 
 // Import the review components
 import { ReviewsSection, WriteReviewModal, StarRating } from '@/components/ReviewComponents';

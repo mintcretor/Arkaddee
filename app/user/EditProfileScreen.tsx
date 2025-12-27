@@ -579,7 +579,7 @@ const EditProfileScreen = () => {
                             animationType="slide"
                             onRequestClose={() => setShowDatePicker(false)}
                         >
-                            <View style={styles.modalOverlay}>
+                            <View style={styles.modalOverlays}>
                                 <View style={styles.iosDatePickerSheet}>
                                     <View style={styles.iosDatePickerHeader}>
                                         <TouchableOpacity onPress={() => setShowDatePicker(false)}>
@@ -602,6 +602,7 @@ const EditProfileScreen = () => {
                                         locale={i18n.language === 'th' ? 'th-TH' : 'en-US'}
                                         textColor="#000000"
                                         style={styles.iosDateTimePicker}
+                                        themeVariant="light" // เพิ่ม theme
                                     />
                                 </View>
                             </View>
@@ -634,47 +635,52 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
 
     },
-    iosDatePickerSheet: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingBottom: 30,
-        paddingTop: 0,
-        paddingHorizontal: 0,
-        width: '100%',
-        alignSelf: 'flex-end',
-    },
-    iosDatePickerHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingTop: 18,
-        paddingBottom: 10,
-    },
-    iosDatePickerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-    },
-    iosDatePickerCancel: {
-        color: '#007aff',
-        fontSize: 16,
-    },
-    iosDatePickerDone: {
-        color: '#007aff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    iosDatePickerDivider: {
-        height: 1,
-        backgroundColor: '#eee',
-        marginBottom: 0,
-    },
-    iosDateTimePicker: {
-        backgroundColor: '#fff',
-        width: '100%',
-    },
+iosDatePickerSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+    width: '100%',
+    maxHeight: '50%',
+},
+
+iosDatePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#F8F8F8',
+},
+iosDatePickerTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#000000',
+},
+ iosDatePickerCancel: {
+    fontSize: 16,
+    color: '#007AFF',
+},
+iosDatePickerDone: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+},
+iosDatePickerDivider: {
+    height: 1,
+    backgroundColor: '#E5E5E5',
+},
+modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+iosDateTimePicker: {
+    height: 200,
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+},
+
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -838,7 +844,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
     },
-    modalOverlay: {
+    modalOverlays: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'flex-end',
