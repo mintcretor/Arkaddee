@@ -581,6 +581,7 @@ const EditProfileScreen = () => {
                         >
                             <View style={styles.modalOverlays}>
                                 <View style={styles.iosDatePickerSheet}>
+                                    {/* Header ส่วนนี้มี Padding ได้ปกติ */}
                                     <View style={styles.iosDatePickerHeader}>
                                         <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                                             <Text style={styles.iosDatePickerCancel}>{t('common.cancel')}</Text>
@@ -590,8 +591,10 @@ const EditProfileScreen = () => {
                                             <Text style={styles.iosDatePickerDone}>{t('common.save')}</Text>
                                         </TouchableOpacity>
                                     </View>
+
                                     <View style={styles.iosDatePickerDivider} />
 
+                                    {/* ตัว Picker วางไว้ตรงนี้ จะกว้างเท่าจอพอดีเพราะใช้ SCREEN_WIDTH */}
                                     <DateTimePicker
                                         value={selectedDate || new Date()}
                                         mode="date"
@@ -602,7 +605,7 @@ const EditProfileScreen = () => {
                                         locale={i18n.language === 'th' ? 'th-TH' : 'en-US'}
                                         textColor="#000000"
                                         style={styles.iosDateTimePicker}
-                                        themeVariant="light" // เพิ่ม theme
+                                        themeVariant="light"
                                     />
                                 </View>
                             </View>
@@ -636,12 +639,11 @@ const styles = StyleSheet.create({
 
     },
     iosDatePickerSheet: {
-    backgroundColor: 'white',
-    width: '100%', 
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 30,
-    alignItems: 'center', // เพิ่มอันนี้เพื่อให้ Picker ที่กว้างเท่าจออยู่ตรงกลางพอดี
+        backgroundColor: 'white',
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        paddingBottom: 30,
     },
 
     iosDatePickerHeader: {
@@ -678,10 +680,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     iosDateTimePicker: {
-height: 260, 
-    width: SCREEN_WIDTH, // เปลี่ยนจาก '100%' เป็นความกว้างหน้าจอโดยตรง
-    backgroundColor: '#FFFFFF',
-    alignSelf: 'center', // บังคับให้อยู่กึ่งกลาง
+        height: 260,
+        width: SCREEN_WIDTH, // บังคับให้กว้างเท่าหน้าจอพอดี
+        backgroundColor: '#FFFFFF',
     },
 
     header: {
