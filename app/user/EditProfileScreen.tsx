@@ -14,6 +14,7 @@ import {
     StatusBar,
     Image,
     Modal,
+    Dimensions
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -24,7 +25,6 @@ import { uploadProfileImage } from '@/api/baseapi';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Import DateTimePicker
-
 // Helper function to parse date strings into local Date objects
 const parseLocalDate = (dateString) => {
     if (!dateString) return new Date(); // Default to current date if no string
@@ -73,7 +73,7 @@ const parseLocalDate = (dateString) => {
     // This will represent the date at 00:00:00 in the local timezone.
     return new Date(year, month, day);
 };
-
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const EditProfileScreen = () => {
     const { user, updateUserProfile } = useAuth();
@@ -636,11 +636,12 @@ const styles = StyleSheet.create({
 
     },
     iosDatePickerSheet: {
-        backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingBottom: Platform.OS === 'ios' ? 34 : 20, // เพิ่ม safe area padding
-        width: '100%',
+    backgroundColor: 'white',
+    width: '100%', 
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 30,
+    alignItems: 'center', // เพิ่มอันนี้เพื่อให้ Picker ที่กว้างเท่าจออยู่ตรงกลางพอดี
     },
 
     iosDatePickerHeader: {
@@ -677,9 +678,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     iosDateTimePicker: {
-        height: 260, // เพิ่มความสูงให้เห็นวันที่เต็ม
-        width: '100%',
-        backgroundColor: '#FFFFFF',
+height: 260, 
+    width: SCREEN_WIDTH, // เปลี่ยนจาก '100%' เป็นความกว้างหน้าจอโดยตรง
+    backgroundColor: '#FFFFFF',
+    alignSelf: 'center', // บังคับให้อยู่กึ่งกลาง
     },
 
     header: {
