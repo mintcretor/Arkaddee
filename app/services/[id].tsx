@@ -55,7 +55,8 @@ export default function ServiceListingScreen() {
     const { t } = useTranslation();
     // สร้าง state สำหรับเก็บข้อมูลร้านค้าและสถานะการโหลด
     const [places, setPlaces] = useState<Place[]>([]);
-    const [allPlaces, setAllPlaces] = useState<Place[]>([]);
+    const [allPlaces, setAllPlaces] = useState<Place[]>([]); // เก็บข้อมูลที่ผ่านการจัดเรียงตาม filter แล้ว
+    const [originalPlaces, setOriginalPlaces] = useState<Place[]>([]); // เก็บข้อมูลดิบจาก API
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null); // เพิ่ม state สำหรับ error
     const [activeFilter, setActiveFilter] = useState(0);
@@ -69,6 +70,32 @@ export default function ServiceListingScreen() {
     });
     const [showMapFullscreen, setShowMapFullscreen] = useState(false);
     const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
+
+    // ฟังก์ชันสำหรับจัดเรียงคะแนน (สูง → ต่ำ, คะแนน 0 อยู่ท้ายสุด)
+    const sortByRating = (placesData: Place[]) => {
+        return [...placesData].sort((a, b) => {
+            const ratingA = Number(a.reviewSummary?.average_rating || 0);
+            const ratingB = Number(b.reviewSummary?.average_rating || 0);
+            
+            // ถ้าทั้งสองเป็น 0 ให้เรียงตามชื่อ
+            if (ratingA === 0 && ratingB === 0) {
+                return 0;
+            }
+            
+            // ถ้า A เป็น 0 ให้ A อยู่หลัง B
+            if (ratingA === 0) {
+                return 1;
+            }
+            
+            // ถ้า B เป็น 0 ให้ B อยู่หลัง A
+            if (ratingB === 0) {
+                return -1;
+            }
+            
+            // เรียงคะแนนสูง → ต่ำ (สำหรับคะแนนที่ไม่ใช่ 0)
+            return ratingB - ratingA;
+        });
+    };
 
     // ฟังก์ชันสำหรับดึงข้อมูลจาก API
     const fetchPlaces = async (filter = 0) => {
@@ -129,7 +156,10 @@ export default function ServiceListingScreen() {
                     images: place.images || [],
                     cuisines: place.cuisines || [],
                     reviewSummary: place.reviewSummary || { average_rating: 0 },
-                    distance_km: place.distance_km || '0',
+                    // แก้ไขการจัดการ distance_km ให้ตรงกับโค้ดที่ทำงาน
+                    distance_km: place.distance_km 
+                        ? parseFloat(place.distance_km).toFixed(1) + ''
+                        : (place.location ? (place.location.district || place.location.address || '0') : '0'),
                     environmentalMetrics: place.environmentalMetrics
                 };
 
@@ -150,11 +180,23 @@ export default function ServiceListingScreen() {
                 };
             });
 
-            setAllPlaces(placesWithCoordinates);
-            setPlaces(placesWithCoordinates);
+            // จัดเรียงตามฟิลเตอร์
+            // สำหรับ filter 0 (ทั้งหมด) และ filter 1 (ใกล้ฉัน) API จะส่งข้อมูลที่เรียงแล้ว
+            // เฉพาะ filter 2 (คะแนนสูงสุด) เท่านั้นที่ต้องเรียงเองในฝั่ง client
+            let sortedPlaces = placesWithCoordinates;
+            if (filter === 2) {
+                // filter 2 = highest_rating - จัดเรียงคะแนนสูง → ต่ำ (0 อยู่ท้าย)
+                sortedPlaces = sortByRating(placesWithCoordinates);
+            }
+            // filter อื่นๆ ใช้ลำดับที่ได้จาก API โดยตรง
 
-            if (placesWithCoordinates.length > 0) {
-                fitMapToMarkers(placesWithCoordinates);
+            // เก็บข้อมูลดิบจาก API (ก่อนการจัดเรียง) เพื่อใช้สำหรับการค้นหา
+            setOriginalPlaces(placesWithCoordinates);
+            setAllPlaces(sortedPlaces);
+            setPlaces(sortedPlaces);
+
+            if (sortedPlaces.length > 0) {
+                fitMapToMarkers(sortedPlaces);
             }
 
         } catch (error: any) {
@@ -230,12 +272,17 @@ export default function ServiceListingScreen() {
         fetchPlaces(filter);
     };
 
-    // ฟังก์ชันสำหรับค้นหาร้านจากชื่อ
+    // ฟังก์ชันสำหรับค้นหาร้านจากชื่อและจัดเรียงคะแนน
     const handleSearch = (text: string) => {
         setSearchText(text);
 
         if (!text.trim()) {
-            setPlaces(allPlaces);
+            // ถ้าฟิลเตอร์คะแนนสูงสุด ให้จัดเรียงคะแนน
+            if (activeFilter === 2) {
+                setPlaces(sortByRating(allPlaces));
+            } else {
+                setPlaces(allPlaces);
+            }
             return;
         }
 
@@ -243,10 +290,13 @@ export default function ServiceListingScreen() {
             place.name.toLowerCase().includes(text.toLowerCase())
         );
 
-        setPlaces(filteredPlaces);
+        // ถ้าฟิลเตอร์คะแนนสูงสุด ให้จัดเรียงคะแนนผลลัพธ์ด้วย
+        const displayPlaces = activeFilter === 2 ? sortByRating(filteredPlaces) : filteredPlaces;
 
-        if (filteredPlaces.length > 0) {
-            fitMapToMarkers(filteredPlaces);
+        setPlaces(displayPlaces);
+
+        if (displayPlaces.length > 0) {
+            fitMapToMarkers(displayPlaces);
         }
     };
 
@@ -559,9 +609,7 @@ export default function ServiceListingScreen() {
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <Ionicons name="location-outline" size={14} color="#666" />
                                             <Text style={styles.distance}>
-                                                {place.distance_km
-                                                    ? t('store.distanceKm', { distance: place.distance_km })
-                                                    : ""}
+                                                {place.distance_km} กม.
                                             </Text>
                                         </View>
                                     </View>
