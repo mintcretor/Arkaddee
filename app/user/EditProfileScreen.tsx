@@ -681,8 +681,10 @@ const styles = StyleSheet.create({
     },
     iosDateTimePicker: {
         height: 260,
-        width: SCREEN_WIDTH, // บังคับให้กว้างเท่าหน้าจอพอดี
-        backgroundColor: '#FFFFFF',
+    width: SCREEN_WIDTH, 
+    minWidth: SCREEN_WIDTH, // ย้ำให้กว้างเท่าจอ
+    backgroundColor: '#FFFFFF',
+    alignSelf: 'stretch', // บังคับให้ขยายเต็มพื้นที่
     },
 
     header: {
