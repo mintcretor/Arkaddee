@@ -635,51 +635,52 @@ const styles = StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
 
     },
-iosDatePickerSheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 20,
-    width: '100%',
-    maxHeight: '50%',
-},
+    iosDatePickerSheet: {
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        paddingBottom: Platform.OS === 'ios' ? 34 : 20, // เพิ่ม safe area padding
+        width: '100%',
+    },
 
-iosDatePickerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#F8F8F8',
-},
-iosDatePickerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#000000',
-},
- iosDatePickerCancel: {
-    fontSize: 16,
-    color: '#007AFF',
-},
-iosDatePickerDone: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-},
-iosDatePickerDivider: {
-    height: 1,
-    backgroundColor: '#E5E5E5',
-},
-modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-},
-iosDateTimePicker: {
-    height: 200,
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-},
+    iosDatePickerHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+    iosDatePickerTitle: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#000000',
+    },
+    iosDatePickerCancel: {
+        fontSize: 16,
+        color: '#007AFF',
+    },
+    iosDatePickerDone: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#007AFF',
+    },
+    iosDatePickerDivider: {
+        height: 1,
+        backgroundColor: '#E5E5E5',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    iosDateTimePicker: {
+        height: 260, // เพิ่มความสูงให้เห็นวันที่เต็ม
+        width: '100%',
+        backgroundColor: '#FFFFFF',
+    },
 
     header: {
         flexDirection: 'row',
