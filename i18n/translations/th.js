@@ -122,6 +122,7 @@ export default {
     notspecified: "ไม่ระบุ",
     birthdate: "วันเกิด",
     choosebirthdate: "เลือกวันเกิดของคุณ",
+    change_profile_photo: "เปลี่ยนรูปโปรไฟล์",
     choosebirth: "เลือกวันเกิด",
     username: "ชื่อผู้ใช้งาน",
     Email: "อีเมล",

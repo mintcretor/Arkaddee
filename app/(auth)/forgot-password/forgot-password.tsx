@@ -65,6 +65,7 @@ const ForgotPasswordScreen: React.FC = () => {
           Alert.alert(t('auth.success'), t('auth.sendcode'));
 
         } catch (error) {
+          console.log(error)
           //console.error('Error sending OTP:', error);
           setCodeError(true);
 
@@ -164,7 +165,7 @@ const ForgotPasswordScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
         {emailError && <Text style={{ color: 'red' }}>{emailErrorMessage}</Text>}
-        {codeError && <Text style={{ color: 'red' }}>{t('auth.codeError')}</Text>}
+        {codeError && <Text style={{ color: 'red' }}>{t('auth.error')}</Text>}
       </View>
 
       <View style={styles.inputContainer}>
