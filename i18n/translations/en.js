@@ -92,6 +92,18 @@ export default {
     cancelSignupMessage: "Are you sure you want to cancel signing up?",
     resendTimer: "Resend in {{time}} seconds",
     accountInfo: "For account: {{username}}",
+    requiredFields: "Please fill in all the required information",
+    registrationCompleted: "Registration Completed",
+    cannotSendVerification: "The verification code could not be sent. Please try again",
+    loginSuccess: "Login Successful",
+    loggedInSuccessfully: "Login Successful",
+    loginError: "Login Error",
+    logoutSuccess: "Logout Successful",
+    logoutError: "Logout Error",
+    enterFullOtp: "Please enter the 6-digit OTP code",
+    choosebirth: "Choose your birthdate",
+    FiltrationSystemTitle: "Filtration System",
+
   },
   profile: {
     updateimgSucess: "Profile picture has been updated successfully.",
@@ -661,6 +673,7 @@ export default {
   },
   Product: {
     measuring: "Air quality measuring device",
+    Positive_pressure: "The clean air supply system operates on the positive pressure chamber principle, drawing air from outside the building or room, passing it through a high-efficiency air filtration system, before introducing it into the room",
     Positive_pressure_env: "Clean air ventilation Positive pressure room principle With air circulation system Helps maintain the temperature inside the room With air mixing system that adjusts the air temperature that is pulled From outside before adding air into the room It circulates the air in the room, which is good for your health and clean air.",
     Purifier_Ventilation: "Positive Air Purifier Ventilation",
     air_circulation: "Energy Recover Series",

@@ -98,6 +98,9 @@ export default {
     requiredFields: "กรุณากรอกข้อมูลให้ครบถ้วน",
     registrationCompleted: "สมัครสมาชิกสำเร็จ",
     cannotSendVerification: "ไม่สามารถส่งรหัสยืนยันได้ กรุณาลองใหม่อีกครั้ง",
+    enterVerificationCode: "โปรดป้อนรหัส OTP 6 หลัก",
+    cantUpdatePassword: "ไม่สามารถอัปเดตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง",
+    enterEmailAndCode: "โปรดป้อนอีเมลและรหัสของคุณ",
   },
   profile: {
     view_saved: "ดูที่บันทึก",
