@@ -248,7 +248,6 @@ export default {
     This_place_has_an_air_purifier: "สถานที่นี้มีเครื่องฟอกอากาศ",
     This_place_does_not_have_a_air_purifier: "สถานที่นี้ไม่มีเครื่องฟอกอากาศ",
     This_place_has_an_air_ventilation: "สถานที่นี้มีเครื่องเติมอากาศ",
-    
     This_place_does_not_have_a_positive_pressure_ventilation_system: "สถานที่นี้ไม่มีเครื่องเติมอากาศบวก",
     check_opening_hours: "ดูเวลาทำการ",
     store_details: "ข้อมูลร้าน",
