@@ -651,6 +651,7 @@ export default {
     "power": "Power",
     "noise_level": "Noise Level",
     "touch_panel_title": "Touch Panel Control",
+    "touch_panel_control": "Touch Panel Control",
     "touch_panel_temp_humidity": "Displays temperature and humidity",
     "touch_panel_auto_on_off": "Can set automatic on/off times",
     "touch_panel_pm25": "Displays PM2.5 levels",

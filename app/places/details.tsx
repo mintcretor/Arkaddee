@@ -147,21 +147,32 @@ const ShopDetails = () => {
                 setLoading(false);
                 return;
             }
-
+            console.log('555', details);
             const { environmentalMetrics, ...baseInfo } = details;
-            setRestaurantBaseInfo(baseInfo);
-            setIsFavorite(baseInfo.is_favorite || false);
-
+            
             if (environmentalMetrics) {
+                console.log(environmentalMetrics)
+                if (environmentalMetrics.pwr == null) {
+                    environmentalMetrics.temperature = null;
+                    environmentalMetrics.humidity = null;
+                    environmentalMetrics.pm25 = '...';
+                    environmentalMetrics.co2 = null;
+                    environmentalMetrics.tvoc = null;
+                    environmentalMetrics.hcho = null;
+
+                }
                 setEnvironmentalData({
                     temperature: environmentalMetrics.temperature || null,
                     humidity: environmentalMetrics.humidity || null,
-                    pm25: environmentalMetrics.pm25 === null ? 'X' : environmentalMetrics.pm25,
+                    pm25: Math.floor(environmentalMetrics.pm25) === null ? 'X' : Math.floor(environmentalMetrics.pm25),
                     co2: environmentalMetrics.co2 || null,
                     tvoc: environmentalMetrics.tvoc || null,
                     hcho: environmentalMetrics.hcho || null
                 });
             }
+            setRestaurantBaseInfo(baseInfo);
+            setIsFavorite(baseInfo.is_favorite || false);
+
             await addToRecentlyViewed(baseInfo);
             setLastUpdateTime(Date.now());
             setLastUpdate(Date.now());
@@ -592,20 +603,22 @@ const ShopDetails = () => {
                         {restaurantsData.environmentalMetrics.pm25 !== undefined && (
                             <View style={[
                                 styles.airQualityBadge,
-                                restaurantsData.environmentalMetrics.pm25 <= 15 ? styles.goodAirQuality :
-                                    restaurantsData.environmentalMetrics.pm25 <= 30 ? styles.moderateAirQuality :
-                                        restaurantsData.environmentalMetrics.pm25 <= 37.5 ? styles.badAirQuality :
-                                            restaurantsData.environmentalMetrics.pm25 <= 75 ? styles.verybadAirQuality :
-                                                styles.dangerAirQuality
-                            ]}>
-                                <Text style={[
-                                    styles.airQualityValue,
+                                restaurantsData.environmentalMetrics.pm25 == '...' ? styles.DisAirQuality :
                                     restaurantsData.environmentalMetrics.pm25 <= 15 ? styles.goodAirQuality :
                                         restaurantsData.environmentalMetrics.pm25 <= 30 ? styles.moderateAirQuality :
                                             restaurantsData.environmentalMetrics.pm25 <= 37.5 ? styles.badAirQuality :
                                                 restaurantsData.environmentalMetrics.pm25 <= 75 ? styles.verybadAirQuality :
                                                     styles.dangerAirQuality
-                                ]}>{Math.floor(restaurantsData.environmentalMetrics.pm25)}</Text>
+                            ]}>
+                                <Text style={[
+                                    styles.airQualityValue,
+                                    restaurantsData.environmentalMetrics.pm25 == '...' ? styles.DisAirQuality :
+                                        restaurantsData.environmentalMetrics.pm25 <= 15 ? styles.goodAirQuality :
+                                            restaurantsData.environmentalMetrics.pm25 <= 30 ? styles.moderateAirQuality :
+                                                restaurantsData.environmentalMetrics.pm25 <= 37.5 ? styles.badAirQuality :
+                                                    restaurantsData.environmentalMetrics.pm25 <= 75 ? styles.verybadAirQuality :
+                                                        styles.dangerAirQuality
+                                ]}>{restaurantsData.environmentalMetrics.pm25}</Text>
                                 <Text style={styles.airQualityUnit}>µg/m³</Text>
                             </View>
                         )}
@@ -754,7 +767,7 @@ const ShopDetails = () => {
                                 <View style={styles.infoItem}>
                                     <Ionicons name="storefront-outline" size={20} color="#666" />
                                     <Text style={styles.cuisinesText}>
-                                        {restaurantsData.cuisines.join(" / ") || 'อาหารไทย, อาหารฟิวชั่น, กาแฟ, เบเกอรี่'}
+                                        {restaurantsData.cuisines.join(" / ") || '-'}
                                     </Text>
                                 </View>
                             </View>
@@ -924,6 +937,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 4,
+    },
+    DisAirQuality: {
+        borderColor: '#d0d0d0',
+        color: '#000'
     },
     goodAirQuality: {
         borderColor: '#00BFF3',

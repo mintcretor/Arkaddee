@@ -610,7 +610,7 @@ export default {
     power: "กำลังไฟ",
     noise_level: "ระดับเสียง",
     touch_panel_title: "Touch Panel Control",
-    touch_panel_control: "จอควบคุม Touch Panel",
+    touch_panel_control: "Touch Panel Control",
     touch_panel_temp_humidity: "แสดงอุณหภูมิและค่าความชื้น",
     touch_panel_auto_on_off: "สามารถตั้งเวลาเปิด / ปิด แบบอัตโนมัติ",
     touch_panel_pm25: "แสดงค่าฝุ่น PM2.5",
