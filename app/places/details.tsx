@@ -118,6 +118,7 @@ const ShopDetails = () => {
         hcho: null
     });
     const { t } = useTranslation();
+    const [sensorPwr, setSensorPwr] = useState<number | null>(null);
 
     const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
     const [activeTab, setActiveTab] = useState('info');
@@ -149,13 +150,13 @@ const ShopDetails = () => {
             }
             console.log('555', details);
             const { environmentalMetrics, ...baseInfo } = details;
-            
+
             if (environmentalMetrics) {
                 console.log(environmentalMetrics)
                 if (environmentalMetrics.pwr == null) {
                     environmentalMetrics.temperature = null;
                     environmentalMetrics.humidity = null;
-                    environmentalMetrics.pm25 = '...';
+                    environmentalMetrics.pm25 = null;
                     environmentalMetrics.co2 = null;
                     environmentalMetrics.tvoc = null;
                     environmentalMetrics.hcho = null;
@@ -164,12 +165,13 @@ const ShopDetails = () => {
                 setEnvironmentalData({
                     temperature: environmentalMetrics.temperature || null,
                     humidity: environmentalMetrics.humidity || null,
-                    pm25: Math.floor(environmentalMetrics.pm25) === null ? 'X' : Math.floor(environmentalMetrics.pm25),
+                    pm25: environmentalMetrics.pm25 === null ? null : Math.floor(environmentalMetrics.pm25),
                     co2: environmentalMetrics.co2 || null,
                     tvoc: environmentalMetrics.tvoc || null,
                     hcho: environmentalMetrics.hcho || null
                 });
             }
+            setSensorPwr(environmentalMetrics.pwr ?? null);
             setRestaurantBaseInfo(baseInfo);
             setIsFavorite(baseInfo.is_favorite || false);
 
@@ -443,8 +445,11 @@ const ShopDetails = () => {
         );
     };
 
-    const EnvironmentalDataDisplay = React.memo(({ data }) => {
+    const EnvironmentalDataDisplay = React.memo(({ data, pwr }) => {
         if (!data) return null;
+        if (pwr == null) return null;
+        if (pwr === 0) return null; // ไม่แสดง overlay เพราะมี badge Off แทนแล้ว
+
 
         return (
             <View style={styles.weatherOverlay}>
@@ -600,29 +605,34 @@ const ShopDetails = () => {
 
                         {renderPagination()}
 
-                        {restaurantsData.environmentalMetrics.pm25 !== undefined && (
+                        {sensorPwr != null && sensorPwr === 0 && (
+                            <View style={[styles.airQualityBadge, styles.offAirQuality]}>
+                                <Text style={[styles.airQualityValue, styles.offAirQuality]}>Off</Text>
+                            </View>
+                        )}
+
+                        {sensorPwr != null && restaurantsData.environmentalMetrics.pm25 !== undefined && restaurantsData.environmentalMetrics.pm25 !== null && sensorPwr !== 0 && (
                             <View style={[
                                 styles.airQualityBadge,
-                                restaurantsData.environmentalMetrics.pm25 == '...' ? styles.DisAirQuality :
+                                restaurantsData.environmentalMetrics.pm25 <= 15 ? styles.goodAirQuality :
+                                    restaurantsData.environmentalMetrics.pm25 <= 30 ? styles.moderateAirQuality :
+                                        restaurantsData.environmentalMetrics.pm25 <= 37.5 ? styles.badAirQuality :
+                                            restaurantsData.environmentalMetrics.pm25 <= 75 ? styles.verybadAirQuality :
+                                                styles.dangerAirQuality
+                            ]}>
+                                <Text style={[
+                                    styles.airQualityValue,
                                     restaurantsData.environmentalMetrics.pm25 <= 15 ? styles.goodAirQuality :
                                         restaurantsData.environmentalMetrics.pm25 <= 30 ? styles.moderateAirQuality :
                                             restaurantsData.environmentalMetrics.pm25 <= 37.5 ? styles.badAirQuality :
                                                 restaurantsData.environmentalMetrics.pm25 <= 75 ? styles.verybadAirQuality :
                                                     styles.dangerAirQuality
-                            ]}>
-                                <Text style={[
-                                    styles.airQualityValue,
-                                    restaurantsData.environmentalMetrics.pm25 == '...' ? styles.DisAirQuality :
-                                        restaurantsData.environmentalMetrics.pm25 <= 15 ? styles.goodAirQuality :
-                                            restaurantsData.environmentalMetrics.pm25 <= 30 ? styles.moderateAirQuality :
-                                                restaurantsData.environmentalMetrics.pm25 <= 37.5 ? styles.badAirQuality :
-                                                    restaurantsData.environmentalMetrics.pm25 <= 75 ? styles.verybadAirQuality :
-                                                        styles.dangerAirQuality
                                 ]}>{restaurantsData.environmentalMetrics.pm25}</Text>
                                 <Text style={styles.airQualityUnit}>µg/m³</Text>
                             </View>
                         )}
-                        <EnvironmentalDataDisplay data={environmentalData} />
+
+                        <EnvironmentalDataDisplay data={environmentalData} pwr={sensorPwr} />
                     </View>
 
                     <View style={styles.detailsContainer}>
@@ -966,6 +976,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         marginBottom: 0,
+    },
+    offAirQuality: {
+        borderColor: '#CD0000',
+        color: '#CD0000',
     },
     airQualityUnit: {
         fontSize: 8,

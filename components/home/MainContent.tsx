@@ -220,14 +220,22 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
     }
 
     let airQuality;
-    if (item.air_quality) {
+    const pwr = item.environmentalMetrics?.pwr ?? null;
+
+    if (pwr === null) {
+      // ไม่มีเซ็นเซอร์ → ไม่แสดงข้อมูลเลย
+      airQuality = undefined;
+    } else if (pwr === 0) {
+      // เซ็นเซอร์ปิด → แสดง off
+      airQuality = 'off';
+    } else if (item.air_quality) {
       airQuality = item.air_quality;
     } else if (item.airQuality) {
       airQuality = item.airQuality;
     } else if (item.environmentalMetrics && item.environmentalMetrics.pm25) {
       airQuality = Math.floor(item.environmentalMetrics.pm25);
     } else {
-      airQuality = '...';
+      airQuality = undefined;
     }
 
     let distance = item.distance_km;
@@ -503,28 +511,30 @@ const MainContent = forwardRef<any, MainContentProps>((props, ref) => {
             style={styles.placeImage}
           />
         )}
-        {item.airQuality !== undefined && (
-          <View style={[
-            styles.airQualityBadge,
-            item.airQuality == '...' ? styles.DisAirQuality :
-              typeof item.airQuality === 'number' && item.airQuality <= 15 ? styles.goodAirQuality :
-                typeof item.airQuality === 'number' && item.airQuality <= 30 ? styles.moderateAirQuality :
-                  typeof item.airQuality === 'number' && item.airQuality <= 37.5 ? styles.badAirQuality :
-                    typeof item.airQuality === 'number' && item.airQuality <= 75 ? styles.verybadAirQuality :
-                      styles.dangerAirQuality
-          ]}>
-            <Text style={[
-              styles.airQualityValue,
-              item.airQuality == '...' ? styles.DisAirQuality :
-                typeof item.airQuality === 'number' && item.airQuality <= 15 ? styles.goodAirQuality :
-                  typeof item.airQuality === 'number' && item.airQuality <= 30 ? styles.moderateAirQuality :
-                    typeof item.airQuality === 'number' && item.airQuality <= 37.5 ? styles.badAirQuality :
-                      typeof item.airQuality === 'number' && item.airQuality <= 75 ? styles.verybadAirQuality :
-                        styles.dangerAirQuality
-            ]}>{item.airQuality}</Text>
-            <Text style={styles.airQualityUnit}>µg/m³</Text>
-          </View>
-        )}
+       {item.airQuality !== undefined && (
+  <View style={[
+    styles.airQualityBadge,
+    item.airQuality === 'off' ? styles.offAirQuality :
+      typeof item.airQuality === 'number' && item.airQuality <= 15 ? styles.goodAirQuality :
+        typeof item.airQuality === 'number' && item.airQuality <= 30 ? styles.moderateAirQuality :
+          typeof item.airQuality === 'number' && item.airQuality <= 37.5 ? styles.badAirQuality :
+            typeof item.airQuality === 'number' && item.airQuality <= 75 ? styles.verybadAirQuality :
+              styles.dangerAirQuality
+  ]}>
+    <Text style={[
+      styles.airQualityValue,
+      item.airQuality === 'off' ? styles.offAirQuality :
+        typeof item.airQuality === 'number' && item.airQuality <= 15 ? styles.goodAirQuality :
+          typeof item.airQuality === 'number' && item.airQuality <= 30 ? styles.moderateAirQuality :
+            typeof item.airQuality === 'number' && item.airQuality <= 37.5 ? styles.badAirQuality :
+              typeof item.airQuality === 'number' && item.airQuality <= 75 ? styles.verybadAirQuality :
+                styles.dangerAirQuality
+    ]}>{item.airQuality === 'off' ? 'Off' : item.airQuality}</Text>
+    {item.airQuality !== 'off' && (
+      <Text style={styles.airQualityUnit}>µg/m³</Text>
+    )}
+  </View>
+)}
       </View>
       <View style={styles.placeInfo}>
         {item.name && (
@@ -965,6 +975,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  offAirQuality: {
+  borderColor: '#CD0000',
+  color: '#CD0000',
+},
   placeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
