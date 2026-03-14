@@ -418,7 +418,6 @@ export const uploadProfileImage = async (imageUri) => {
     // ดึงนามสกุลไฟล์จาก uri
     const token = await AsyncStorage.getItem('userToken');
 
-    console.log("Token for upload:", token ? token.substring(0, 10) + '...' : 'No token');
     const uriParts = imageUri.split('.');
     const fileExtension = uriParts[uriParts.length - 1];
 
@@ -621,7 +620,6 @@ export const updateDeviceStatus = async (devicetype, deviceId, statusData) => {
       ...statusData // แยกค่าจาก statusData แทนที่จะส่งเป็น nested
     };
 
-    console.log('Sending to API:', requestData);
 
     // ส่งคำขอไปยัง API
     const response = await api.post('/device/status', requestData, {

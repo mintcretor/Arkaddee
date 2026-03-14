@@ -60,7 +60,8 @@ class OutdoorDataProvider {
           humidity: parseFloat(point?.humidity || 0) || null,
           pm10: parseFloat(point?.pm10 || 0) || null,
           aqi_us: parseFloat(point?.aqi_us || 0) || null,
-          aqi_th: parseFloat(point?.aqi_th || 0) || null
+          aqi_th: parseFloat(point?.aqi_th || 0) || null,
+          pwr: point?.pwr ,
         }));
       
       return formattedData;

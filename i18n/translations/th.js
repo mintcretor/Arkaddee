@@ -297,6 +297,7 @@ export default {
   },
   airQuality: {
     airQualitys: "อากาศ",
+    "sensorOff": "เซ็นเซอร์ปิดอยู่",
     loadingMap: "กำลังโหลดแผนที่...",
     noData: "ไม่มีข้อมูล",
     noDataAvailable: "ไม่มีข้อมูลที่สามารถแสดงได้",
@@ -331,6 +332,7 @@ export default {
     Air_Quality_Index: "ดัชนีคุณภาพอากาศ",
   },
   common: {
+    retry: "ลองอีกครั้ง",
     Not_specified: "ไม่ระบุ",
     gps_turnon: "กรุณาเปิด GPS เพื่อให้แอปสามารถเข้าถึงตำแหน่งของคุณได้",
     gps_notopen: "GPS ไม่ได้เปิดใช้งาน",

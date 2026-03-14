@@ -301,6 +301,7 @@ export default {
     max_5_images: "You can upload up to 5 images.",
   },
   AirQuality: {
+    "sensorOff": "Sensor Off",
     "AQI_Name": "AQI",
     "AQI_Desc": "Overall Air Quality Index",
     "PM2_5_Name": "PM2.5",
@@ -355,6 +356,7 @@ export default {
     Air_Quality_Index: "Air Quality Index",
   },
   common: {
+    retry: "Retry",
     Not_specified: "Not specified",
     gps_turnon: "Please turn on GPS so the app can access your location.",
     gps_notopen: "GPS is not activated.",

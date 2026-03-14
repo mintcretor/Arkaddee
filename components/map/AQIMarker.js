@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Marker } from 'react-native-maps';
 
-// คอมโพเนนต์วงกลมที่มีตัวเลข AQI
+// คอมโพเนนต์วงกลมที่มีตัวเลข AQI (pwr === 1)
 const MarkerCircle = ({ aqi }) => {
   let backgroundColor;
   if (aqi <= 15) backgroundColor = "#01BFF6";
@@ -21,39 +21,58 @@ const MarkerCircle = ({ aqi }) => {
   );
 };
 
+// คอมโพเนนต์วงกลมสีเทา แสดง "OFF" (pwr === 0)
+const MarkerCircleOff = () => (
+  <View style={[styles.circleMarker, styles.circleOff]}>
+    <Text style={styles.markerText}>OFF</Text>
+  </View>
+);
+
 // คอมโพเนนต์มาร์กเกอร์ (ใช้ React.memo เพื่อลดการเรนเดอร์ซ้ำ)
-const AQIMarker = React.memo(({ point, onPress }) => {
+const AQIMarker = React.memo(({ point, onPress, memberCount = 1 }) => {
   const [forceUpdate, setForceUpdate] = useState(false);
-  
-  // บังคับให้มาร์กเกอร์เรนเดอร์หลังจากแมปพร้อม
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setForceUpdate(true);
     }, 500);
-    
     return () => clearTimeout(timer);
   }, []);
-  
-  // ป้องกันการเด้งในกรณีที่ point มีปัญหา
+
   if (!point || typeof point.latitude !== 'number' || typeof point.longitude !== 'number') {
-    return null; // ไม่แสดงมาร์กเกอร์ที่ข้อมูลมีปัญหา
+    return null;
   }
-  
+
+  if (point.pwr === null || point.pwr === undefined) {
+    return null;
+  }
+
   return (
     <Marker
       coordinate={{
         latitude: point.latitude,
-        longitude: point.longitude
+        longitude: point.longitude,
       }}
       onPress={() => onPress(point)}
-      tracksViewChanges={!forceUpdate} // เปลี่ยนเป็น false หลังจากแมปพร้อม
+      tracksViewChanges={!forceUpdate}
     >
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.markerContainer}
-        hitSlop={{top: 20, bottom: 20, left: 20, right: 20}}
+        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         activeOpacity={0.7}
       >
-        <MarkerCircle aqi={point.aqi} />
+        {point.pwr === 1 ? (
+          <MarkerCircle aqi={point.aqi} />
+        ) : (
+          <MarkerCircleOff />
+        )}
+
+        {/* ✅ badge จำนวนสมาชิกในกลุ่ม */}
+        {memberCount > 1 && (
+          <View style={styles.memberBadge}>
+            <Text style={styles.memberBadgeText}>{memberCount}</Text>
+          </View>
+        )}
       </TouchableOpacity>
     </Marker>
   );
@@ -80,6 +99,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 5,
+  },
+  circleOff: {
+    backgroundColor: '#BDBDBD', // สีเทาสำหรับ OFF
+  },
+
+  memberBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#4A6FA5',
+    borderRadius: 8,
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  memberBadgeText: {
+    color: 'white',
+    fontSize: 8,
+    fontWeight: 'bold',
   },
   markerText: {
     color: 'white',

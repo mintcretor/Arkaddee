@@ -12,6 +12,7 @@ class IndoorDataProvider {
   async fetchData() {
     try {
       const response = await AqiCacheService.getAqiData(this.sourceId);
+     // console.log('Raw indoor AQI data from API:', response);
       return this.formatData(response);
     } catch (error) {
       console.error('Error fetching indoor AQI data:', error);
@@ -56,7 +57,8 @@ class IndoorDataProvider {
           
           return true;
         })
-        .map(point => ({
+        .map(point => (
+          {
           latitude: parseFloat(point?.latitude || 0),
           longitude: parseFloat(point?.longitude || 0),
           aqi: parseFloat(point?.pm25 || 0),
@@ -67,7 +69,8 @@ class IndoorDataProvider {
           humidity: parseFloat(point?.humidity || 0) || null,
           pm10: parseFloat(point?.pm10 || 0) || null,
           aqi_us: parseFloat(point?.aqi_us || 0) || null,
-          aqi_th: parseFloat(point?.aqi_th || 0) || null
+          aqi_th: parseFloat(point?.aqi_th || 0) || null,
+          pwr: point?.pwr ,
         }));
       
       return formattedData;

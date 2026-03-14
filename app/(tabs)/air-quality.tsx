@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -11,6 +11,8 @@ import {
   Alert,
   StatusBar,
   SafeAreaView,
+  Modal,
+  ScrollView,
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from 'react-native-maps';
 import AQIModal from '@/components/AQIModal';
@@ -25,6 +27,8 @@ import MapControls from '@/components/map/MapControls';
 import DataProviderFactory from '@/services/DataProviders/DataProviderFactory';
 import AQIRankingModal from '@/components/AQIRankingModal';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
 
 const AirQualityScreen = () => {
   const mapRef = useRef(null);
@@ -37,6 +41,8 @@ const AirQualityScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { location, loading: locationLoading, error: locationError, refreshLocation } = useLocation();
   const isLoadingRef = useRef(false);
+  const [clusterPlaces, setClusterPlaces] = useState([]);
+  const [isClusterModalVisible, setIsClusterModalVisible] = useState(false);
   const apiSourceRef = useRef('default');
   const regionChangeTimeoutRef = useRef(null);
   const [apiSource, setApiSource] = useState('default');
@@ -235,6 +241,42 @@ const AirQualityScreen = () => {
     }
   }, [region, allAqiPoints, filterMarkersForRegion]);
 
+  const visibleMarkerGroups = useMemo(() => {
+    const groups = [];
+    const visited = new Set();
+
+    visibleAqiPoints.forEach((point) => {
+      if (visited.has(point.id)) return;
+      const lat = Number(point.latitude);
+      const lng = Number(point.longitude);
+      if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+
+      const members = visibleAqiPoints.filter(p => {
+        if (visited.has(p.id)) return false;
+        return (
+          Math.abs(Number(p.latitude) - lat) < 0.001 &&
+          Math.abs(Number(p.longitude) - lng) < 0.001
+        );
+      });
+
+      members.forEach(m => visited.add(m.id));
+
+      // ✅ เรียง pwr:1 ก่อน, pwr:null กลาง, pwr:0 ท้าย
+      const sorted = [...members].sort((a, b) => {
+        const pwrA = a.pwr ?? null;
+        const pwrB = b.pwr ?? null;
+        if (pwrA === 1 && pwrB !== 1) return -1;
+        if (pwrB === 1 && pwrA !== 1) return 1;
+        if (pwrA === 0 && pwrB !== 0) return 1;
+        if (pwrB === 0 && pwrA !== 0) return -1;
+        return 0;
+      });
+
+      groups.push({ representative: sorted[0], members: sorted });
+    });
+
+    return groups;
+  }, [visibleAqiPoints]);
 
   // Detect apiSource changes
   useEffect(() => {
@@ -342,6 +384,8 @@ const AirQualityScreen = () => {
       });
 
       const formattedData = await Promise.race([fetchPromise, timeoutPromise]);
+      //  const filteredData = formattedData.filter(point => point.pwr !== null);
+      //  setAllAqiPoints(filteredData);
 
       if (progressInterval) {
         clearInterval(progressInterval);
@@ -466,15 +510,31 @@ const AirQualityScreen = () => {
     }, 300);
   }, []); // Dependencies removed as setRegion is stable and filterMarkersForRegion is memoized
 
-
   const handleMarkerPress = useCallback((marker) => {
-    if (marker && marker.id) {
-      InteractionManager.runAfterInteractions(() => {
+    if (!marker || !marker.id) return;
+
+    InteractionManager.runAfterInteractions(() => {
+      const group = visibleMarkerGroups.find(g => g.representative.id === marker.id);
+      const members = group?.members || [marker];
+
+      if (members.length > 1) {
+        setClusterPlaces(members);
+        setIsClusterModalVisible(true);
+      } else {
+        // ✅ ถ้า pwr === 0 (OFF) แสดง Alert แทน Modal
+        if (marker.pwr === 0) {
+          Alert.alert(
+            '🔴 เครื่องปิดอยู่',
+            `สถานที่ "${marker.name || marker.dustboy_name || `สถานี ${marker.id}`}" ปิดเครื่องอยู่ในขณะนี้`,
+            [{ text: 'ตกลง', style: 'default' }]
+          );
+          return;
+        }
         setSelectedMarker(marker);
         setIsModalVisible(true);
-      });
-    }
-  }, []);
+      }
+    });
+  }, [visibleMarkerGroups]);
 
   const skipLocationLoading = useCallback(() => {
     if (locationTimeoutRef.current) {
@@ -626,10 +686,11 @@ const AirQualityScreen = () => {
           loadingBackgroundColor="#FFFFFF"
           provider={Platform.OS === 'ios' ? PROVIDER_DEFAULT : PROVIDER_GOOGLE}
         >
-          {visibleAqiPoints.length > 0 && visibleAqiPoints.map((point, index) => (
+          {visibleMarkerGroups.map(({ representative, members }) => (
             <AQIMarker
-              key={point.id || `marker-${index}`}
-              point={point}
+              key={representative.id || `marker-${representative.id}`}
+              point={representative}
+              memberCount={members.length}
               onPress={handleMarkerPress}
             />
           ))}
@@ -663,6 +724,88 @@ const AirQualityScreen = () => {
           onClose={() => setIsRankingModalVisible(false)}
           aqiPoints={allAqiPoints}
         />
+
+
+        {/* Cluster Modal */}
+        <Modal
+          visible={isClusterModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setIsClusterModalVisible(false)}
+        >
+          <TouchableOpacity
+            style={clusterStyles.overlay}
+            activeOpacity={1}
+            onPress={() => setIsClusterModalVisible(false)}
+          >
+            <View style={clusterStyles.modal}>
+              <Text style={clusterStyles.title}>
+                {clusterPlaces.length} สถานที่ในบริเวณนี้
+              </Text>
+              <ScrollView>
+                {clusterPlaces.map((place) => {
+                  const pwr = place.pwr;
+                  const isOff = pwr === 0;
+                  const isNoSensor = pwr === null || pwr === undefined;
+                  const aqi = place.aqi ?? place.pm25;
+
+                  const color = isOff || isNoSensor ? '#d0d0d0' :
+                    !aqi ? '#d0d0d0' :
+                      aqi <= 15 ? '#00BFF3' :
+                        aqi <= 30 ? '#00A651' :
+                          aqi <= 37.5 ? '#FDC04E' :
+                            aqi <= 75 ? '#F26522' : '#CD0000';
+
+                  return (
+                    <TouchableOpacity
+                      key={`cluster-${place.id}`}
+                      style={clusterStyles.item}
+                      onPress={() => {
+                        setIsClusterModalVisible(false);
+                        setTimeout(() => {
+                          // ✅ เช็ค OFF ใน cluster ด้วย
+                          if (place.pwr === 0) {
+                            Alert.alert(
+                              '🔴 เครื่องปิดอยู่',
+                              `สถานที่ "${place.name || place.dustboy_name || `สถานี ${place.id}`}" ปิดเครื่องอยู่ในขณะนี้`,
+                              [{ text: 'ตกลง', style: 'default' }]
+                            );
+                            return;
+                          }
+                          setSelectedMarker(place);
+                          setIsModalVisible(true);
+                        }, 300);
+                      }}
+                    >
+                      {!isNoSensor && (
+                        <View style={[clusterStyles.badge, { borderColor: color }]}>
+                          <Text style={[clusterStyles.badgeText, { color }]}>
+                            {isOff ? 'OFF' : (aqi != null ? Math.floor(aqi) : '...')}
+                          </Text>
+                        </View>
+                      )}
+                      <View style={clusterStyles.info}>
+                        <Text style={clusterStyles.name} numberOfLines={1}>
+
+                          {
+                            console.log('Place info:', {
+                              place
+                            })
+                          }
+                          {place.name || place.dustboy_name || `สถานี ${place.id}`}
+                        </Text>
+                        {place.district && (
+                          <Text style={clusterStyles.sub}>{place.district}</Text>
+                        )}
+                      </View>
+                      <Ionicons name="chevron-forward" size={16} color="#999" />
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       </SafeAreaView>
     </View>
   );
@@ -672,7 +815,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: Platform.OS === 'ios' ? 35 : 34, // ปรับถ้าจำเป็น
-    
+
   },
   safeArea: {
     flex: 1,
@@ -696,5 +839,56 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
+const clusterStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modal: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    maxHeight: '60%',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  badge: {
+    width: 36, height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  info: { flex: 1 },
+  name: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  sub: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+});
 export default React.memo(AirQualityScreen);

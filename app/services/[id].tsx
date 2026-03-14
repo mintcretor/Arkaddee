@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+
 import {
     StyleSheet,
     View,
@@ -6,13 +7,13 @@ import {
     Image,
     TouchableOpacity,
     ScrollView,
-    SafeAreaView,
     ActivityIndicator,
     TextInput,
     Dimensions,
     Alert,
     StatusBar,
     Platform,
+    Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -27,6 +28,8 @@ import { useTranslation } from 'react-i18next';
 interface Place {
     environmentalMetrics?: {
         pm25?: number;
+        pwr?: number | null;  // ✅ เพิ่ม
+
     };
     cuisines?: string[];
     reviewSummary?: {
@@ -43,6 +46,7 @@ interface Place {
     longitude?: number;
     images?: string[];
     distance_km?: string;
+
 }
 
 const { width } = Dimensions.get('window');
@@ -53,6 +57,8 @@ export default function ServiceListingScreen() {
     const { location, address } = useLocation();
     const mapRef = useRef<MapView>(null);
     const { t } = useTranslation();
+    const [clusterPlaces, setClusterPlaces] = useState<Place[]>([]);
+    const [isClusterModalVisible, setIsClusterModalVisible] = useState(false);
     // สร้าง state สำหรับเก็บข้อมูลร้านค้าและสถานะการโหลด
     const [places, setPlaces] = useState<Place[]>([]);
     const [allPlaces, setAllPlaces] = useState<Place[]>([]); // เก็บข้อมูลที่ผ่านการจัดเรียงตาม filter แล้ว
@@ -76,27 +82,79 @@ export default function ServiceListingScreen() {
         return [...placesData].sort((a, b) => {
             const ratingA = Number(a.reviewSummary?.average_rating || 0);
             const ratingB = Number(b.reviewSummary?.average_rating || 0);
-            
+
             // ถ้าทั้งสองเป็น 0 ให้เรียงตามชื่อ
             if (ratingA === 0 && ratingB === 0) {
                 return 0;
             }
-            
+
             // ถ้า A เป็น 0 ให้ A อยู่หลัง B
             if (ratingA === 0) {
                 return 1;
             }
-            
+
             // ถ้า B เป็น 0 ให้ B อยู่หลัง A
             if (ratingB === 0) {
                 return -1;
             }
-            
+
             // เรียงคะแนนสูง → ต่ำ (สำหรับคะแนนที่ไม่ใช่ 0)
             return ratingB - ratingA;
         });
     };
 
+    // ✅ คำนวณ representative marker ของแต่ละกลุ่มพิกัด (stable ไม่เปลี่ยนตาม render)
+    const getPwrStatus = (place: Place) => {
+        const metrics = place.environmentalMetrics;
+        if (!metrics) return 'no_sensor';           // environmentalMetrics เป็น null
+        const pwr = metrics.pwr;
+        if (pwr === null || pwr === undefined) return 'no_sensor';  // pwr เป็น null
+        if (pwr === 0) return 'off';               // pwr = 0 → OFF
+        return 'on';                               // pwr = 1 → ปกติ
+    };
+
+    const markerGroups = useMemo(() => {
+        const groups: { representative: Place; members: Place[]; key: string }[] = [];
+        const visited = new Set<number>();
+
+        places.forEach((place) => {
+            if (visited.has(place.id)) return;
+
+            // ✅ แปลง string → number ก่อนเช็ค
+            const lat = Number(place.latitude);
+            const lng = Number(place.longitude);
+
+            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+
+            const members = places.filter(p => {
+                if (visited.has(p.id)) return false;
+                const pLat = Number(p.latitude);
+                const pLng = Number(p.longitude);
+                if (!pLat || !pLng || isNaN(pLat) || isNaN(pLng)) return false;
+                return (
+                    Math.abs(pLat - lat) < 0.001 &&
+                    Math.abs(pLng - lng) < 0.001
+                );
+            });
+
+            if (members.length === 0) return;
+
+            members.forEach(m => visited.add(m.id));
+
+            const representative =
+                members.find(p => p.environmentalMetrics?.pwr === 1) || members[0];
+
+            groups.push({ key: `group-${place.id}`, representative, members });
+        });
+
+        console.log('markerGroups built:', groups.length, 'from places:', places.length);
+        console.log('groups detail:', groups.map(g => ({
+            name: g.representative?.name,
+            pwr: g.representative?.environmentalMetrics?.pwr,
+            metrics: g.representative?.environmentalMetrics,
+        })));
+        return groups;
+    }, [places]);
     // ฟังก์ชันสำหรับดึงข้อมูลจาก API
     const fetchPlaces = async (filter = 0) => {
         try {
@@ -121,7 +179,6 @@ export default function ServiceListingScreen() {
 
             // ทำการเรียก API
             const response = await fetchRestaurantByTypeId(id, latitude, longitude, filter);
-            console.log('rester', response);
             // ตรวจสอบ response
             if (!response) {
                 throw new Error('ไม่ได้รับข้อมูลจากเซิร์ฟเวอร์');
@@ -142,9 +199,8 @@ export default function ServiceListingScreen() {
             }
 
             // เพิ่มพิกัดให้กับข้อมูล
+            // เพิ่มพิกัดให้กับข้อมูล
             const placesWithCoordinates = placesData.map((place: any, index: number) => {
-                // แปลงข้อมูลให้ตรงกับ interface Place
-             
                 const normalizedPlace: Place = {
                     id: place.id || index + 1,
                     name: place.name || 'ไม่ทราบชื่อ',
@@ -156,34 +212,31 @@ export default function ServiceListingScreen() {
                     images: place.images || [],
                     cuisines: place.cuisines || [],
                     reviewSummary: place.reviewSummary || { average_rating: 0 },
-                    // แก้ไขการจัดการ distance_km ให้ตรงกับโค้ดที่ทำงาน
-                    distance_km: place.distance_km 
+                    distance_km: place.distance_km
                         ? parseFloat(place.distance_km).toFixed(1) + ''
                         : (place.location ? (place.location.district || place.location.address || '0') : '0'),
                     environmentalMetrics: place.environmentalMetrics
                 };
 
-                // ตรวจสอบและกำหนดพิกัด
-                if (!place.latitude || !place.longitude || isNaN(Number(place.latitude)) || isNaN(Number(place.longitude))) {
-                    const randomOffset = () => (Math.random() - 0.5) * 0.01;
-                    return {
-                        ...normalizedPlace,
-                        latitude: latitude + randomOffset(),
-                        longitude: longitude + randomOffset()
-                    };
-                }
+                let lat = Number(place.latitude);
+                let lng = Number(place.longitude);
 
-                return {
-                    ...normalizedPlace,
-                    latitude: Number(place.latitude),
-                    longitude: Number(place.longitude)
-                };
+                // ✅ ถ้าไม่มีพิกัด random offset รอบๆ user location
+                if (!place.latitude || !place.longitude || isNaN(lat) || isNaN(lng)) {
+                    const randomOffset = () => (Math.random() - 0.5) * 0.01;
+                    lat = latitude + randomOffset();
+                    lng = longitude + randomOffset();
+                }
+                // ✅ ลบ duplicate offset ออก — ให้ markerGroups จัดการแทน
+
+                return { ...normalizedPlace, latitude: lat, longitude: lng };
             });
 
             // จัดเรียงตามฟิลเตอร์
             // สำหรับ filter 0 (ทั้งหมด) และ filter 1 (ใกล้ฉัน) API จะส่งข้อมูลที่เรียงแล้ว
             // เฉพาะ filter 2 (คะแนนสูงสุด) เท่านั้นที่ต้องเรียงเองในฝั่ง client
             let sortedPlaces = placesWithCoordinates;
+
             if (filter === 2) {
                 // filter 2 = highest_rating - จัดเรียงคะแนนสูง → ต่ำ (0 อยู่ท้าย)
                 sortedPlaces = sortByRating(placesWithCoordinates);
@@ -196,7 +249,15 @@ export default function ServiceListingScreen() {
             setPlaces(sortedPlaces);
 
             if (sortedPlaces.length > 0) {
-                fitMapToMarkers(sortedPlaces);
+                // ✅ fit เฉพาะ places ที่มี pwr !== null และ metrics ไม่ null
+                const displayablePlaces = sortedPlaces.filter(p => {
+                    const metrics = p.environmentalMetrics;
+                    if (!metrics) return false;
+                    const pwr = metrics.pwr;
+                    if (pwr === null || pwr === undefined) return false;
+                    return true;
+                });
+                fitMapToMarkers(displayablePlaces.length > 0 ? displayablePlaces : sortedPlaces);
             }
 
         } catch (error: any) {
@@ -252,17 +313,26 @@ export default function ServiceListingScreen() {
                 maxLon = Math.max(maxLon, coord.longitude);
             });
 
-            const LATITUDE_DELTA = (maxLat - minLat) * 1.5 || 0.01;
-            const LONGITUDE_DELTA = (maxLon - minLon) * 1.5 || 0.01;
+            const LATITUDE_DELTA = (maxLat - minLat) * 1.5 || 0.05;
+            const LONGITUDE_DELTA = (maxLon - minLon) * 1.5 || 0.05;
 
+            // ✅ set mapRegion โดยตรงด้วย แทนที่จะรอ animate
+            setMapRegion({
+                latitude: (minLat + maxLat) / 2,
+                longitude: (minLon + maxLon) / 2,
+                latitudeDelta: Math.max(0.05, LATITUDE_DELTA),
+                longitudeDelta: Math.max(0.05, LONGITUDE_DELTA)
+            });
+
+            // ✅ animate ด้วยหลัง delay
             setTimeout(() => {
                 mapRef.current?.animateToRegion({
                     latitude: (minLat + maxLat) / 2,
                     longitude: (minLon + maxLon) / 2,
-                    latitudeDelta: Math.max(0.01, LATITUDE_DELTA),
-                    longitudeDelta: Math.max(0.01, LONGITUDE_DELTA)
+                    latitudeDelta: Math.max(0.05, LATITUDE_DELTA),
+                    longitudeDelta: Math.max(0.05, LONGITUDE_DELTA)
                 }, 500);
-            }, 500);
+            }, 1000);
         }
     };
 
@@ -311,12 +381,16 @@ export default function ServiceListingScreen() {
     const handleMarkerPress = (placeId: number) => {
         setSelectedMarker(placeId);
 
-        const selectedPlace = places.find(place => place.id === placeId);
-        if (selectedPlace && selectedPlace.latitude && selectedPlace.longitude &&
-            !isNaN(Number(selectedPlace.latitude)) && !isNaN(Number(selectedPlace.longitude))) {
+        const group = markerGroups.find(g => g.representative.id === placeId);
+        if (!group) return;
+
+        if (group.members.length > 1) {
+            setClusterPlaces(group.members);
+            setIsClusterModalVisible(true);
+        } else {
             mapRef.current?.animateToRegion({
-                latitude: Number(selectedPlace.latitude),
-                longitude: Number(selectedPlace.longitude),
+                latitude: Number(group.representative.latitude),
+                longitude: Number(group.representative.longitude),
                 latitudeDelta: 0.005,
                 longitudeDelta: 0.005
             }, 500);
@@ -327,6 +401,9 @@ export default function ServiceListingScreen() {
     const toggleMapFullscreen = () => {
         setShowMapFullscreen(!showMapFullscreen);
     };
+
+    // ✅ helper function ใช้ร่วมกัน
+
 
     // เรียกใช้ fetchPlaces เมื่อคอมโพเนนต์ถูกโหลด
     useEffect(() => {
@@ -405,51 +482,84 @@ export default function ServiceListingScreen() {
                     showsUserLocation={true}
                     showsMyLocationButton={true}
                 >
-                    {places.map((place) => {
-                        if (place.latitude && place.longitude &&
-                            !isNaN(place.latitude) && !isNaN(place.longitude)) {
-                            return (
-                                <Marker
-                                    key={`marker-${place.id}`}
-                                    identifier={`marker-${place.id}`}
-                                    coordinate={{
-                                        latitude: Number(place.latitude),
-                                        longitude: Number(place.longitude)
-                                    }}
-                                    title={place.name}
-                                    description={`คะแนน: ${parseFloat((place.reviewSummary?.average_rating || 0).toString()).toFixed(2)}, ระยะทาง: ${place.distance_km || '0'} กม.`}
-                                    onPress={() => handleMarkerPress(place.id)}
-                                >
-                                    {(() => {
-                                        const pm25Value = place.environmentalMetrics?.pm25 || place.airQuality || '...';
-                                        return (
-                                            <View style={[
-                                                styles.markerContainer,
-                                                pm25Value === '...' ? styles.DisAirQuality :
-                                                    Number(pm25Value) <= 15 ? styles.goodAirQuality :
-                                                        Number(pm25Value) <= 30 ? styles.moderateAirQuality :
-                                                            Number(pm25Value) <= 37.5 ? styles.badAirQuality :
-                                                                Number(pm25Value) <= 75 ? styles.verybadAirQuality :
-                                                                    styles.dangerAirQuality,
-                                                selectedMarker === place.id && styles.selectedMarker
-                                            ]}>
-                                                <View style={styles.markerInner}>
-                                                    <Text style={pm25Value === '...' ? styles.DisAirQuality :
-                                                        Number(pm25Value) <= 15 ? styles.goodAirQuality :
-                                                            Number(pm25Value) <= 30 ? styles.moderateAirQuality :
-                                                                Number(pm25Value) <= 37.5 ? styles.badAirQuality :
-                                                                    Number(pm25Value) <= 75 ? styles.verybadAirQuality :
-                                                                        styles.dangerAirQuality}>
-                                                        {typeof pm25Value === 'number' ? Math.floor(pm25Value) : pm25Value}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        );
-                                    })()}
-                                </Marker>
-                            );
-                        }
-                        return null;
+                    {markerGroups.map(({ key, representative, members }) => {
+                        //if (!representative.latitude || !representative.longitude) return null;
+
+                        const status = getPwrStatus(representative);
+                        console.log(key, representative.name, '→ status:', status,
+                            'lat:', representative.latitude, 'lng:', representative.longitude);
+
+                        //if (!representative.latitude || !representative.longitude) return null;
+                        //if (status === 'no_sensor') return null;;
+
+                        const pm25Value = representative.environmentalMetrics?.pm25;
+                        const isOff = status === 'off';
+
+                        const airStyle = isOff ? styles.DisAirQuality :
+                            !pm25Value ? styles.DisAirQuality :
+                                pm25Value <= 15 ? styles.goodAirQuality :
+                                    pm25Value <= 30 ? styles.moderateAirQuality :
+                                        pm25Value <= 37.5 ? styles.badAirQuality :
+                                            pm25Value <= 75 ? styles.verybadAirQuality :
+                                                styles.dangerAirQuality;
+
+                        return (
+                            <Marker
+                                key={key}
+                                identifier={key}
+                                coordinate={{
+                                    latitude: Number(representative.latitude),
+                                    longitude: Number(representative.longitude)
+                                }}
+                                title={representative.name}
+                                tracksViewChanges={true}   // ✅ เปลี่ยนจาก false เป็น true
+                                onPress={() => handleMarkerPress(representative.id)}
+                            >
+                                <View style={{
+                                    width: 36,
+                                    height: 36,
+                                    backgroundColor: '#fff',
+                                    borderRadius: 18,
+                                    borderWidth: 2,
+                                    borderColor: isOff ? '#d0d0d0' :
+                                        !pm25Value ? '#d0d0d0' :
+                                            pm25Value <= 15 ? '#00BFF3' :
+                                                pm25Value <= 30 ? '#00A651' :
+                                                    pm25Value <= 37.5 ? '#FDC04E' :
+                                                        pm25Value <= 75 ? '#F26522' : '#CD0000',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <Text style={{
+                                        fontSize: 10,
+                                        fontWeight: 'bold',
+                                        color: isOff ? '#d0d0d0' :
+                                            !pm25Value ? '#d0d0d0' :
+                                                pm25Value <= 15 ? '#00BFF3' :
+                                                    pm25Value <= 30 ? '#00A651' :
+                                                        pm25Value <= 37.5 ? '#FDC04E' :
+                                                            pm25Value <= 75 ? '#F26522' : '#CD0000',
+                                    }}>
+                                        {isOff ? 'OFF' : (pm25Value != null ? Math.floor(pm25Value) : '...')}
+                                    </Text>
+
+                                    <View style={{
+                                        position: 'absolute',
+                                        top: -4, right: -4,
+                                        backgroundColor: '#4A6FA5',
+                                        borderRadius: 8,
+                                        width: 16, height: 16,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        <Text style={{ color: 'white', fontSize: 8, fontWeight: 'bold' }}>
+                                            {members.length}
+                                        </Text>
+                                    </View>
+
+                                </View>
+                            </Marker>
+                        );
                     })}
                 </MapView>
                 <TouchableOpacity style={styles.mapToggleButton} onPress={toggleMapFullscreen}>
@@ -551,37 +661,34 @@ export default function ServiceListingScreen() {
                                             style={styles.placeImage}
                                         />
                                     )}
+                                    {/* ✅ ไม่แสดง badge เลยถ้า pwr === null */}
                                     {(() => {
-                                        console.log(place.environmentalMetrics?.pm25)
-                                        if (place.environmentalMetrics?.pm25 !== undefined) {
-                                            if (place.environmentalMetrics && place.environmentalMetrics.pm25 !== undefined) {
-                                                place.environmentalMetrics.pm25 = Number(place.environmentalMetrics.pm25);
-                                            }
-                                        }
-                                        const pm25Value = place.environmentalMetrics?.pm25 || place.airQuality || '...';
+                                        const status = getPwrStatus(place);
+                                        if (status === 'no_sensor') return null; // ✅ ไม่แสดง badge
+
+                                        const pm25Value = place.environmentalMetrics?.pm25;
+                                        const isOff = status === 'off';
+
+                                        const airStyle = isOff ? styles.DisAirQuality :
+                                            !pm25Value ? styles.DisAirQuality :
+                                                pm25Value <= 15 ? styles.goodAirQuality :
+                                                    pm25Value <= 30 ? styles.moderateAirQuality :
+                                                        pm25Value <= 37.5 ? styles.badAirQuality :
+                                                            pm25Value <= 75 ? styles.verybadAirQuality :
+                                                                styles.dangerAirQuality;
 
                                         return (
-                                            <View
-                                                key={`air-quality-badge-${place.id}`}
-                                                style={[styles.airQualityBadge,
-                                                pm25Value === '...' ? styles.DisAirQuality :
-                                                    Number(pm25Value) <= 15 ? styles.goodAirQuality :
-                                                        Number(pm25Value) <= 30 ? styles.moderateAirQuality :
-                                                            Number(pm25Value) <= 37.5 ? styles.badAirQuality :
-                                                                Number(pm25Value) <= 75 ? styles.verybadAirQuality :
-                                                                    styles.dangerAirQuality]}>
-                                                <Text
-                                                    key={`air-quality-value-${place.id}`}
-                                                    style={[styles.airQualityValue,
-                                                    pm25Value === '...' ? styles.DisAirQuality :
-                                                        Number(pm25Value) <= 15 ? styles.goodAirQuality :
-                                                            Number(pm25Value) <= 30 ? styles.moderateAirQuality :
-                                                                Number(pm25Value) <= 37.5 ? styles.badAirQuality :
-                                                                    Number(pm25Value) <= 75 ? styles.verybadAirQuality :
-                                                                        styles.dangerAirQuality]}>
-                                                    {typeof pm25Value === 'number' ? Math.floor(pm25Value) : pm25Value}
-                                                </Text>
-                                                <Text key={`air-quality-unit-${place.id}`} style={styles.airQualityUnit}>µg/m³</Text>
+                                            <View style={[styles.airQualityBadge, airStyle]}>
+                                                {isOff ? (
+                                                    <Text style={[styles.airQualityValue, styles.DisAirQuality]}>OFF</Text>
+                                                ) : (
+                                                    <>
+                                                        <Text style={[styles.airQualityValue, airStyle]}>
+                                                            {pm25Value != null ? Math.floor(pm25Value) : '...'}
+                                                        </Text>
+                                                        <Text style={styles.airQualityUnit}>µg/m³</Text>
+                                                    </>
+                                                )}
                                             </View>
                                         );
                                     })()}
@@ -619,8 +726,72 @@ export default function ServiceListingScreen() {
                     </View>
                 )}
             </ScrollView>
+            {/* Cluster Modal */}
+            <Modal
+                visible={isClusterModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setIsClusterModalVisible(false)}
+            >
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setIsClusterModalVisible(false)}
+                >
+                    <View style={styles.clusterModal}>
+                        <Text style={styles.clusterTitle}>
+                            {clusterPlaces.length} สถานที่ในบริเวณนี้
+                        </Text>
+                        <ScrollView>
+                            {clusterPlaces.map((place) => {
+                                const status = getPwrStatus(place);
+                                const pm25Value = place.environmentalMetrics?.pm25;
+                                const isOff = status === 'off';
+                                const airStyle = status === 'no_sensor' || isOff ? styles.DisAirQuality :
+                                    !pm25Value ? styles.DisAirQuality :
+                                        pm25Value <= 15 ? styles.goodAirQuality :
+                                            pm25Value <= 30 ? styles.moderateAirQuality :
+                                                pm25Value <= 37.5 ? styles.badAirQuality :
+                                                    pm25Value <= 75 ? styles.verybadAirQuality :
+                                                        styles.dangerAirQuality;
 
+                                return (
+                                    <TouchableOpacity
+                                        key={`cluster-${place.id}`}
+                                        style={styles.clusterItem}
+                                        onPress={() => {
+                                            setIsClusterModalVisible(false);
+                                            onPlacePress(place.id);
+                                        }}
+                                    >
+                                        {/* Badge pm25 */}
+                                        {status !== 'no_sensor' && (
+                                            <View style={[styles.clusterBadge, airStyle]}>
+                                                <Text style={[styles.clusterBadgeText, airStyle]}>
+                                                    {isOff ? 'OFF' : (pm25Value != null ? Math.floor(pm25Value) : '...')}
+                                                </Text>
+                                            </View>
+                                        )}
+                                        {/* ชื่อร้าน */}
+                                        <View style={styles.clusterInfo}>
+                                            <Text style={styles.clusterName} numberOfLines={1}>
+                                                {place.name}
+                                            </Text>
+                                            <Text style={styles.clusterDistance}>
+                                                {place.distance_km} กม.
+                                            </Text>
+                                        </View>
+                                        <Ionicons name="chevron-forward" size={16} color="#999" />
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </View>
+
+
     );
 }
 
@@ -630,7 +801,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF',
         marginTop: Platform.OS === 'ios' ? 35 : 34,
-        
+
 
     },
     header: {
@@ -659,6 +830,59 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginLeft: 8,
         color: '#000'
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'flex-end',
+    },
+    clusterModal: {
+        backgroundColor: 'white',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 16,
+        maxHeight: '60%',
+    },
+    clusterTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    clusterItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    clusterBadge: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        borderWidth: 2,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    clusterBadgeText: {
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    clusterInfo: {
+        flex: 1,
+    },
+    clusterName: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    clusterDistance: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 2,
     },
     searchButton: {
         padding: 8,
@@ -707,6 +931,22 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
+    },
+    markerBadgeCount: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        backgroundColor: '#4A6FA5',
+        borderRadius: 8,
+        width: 16,
+        height: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    markerBadgeCountText: {
+        color: 'white',
+        fontSize: 8,
+        fontWeight: 'bold',
     },
     markerContainer: {
         width: 30,

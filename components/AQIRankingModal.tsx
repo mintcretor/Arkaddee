@@ -34,12 +34,12 @@ const AQIRankingModal = ({ visible, onClose }) => {
       setLoading(true);
       setIndoorData([]);
       setOutdoorData([]);
-      
+
       // Delay เล็กน้อยเพื่อให้ UI reset ก่อน
       const timer = setTimeout(() => {
         fetchData();
       }, 100);
-      
+
       return () => clearTimeout(timer);
     } else {
       // ✅ เพิ่ม: เมื่อปิด modal ให้ reset state
@@ -53,23 +53,24 @@ const AQIRankingModal = ({ visible, onClose }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+
       console.log('🔄 Fetching ranking data...'); // เพิ่ม log เพื่อ debug
-      
+
       // ดึงข้อมูลภายในอาคาร (default provider)
       const indoorProvider = DataProviderFactory.getProvider('default');
       const indoorPoints = await indoorProvider.fetchData();
       console.log('📥 Indoor data:', indoorPoints?.length || 0, 'points');
-      
+
       // ดึงข้อมูลภายนอกอาคาร (secondary provider)
       const outdoorProvider = DataProviderFactory.getProvider('secondary');
       const outdoorPoints = await outdoorProvider.fetchData();
       console.log('📥 Outdoor data:', outdoorPoints?.length || 0, 'points');
-      
+
       // เรียงลำดับข้อมูลตาม AQI
-      setIndoorData(sortData(indoorPoints));
-      setOutdoorData(sortData(outdoorPoints));
-      
+      // fetchData ใน AQIRankingModal
+      setIndoorData(sortData(indoorPoints, true));   // ✅ ส่ง true = indoor
+      setOutdoorData(sortData(outdoorPoints, false)); // ✅ ส่ง false = outdoor
+
       console.log('✅ Data fetched successfully');
     } catch (error) {
       console.error('❌ Error fetching ranking data:', error);
@@ -85,32 +86,46 @@ const AQIRankingModal = ({ visible, onClose }) => {
   };
 
   // ฟังก์ชันเรียงลำดับข้อมูล
-  const sortData = (data) => {
+  const sortData = (data, isIndoor = false) => {
     if (!data || !Array.isArray(data)) return [];
-    
-    // คัดกรองข้อมูลที่มี aqi เป็นค่าว่างหรือไม่ใช่ตัวเลข
-    const filteredData = data.filter(item => 
-      item && typeof item.aqi === 'number' && !isNaN(item.aqi)
-    );
-    
-    // เรียงลำดับจากน้อยไปมาก (อากาศดีไปแย่)
-    return [...filteredData].sort((a, b) => a.aqi - b.aqi);
+
+    const filteredData = data.filter(item => {
+      if (!item) return false;
+      if (typeof item.aqi !== 'number' || isNaN(item.aqi)) return false;
+
+      // ✅ ถ้ามี field pwr → กรอง null/undefined ออกเสมอ ไม่ว่า tab ไหน
+      if ('pwr' in item) {
+        if (item.pwr === null || item.pwr === undefined) return false;
+      }
+
+      return true;
+    });
+
+    // ✅ ใช้ === 1 และ === 0 แบบ strict ไม่ใช่ !== 0
+    const onItems = filteredData.filter(item => !('pwr' in item) || item.pwr === 1);
+    const offItems = filteredData.filter(item => 'pwr' in item && item.pwr === 0);
+
+    const sortedOn = [...onItems].sort((a, b) => a.aqi - b.aqi);
+    const sortedOff = [...offItems].sort((a, b) => a.aqi - b.aqi);
+
+    return [...sortedOn, ...sortedOff];
   };
 
   // ข้อมูลที่จะแสดงบนหน้าจอ
-  const getRankingData = () => {
-    const sourceData = activeTab === 'indoor' ? indoorData : outdoorData;
-    
-    if (!sourceData || sourceData.length === 0) {
-      return [];
-    }
-    
-    if (rankingType === 'best') {
-      return sourceData.slice(0, 10);
-    } else {
-      return [...sourceData].reverse().slice(0, 10);
-    }
-  };
+ const getRankingData = () => {
+  const sourceData = activeTab === 'indoor' ? indoorData : outdoorData;
+  if (!sourceData || sourceData.length === 0) return [];
+
+  // ✅ ใช้ === 1 และ === 0 แบบ strict
+  const onItems  = sourceData.filter(item => !('pwr' in item) || item.pwr === 1);
+  const offItems = sourceData.filter(item => 'pwr' in item && item.pwr === 0);
+
+  if (rankingType === 'best') {
+    return [...onItems.slice(0, 10), ...offItems].slice(0, 10);
+  } else {
+    return [...[...onItems].reverse().slice(0, 10), ...offItems].slice(0, 10);
+  }
+};
 
   // ฟังก์ชันแสดงสีตามค่า AQI
   const getAQIColor = (aqi) => {
@@ -134,7 +149,7 @@ const AQIRankingModal = ({ visible, onClose }) => {
   const handlePlacePress = (item) => {
     if (activeTab === 'outdoor' && item && item.id) {
       onClose();
-      
+
       router.push({
         pathname: `/places/details`,
         params: {
@@ -148,40 +163,50 @@ const AQIRankingModal = ({ visible, onClose }) => {
   const renderItem = ({ item, index }) => {
     const isIndoorItem = activeTab === 'outdoor';
     const ListItemComponent = isIndoorItem ? TouchableOpacity : View;
-    
+    const isOff = item.pwr === 0; // ✅ เช็คว่า off หรือไม่
+
     const additionalProps = isIndoorItem ? {
       onPress: () => handlePlacePress(item),
       activeOpacity: 0.7
     } : {};
-    
+
     return (
       <ListItemComponent
         style={[
           styles.listItem,
-          isIndoorItem && styles.clickableItem
+          isIndoorItem && styles.clickableItem,
+          isOff && styles.offItem,  // ✅ style พิเศษเมื่อ off
         ]}
         {...additionalProps}
       >
-        <View style={[styles.rankingCircle, {backgroundColor: getAQIColor(item.aqi)}]}>
+        <View style={[styles.rankingCircle, { backgroundColor: isOff ? '#BDBDBD' : getAQIColor(item.aqi) }]}>
           <Text style={styles.rankingNumber}>{index + 1}</Text>
         </View>
         <View style={styles.itemContent}>
           <Text style={styles.locationName} numberOfLines={1} ellipsizeMode="tail">
             {item.dustboy_name || t('common.Not_specified')}
           </Text>
-          <Text style={styles.locationDetail} numberOfLines={1}>
-            {getAQILevel(item.aqi)}
+          <Text style={[styles.locationDetail, isOff && styles.offText]}>
+            {isOff ? t('airQuality.sensorOff') : getAQILevel(item.aqi)}
           </Text>
-          
-          {isIndoorItem && (
+
+          {isIndoorItem && !isOff && (
             <Text style={styles.tapToViewText}>
               <MaterialIcons name="info-outline" size={12} color="#4A6FA5" /> {t('common.clickfordetail')}
             </Text>
           )}
         </View>
-        <View style={[styles.aqiBox, {backgroundColor: getAQIColor(item.aqi)}]}>
-          <Text style={styles.aqiValue}>{Math.round(item.aqi)}</Text>
-          <Text style={styles.aqiUnit}>µg/m³</Text>
+
+        {/* ✅ aqiBox: แสดง OFF หรือค่าปกติ */}
+        <View style={[styles.aqiBox, { backgroundColor: isOff ? '#BDBDBD' : getAQIColor(item.aqi) }]}>
+          {isOff ? (
+            <Text style={styles.aqiValue}>OFF</Text>
+          ) : (
+            <>
+              <Text style={styles.aqiValue}>{Math.round(item.aqi)}</Text>
+              <Text style={styles.aqiUnit}>µg/m³</Text>
+            </>
+          )}
         </View>
       </ListItemComponent>
     );
@@ -192,7 +217,7 @@ const AQIRankingModal = ({ visible, onClose }) => {
     <View style={styles.emptyContainer}>
       <MaterialIcons name="info-outline" size={48} color="#ccc" />
       <Text style={styles.emptyText}>{t('airQuality.noDataAvailable')}</Text>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.retryButton}
         onPress={handleRefresh}
       >
@@ -218,15 +243,15 @@ const AQIRankingModal = ({ visible, onClose }) => {
           <Text style={styles.title}>
             {t('airQuality.Air_Quality_Index')}
           </Text>
-          <TouchableOpacity 
-            onPress={handleRefresh} 
+          <TouchableOpacity
+            onPress={handleRefresh}
             style={styles.refreshButton}
             disabled={loading}
           >
-            <MaterialIcons 
-              name="refresh" 
-              size={24} 
-              color={loading ? "#ccc" : "#2196F3"} 
+            <MaterialIcons
+              name="refresh"
+              size={24}
+              color={loading ? "#ccc" : "#2196F3"}
             />
           </TouchableOpacity>
         </View>
@@ -338,6 +363,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
+  },
+  offItem: {
+    backgroundColor: '#F5F5F5',
+    opacity: 0.8,
+  },
+  offText: {
+    color: '#BDBDBD',
+    fontStyle: 'italic',
   },
   activeTab: {
     borderBottomWidth: 2,

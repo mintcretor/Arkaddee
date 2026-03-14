@@ -67,10 +67,10 @@ export const AqiCacheService = {
 
       // ลองดึงข้อมูลจากแคชก่อน
       const cachedData = await AqiCacheService.getCachedAqiData(apiSource);
-      if (cachedData) {
+     /* if (cachedData) {
         console.log(`ใช้ข้อมูล AQI (${apiSource}) จากแคช`);
         return cachedData;
-      }
+      }*/
 
       // ถ้าไม่มีข้อมูลในแคชหรือข้อมูลหมดอายุ ให้ดึงข้อมูลใหม่จาก API
       console.log(`ดึงข้อมูล AQI ใหม่จาก API (${apiSource})`);
