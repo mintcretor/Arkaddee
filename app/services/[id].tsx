@@ -106,6 +106,8 @@ export default function ServiceListingScreen() {
     // ✅ คำนวณ representative marker ของแต่ละกลุ่มพิกัด (stable ไม่เปลี่ยนตาม render)
     const getPwrStatus = (place: Place) => {
         const metrics = place.environmentalMetrics;
+        console.log('getPwrStatus for:', place.name, 'metrics:', metrics);
+        console.log('spw',metrics?.pwr);
         if (!metrics) return 'no_sensor';           // environmentalMetrics เป็น null
         const pwr = metrics.pwr;
         if (pwr === null || pwr === undefined) return 'no_sensor';  // pwr เป็น null
@@ -493,8 +495,10 @@ export default function ServiceListingScreen() {
                         //if (status === 'no_sensor') return null;;
 
                         const pm25Value = representative.environmentalMetrics?.pm25;
-                        const isOff = status === 'off';
+                        
 
+                        const isOff = status === 'off';
+                        
                         const airStyle = isOff ? styles.DisAirQuality :
                             !pm25Value ? styles.DisAirQuality :
                                 pm25Value <= 15 ? styles.goodAirQuality :
@@ -521,7 +525,7 @@ export default function ServiceListingScreen() {
                                     backgroundColor: '#fff',
                                     borderRadius: 18,
                                     borderWidth: 2,
-                                    borderColor: isOff ? '#d0d0d0' :
+                                    borderColor: isOff ? '#fd0000' :
                                         !pm25Value ? '#d0d0d0' :
                                             pm25Value <= 15 ? '#00BFF3' :
                                                 pm25Value <= 30 ? '#00A651' :
@@ -533,7 +537,7 @@ export default function ServiceListingScreen() {
                                     <Text style={{
                                         fontSize: 10,
                                         fontWeight: 'bold',
-                                        color: isOff ? '#d0d0d0' :
+                                        color: isOff ? '#fd0000' :
                                             !pm25Value ? '#d0d0d0' :
                                                 pm25Value <= 15 ? '#00BFF3' :
                                                     pm25Value <= 30 ? '#00A651' :
@@ -1066,8 +1070,8 @@ const styles = StyleSheet.create({
         padding: 4,
     },
     DisAirQuality: {
-        borderColor: '#d0d0d0',
-        color: '#d0d0d0',
+        borderColor: '#CD0000',
+        color: '#CD0000',
     },
     goodAirQuality: {
         borderColor: '#00BFF3',
