@@ -1,4 +1,4 @@
-package com.helloworld
+package com.appmatrixdevelopment.arkad
 
 import android.app.Application
 import android.content.res.Configuration
