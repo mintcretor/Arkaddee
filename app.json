@@ -7,7 +7,6 @@
     "icon": "./assets/images/iconapp/192x192.png",
     "scheme": "com.appmatrixdevelopment.arkad",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "buildNumber": "1.7.4",
       "usesAppleSignIn": true,
@@ -34,7 +33,6 @@
         "foregroundImage": "./assets/images/newicon.png",
         "backgroundColor": "#000000"
       },
-      "jsEngine": "hermes",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDcVcJlwBUb9eGxORjEMsBBumgZGrpD6WE"
@@ -55,6 +53,19 @@
     "plugins": [
       "expo-router",
       "expo-apple-authentication",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "packagingOptions": {
+              "jniLibs": {
+                "useLegacyPackaging": false
+              }
+            },
+            "extractNativeLibs": true
+          }
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -81,7 +92,8 @@
           "isAndroidBackgroundLocationEnabled": false
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-web-browser"
     ],
     "extra": {
       "router": {
