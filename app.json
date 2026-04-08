@@ -62,7 +62,8 @@
                 "useLegacyPackaging": false
               }
             },
-            "extractNativeLibs": true
+            "extractNativeLibs": false,
+            "ndkVersion": "27.0.12077973"
           }
         }
       ],
